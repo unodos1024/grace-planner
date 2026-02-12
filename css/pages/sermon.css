@@ -1,0 +1,238 @@
+/* Sermon Page Styles */
+
+/* 
+  Responsibility: Page-specific layout & specific list styling.
+  Composition: Uses Card and Bottom Sheet components.
+*/
+
+.sermon-page-wrapper {
+    padding: 24px 20px 100px;
+    animation: listFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes listFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Tab Navigation (Page Specific) */
+.report-tabs {
+    display: flex;
+    background: var(--primary-pale);
+    padding: 4px;
+    border-radius: var(--radius-md);
+    margin: 10px 0 24px;
+}
+
+.report-tab-trigger {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.report-tab-trigger.active {
+    background: var(--bg-surface);
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.sermon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 100px;
+}
+
+/* Page Specific Overrides or Unique Elements */
+.sermon-fab {
+    position: fixed;
+    bottom: 110px;
+    /* Above bottom nav */
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    box-shadow: 0 8px 24px rgba(74, 103, 65, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: var(--transition-base);
+}
+
+.sermon-fab:active {
+    transform: scale(0.9);
+}
+
+.sermon-fab svg {
+    width: 28px;
+    height: 28px;
+}
+
+/* Empty State */
+.sermon-empty-state {
+    text-align: center;
+    padding: 60px 32px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-subtle);
+    margin: 20px 0;
+}
+
+.sermon-empty-state svg {
+    color: var(--primary);
+    opacity: 0.3;
+}
+
+.btn-delete-modal {
+    flex: 1;
+    height: 56px;
+    background: var(--primary-pale);
+    color: var(--primary);
+    border: none;
+    border-radius: 18px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-delete-modal:active {
+    opacity: 0.8;
+}
+
+/* Modal Input Refinements */
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-left: 4px;
+}
+
+.journal-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    font-size: 15px;
+    background: #fdfdfd;
+    outline: none;
+    transition: var(--transition-base);
+}
+
+.journal-input:focus {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px var(--primary-pale);
+}
+
+.journal-textarea {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+    background: #fdfdfd;
+    outline: none;
+    resize: none;
+    transition: var(--transition-base);
+}
+
+.journal-textarea:focus {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px var(--primary-pale);
+}
+
+.btn-full-action {
+    width: 100%;
+    height: 56px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 18px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(74, 103, 65, 0.2);
+    transition: var(--transition-base);
+}
+
+.btn-full-action:active {
+    transform: scale(0.97);
+}
+
+/* Modal Styles - Matching Notice Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 9999 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 500px;
+    background: #fff;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 0;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1c1c1e;
+    letter-spacing: -0.5px;
+}

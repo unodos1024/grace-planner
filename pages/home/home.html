@@ -1,0 +1,99 @@
+<div class="home-page-wrapper">
+    <!-- Weekly Discipleship Section -->
+    <div class="section-header">
+        <h2 class="section-title" id="today-date-label">오늘의 제자훈련</h2>
+    </div>
+
+    <!-- Weekly Calendar -->
+    <div class="calendar-strip" id="main-calendar-strip" style="margin-bottom: 10px;">
+        <!-- Injected via home.js -->
+    </div>
+
+
+    <!-- Daily Task Grid -->
+    <section class="task-grid">
+        <div class="task-item" id="card-prayer" onclick="toggleTask('prayer')" aria-label="기도 완료 체크" role="button">
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z">
+                    </path>
+                </svg>
+            </div>
+            <div style="text-align:center;">
+                <div class="task-title">기도</div>
+            </div>
+        </div>
+
+        <div class="task-item" id="card-qt" onclick="toggleTask('qt')" aria-label="성구암송 완료 체크" role="button">
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                    </path>
+                </svg>
+            </div>
+            <div style="text-align:center;">
+                <div class="task-title">성구암송</div>
+            </div>
+        </div>
+
+        <div class="task-item" id="card-bible" onclick="toggleTask('bible')" aria-label="QT 완료 체크" role="button">
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+            </div>
+            <div style="text-align:center;">
+                <div class="task-title">QT</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Verse Selection Section -->
+    <div class="section-header">
+        <h2 class="section-title">성구 암송</h2>
+        <div class="header-actions">
+            <div class="week-selector">
+                <button class="btn-toggle-round" onclick="prevHomeWeek()" aria-label="이전 주 구절 보기">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <div id="home-selected-week" class="selected-week-badge">1</div>
+                <button class="btn-toggle-round" onclick="nextHomeWeek()" aria-label="다음 주 구절 보기">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <button class="btn-toggle-round" id="btn-toggle-grid" onclick="toggleHomeWeekGrid()" aria-label="주간 목록 펼치기">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="home-week-grid" class="mini-week-grid hidden">
+        <!-- Week buttons injected here -->
+    </div>
+
+    <!-- 3D Verse Card -->
+    <div class="verse-card-3d" onclick="window.toggleVerseCard(this)">
+        <div class="verse-card-inner">
+            <div class="verse-front">
+                <h4 id="home-verse-subject">주제 로딩 중...</h4>
+                <p class="verse-content" id="home-verse-text-front">구절을 선택하세요</p>
+                <span class="verse-ref" id="home-verse-ref-front">참조</span>
+            </div>
+            <div class="verse-back">
+                <h4 id="home-verse-subject-back">주제 로딩 중...</h4>
+                <p class="verse-content" id="home-verse-text-back">뒷면 내용</p>
+                <span class="verse-ref" id="home-verse-ref-back">참조</span>
+            </div>
+        </div>
+    </div>
+</div>

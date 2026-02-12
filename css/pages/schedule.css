@@ -1,0 +1,290 @@
+/* Schedule Page - Grace Pathway Roadmap Styles */
+.schedule-page-wrapper {
+    padding: 24px 20px 100px;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: var(--bg-main);
+}
+
+/* 1. Progress Gauge Header */
+.progress-summary-card {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    padding: 24px;
+    border-radius: var(--radius-xl);
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-primary);
+    color: #FFFFFF;
+}
+
+.progress-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 12px;
+}
+
+.progress-info {
+    flex: 1;
+    min-width: 0;
+    /* Allow shrinking for text truncation if needed */
+}
+
+.progress-info .label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.progress-info .status {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.progress-percentage {
+    font-size: 24px;
+    font-weight: 900;
+    opacity: 1;
+    color: #FFFFFF;
+}
+
+.progress-bar-track {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: #FFFFFF;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 2. Journey Map (32-Week Roadmap) */
+.roadmap-section {
+    margin-bottom: 32px;
+    width: 100%;
+}
+
+.section-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-label {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.roadmap-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    /* Bleed to edges for better mobile experience */
+    margin: 0 -20px;
+    padding: 8px 20px 24px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+}
+
+.roadmap-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.journey-step {
+    flex-shrink: 0;
+    width: 104px;
+    height: 136px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: var(--transition-base);
+    cursor: pointer;
+    position: relative;
+    scroll-snap-align: center;
+}
+
+/* Status Styles */
+.journey-step.past {
+    background: var(--primary-pale);
+    border-color: transparent;
+    opacity: 0.8;
+}
+
+.journey-step.active {
+    background: #FFFFFF;
+    border: 2px solid var(--primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+    z-index: 2;
+}
+
+.journey-step.future {
+    background: var(--bg-surface);
+    border: 1px dashed var(--border-subtle);
+    opacity: 0.6;
+}
+
+.journey-step .week-num {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-soft);
+}
+
+.journey-step.active .week-num {
+    color: var(--primary);
+}
+
+.journey-step .step-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+    transition: var(--transition-base);
+}
+
+.journey-step.past .step-circle {
+    background: #FFFFFF;
+    color: var(--primary);
+}
+
+.journey-step.active .step-circle {
+    background: var(--primary);
+    color: #FFFFFF;
+    box-shadow: 0 4px 10px rgba(123, 150, 77, 0.4);
+}
+
+.journey-step .status-text {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-soft);
+}
+
+.journey-step.active .status-text {
+    color: var(--primary);
+}
+
+/* 3. Curriculum Insight Card (Bottom) */
+.insight-card {
+    background: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-subtle);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    animation: fadeInSlide 0.4s ease-out;
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.insight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.insight-badge {
+    background: var(--primary-pale);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.insight-date {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 600;
+}
+
+.insight-subject {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 24px;
+    line-height: 1.3;
+}
+
+.detail-section {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--bg-main);
+    border-radius: 16px;
+}
+
+.detail-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.detail-content {
+    font-size: 14px;
+    color: var(--text-main);
+    line-height: 1.6;
+    font-weight: 500;
+}
+
+.reading-meta {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-soft);
+}
+
+/* Admin Controls Styles */
+#admin-schedule-controls {
+    margin-top: 12px;
+}
+
+.admin-edit-btn {
+    background: transparent;
+    border: 1.5px solid var(--border-subtle);
+    color: var(--text-soft);
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}

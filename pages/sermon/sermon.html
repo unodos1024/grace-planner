@@ -1,0 +1,68 @@
+<div class="sermon-page-wrapper">
+    <!-- Tab Navigation -->
+    <div class="report-tabs">
+        <button class="report-tab-trigger active" id="tab-sunday" onclick="switchSermonTab('sunday')">주일 설교</button>
+        <button class="report-tab-trigger" id="tab-wednesday" onclick="switchSermonTab('wednesday')">수요기도회</button>
+    </div>
+
+    <!-- List View -->
+    <div id="sermon-list-view">
+        <div id="sermon-list-container" class="sermon-list">
+            <!-- Cards will be injected here -->
+            <div class="sermon-empty-state">
+                <div
+                    style="background: var(--primary-light); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="width:32px; height:32px; color: var(--primary); opacity: 0.5;">
+                        <path
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <p style="font-size: 15px; font-weight: 600; color: var(--text-soft);">아직 기록된 내용이 없습니다.<br>오늘 받은 은혜를
+                    기록해보세요.</p>
+            </div>
+        </div>
+
+        <button class="sermon-fab" onclick="openSermonModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- Sermon Modal -->
+<div id="sermon-modal" class="modal-overlay" onclick="closeSermonModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <header class="modal-header">
+            <h2 class="modal-title" id="sermon-modal-title">은혜 기록하기</h2>
+            <button onclick="closeSermonModal()" style="background:none;border:none;padding:4px;cursor:pointer;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+
+        <input type="hidden" id="sermon-input-id">
+
+        <div class="input-group">
+            <label>기록 일자</label>
+            <input type="date" id="sermon-input-date" class="journal-input">
+        </div>
+
+        <div class="input-group">
+            <label>은혜 나눔 및 요약</label>
+            <textarea id="sermon-input-content" class="journal-textarea" style="height: 180px;"
+                placeholder="오늘 주신 보배로운 말씀과 은혜를 기록하세요..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 8px;">
+            <button id="btn-delete-sermon-modal" class="btn-delete-modal hidden"
+                onclick="deleteSermonModalAction()">삭제하기</button>
+            <button id="btn-save-sermon" class="btn-full-action" style="flex: 2; margin-top: 0;"
+                onclick="saveSermonNote()">기록 저장하기</button>
+        </div>
+    </div>
+</div>

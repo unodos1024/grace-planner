@@ -1,0 +1,47 @@
+/* Components: Card System */
+
+.gw-card {
+    background: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-base);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.gw-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.gw-card:active {
+    transform: scale(0.98);
+}
+
+/* Card Header/Labels */
+.gw-card-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.gw-card-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.4;
+}
+
+.gw-card-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-top: 8px;
+}

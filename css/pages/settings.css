@@ -1,0 +1,342 @@
+/* Settings Page - Premium UX Refactoring */
+.settings-page-wrapper {
+    padding: 24px 20px 100px;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: var(--bg-main);
+}
+
+/* 0. Profile Header */
+.settings-profile-card {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    padding: 24px;
+    border-radius: var(--radius-xl);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-primary);
+}
+
+.profile-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profile-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+}
+
+.settings-profile-card .user-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid #FFFFFF;
+    /* High-end stroke */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 800;
+    color: #FFFFFF;
+    backdrop-filter: blur(4px);
+}
+
+.profile-info h3 {
+    color: #FFFFFF;
+    font-size: 20px;
+    font-weight: 800;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.01em;
+}
+
+.profile-info p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.logout-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+}
+
+/* Common Section Card */
+.settings-section-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.section-title-box {
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.section-subtitle {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-soft);
+    display: block;
+    margin-top: 4px;
+}
+
+/* 1. Prayer Week Grid */
+.prayer-week-grid {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.prayer-week-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.prayer-day-column {
+    flex-shrink: 0;
+    width: 62px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.prayer-day-box {
+    width: 100%;
+    aspect-ratio: 0.9;
+    background: var(--bg-main);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition-base);
+}
+
+.prayer-day-box.today {
+    background: var(--primary-pale);
+    border: 1.5px solid var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.prayer-day-box .time {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.prayer-day-box .unit {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-soft);
+}
+
+.prayer-day-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-soft);
+}
+
+.prayer-day-label.today {
+    color: var(--primary);
+}
+
+/* 2. Birthday Calendar */
+.section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.month-nav-controls {
+    display: flex;
+    align-items: center;
+    background: var(--bg-main);
+    padding: 4px;
+    border-radius: 12px;
+}
+
+.month-nav-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+.month-nav-btn:active {
+    background: var(--border-subtle);
+}
+
+.current-month-label {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--primary);
+    padding: 0 12px;
+    min-width: 90px;
+    text-align: center;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 8px;
+}
+
+.calendar-day-name {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-soft);
+    padding: 4px 0;
+}
+
+.calendar-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.calendar-day.empty {
+    cursor: default;
+}
+
+.calendar-day:active:not(.empty) {
+    transform: scale(0.9);
+}
+
+.calendar-day.today {
+    color: var(--primary);
+    font-weight: 800;
+}
+
+.calendar-day.today::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    width: 4px;
+    height: 4px;
+    background: var(--primary);
+    border-radius: 50%;
+}
+
+.calendar-day.has-birthday {
+    background: #FFF5F2;
+    color: var(--accent);
+}
+
+.calendar-day.selected {
+    background: var(--primary);
+    color: #FFFFFF !important;
+    box-shadow: var(--shadow-primary);
+}
+
+.calendar-day.selected::after {
+    background: #FFFFFF;
+}
+
+/* 3. Birthday List Section */
+.birthday-list-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border-subtle);
+}
+
+.birthday-list-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 0 0 16px 0;
+}
+
+.birthday-mini-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.birthday-mini-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg-main);
+    border-radius: 14px;
+    border: 1px solid var(--border-subtle);
+}
+
+.birthday-date-badge {
+    background: var(--primary);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 8px;
+    min-width: 42px;
+    text-align: center;
+}
+
+.birthday-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.birthday-user-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.birthday-user-cohort {
+    font-size: 11px;
+    color: var(--text-soft);
+    font-weight: 500;
+}

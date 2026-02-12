@@ -1,0 +1,102 @@
+/* Main App Shell Layout */
+#app {
+    max-width: 100%;
+    margin: 0 auto;
+    min-height: 100vh;
+    background-color: var(--bg-main);
+    display: flex;
+    flex-direction: column;
+}
+
+.app-screen {
+    flex: 1;
+    padding: 24px 20px 100px;
+    animation: screenFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    min-height: 100vh;
+    opacity: 1;
+}
+
+@keyframes screenFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Typography Hierarchy */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 0 20px;
+}
+
+.app-title {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-main);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+/* Navigation - Premium Floating Bar */
+.nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 84px;
+    z-index: 1000;
+    background: var(--nav-bg);
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 16px 28px;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.03);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-soft);
+    font-size: 11px;
+    font-weight: 700;
+    transition: var(--transition-fast);
+}
+
+.nav-item.active {
+    color: var(--primary);
+}
+
+.nav-item .nav-icon {
+    width: 26px;
+    height: 26px;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nav-item.active .nav-icon {
+    transform: translateY(-2px);
+}

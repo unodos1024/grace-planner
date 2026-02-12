@@ -1,0 +1,285 @@
+/* 
+  Grace Planner Layout System
+  Senior Frontend Architect Refactoring
+  Responsibility: ONLY Structural Skeleton
+*/
+
+:root {
+    --header-height: 64px;
+    --nav-height: 84px;
+    --sidebar-width: 280px;
+}
+
+/* 1. Reset Root Scroll */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    /* Prevent iOS bounce */
+}
+
+/* Prevent scroll when modal is active */
+body.modal-open {
+    overflow: hidden !important;
+}
+
+/* 2. Main Container Shell */
+.shell-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background-color: var(--bg-main);
+}
+
+/* 3. Desktop Sidebar Fix */
+.shell-sidebar {
+    width: var(--sidebar-width);
+    height: 100%;
+    border-right: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+/* 4. Main Activity Area */
+.shell-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    /* Main area itself doesn't scroll */
+}
+
+/* 5. Header (Fixed Height) */
+.mobile-top-bar {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    /* Ensure it stays on top of page content */
+}
+
+/* 6. Content Area (The ONLY Scrollable Element) */
+#shell-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    position: relative;
+    padding: 0;
+    /* iOS Safe Area Padding (Top) */
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* 7. Bottom Navigation (Fixed at Bottom with Safe Area Support) */
+#mobile-nav-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* Standard height + Safe area for iPhone home bar */
+    height: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 100;
+    /* Add padding to lift items above safe area */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+
+/* 8. Desktop / Mobile Visibility Toggle */
+@media (max-width: 1023px) {
+    .shell-sidebar {
+        display: none;
+    }
+}
+
+@media (min-width: 1024px) {
+
+    .mobile-top-bar,
+    #mobile-nav-container {
+        display: none;
+    }
+}
+
+/* 9. Title & Typography */
+.app-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--primary);
+    letter-spacing: -0.03em;
+    margin: 0;
+}
+
+/* 9.1 Header Icons */
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.icon-btn svg {
+    width: 22px;
+    height: 22px;
+    color: var(--text-main);
+    transition: color 0.2s ease;
+}
+
+.icon-btn:hover {
+    background: var(--primary-light);
+}
+
+.icon-btn:hover svg {
+    color: var(--primary);
+}
+
+.icon-btn:active {
+    transform: scale(0.95);
+}
+
+/* 9.2 Notification Badge */
+.icon-btn {
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #FF3B30;
+    color: white;
+    font-size: 9px;
+    font-weight: 800;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-surface);
+    pointer-events: none;
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+.notification-badge.hidden {
+    display: none;
+}
+
+@keyframes badgePulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+
+/* 10. Global Modal Root */
+#modal-root {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Allow underlying clicks when no modal is active */
+    z-index: 2000;
+}
+
+#modal-root>* {
+    pointer-events: auto;
+    /* Re-enable pointer events for actual modals */
+}
+
+/* 11. Toast System */
+#toast-container {
+    position: fixed;
+    bottom: 110px;
+    /* Above bottom nav */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+    width: 100%;
+}
+
+.toast {
+    background: rgba(33, 33, 33, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 28px;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    pointer-events: auto;
+    animation: toastSlideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    opacity: 1;
+    transition: opacity 0.3s, transform 0.3s;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 320px;
+    max-width: 90vw;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.toast.removing {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+}
+
+@keyframes toastSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

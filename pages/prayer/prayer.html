@@ -1,0 +1,81 @@
+<div class="prayer-page-wrapper">
+    <!-- Tab Navigation -->
+    <div class="prayer-tabs">
+        <button class="tab-trigger active" id="tab-timer" onclick="switchPrayerTab('timer')">집중 기도</button>
+        <button class="tab-trigger" id="tab-journal" onclick="switchPrayerTab('journal')">기도 제목</button>
+    </div>
+
+    <!-- Timer View -->
+    <div id="prayer-timer-view">
+        <div class="timer-section">
+            <div class="timer-circular-container">
+                <svg class="timer-svg" viewBox="0 0 100 100">
+                    <circle class="timer-base-track" cx="50" cy="50" r="45"></circle>
+                    <circle id="timer-svg-progress" class="timer-progress-path" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <div class="timer-inner-content">
+                    <div id="prayer-time" class="timer-digits">00:00</div>
+                    <div id="timer-status" class="timer-status-label">준비 완료</div>
+                </div>
+            </div>
+
+            <div class="prayer-controls">
+                <button id="btn-prayer-reset" class="btn-timer-stop">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M2.5 2v6h6M2.5 8a10 10 0 1 1 2.36 5.86" />
+                    </svg>
+                </button>
+
+                <button id="btn-prayer-toggle" class="btn-timer-main">
+                    <span id="btn-toggle-text">시작하기</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Journal View -->
+    <div id="prayer-journal-view" class="hidden">
+        <div id="prayer-journal-list">
+            <!-- Cards will be injected here -->
+            <div class="sermon-empty-state">
+                <p>기록된 기도제목이 없습니다.<br>삶의 고백을 남겨보세요.</p>
+            </div>
+        </div>
+
+        <button class="prayer-fab" onclick="openPrayerModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- Prayer Modal (JS will move this to #modal-root) -->
+<div id="prayer-modal" class="modal-overlay" onclick="closePrayerModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <header class="modal-header">
+            <h2 class="modal-title" id="prayer-modal-title">기도 제목 남기기</h2>
+            <button onclick="closePrayerModal(event)" style="background:none;border:none;padding:4px;cursor:pointer;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+
+        <input type="hidden" id="prayer-input-id">
+        <div class="input-group">
+            <label>오늘의 기도</label>
+            <textarea id="prayer-input-desc" class="journal-textarea" style="height: 160px;"
+                placeholder="하나님께 드리고 싶은 진실한 마음의 고백을 적어보세요..."></textarea>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 8px;">
+            <button id="btn-delete-prayer-modal" class="btn-sub-action hidden"
+                onclick="deletePrayerModalAction()">삭제하기</button>
+            <button id="btn-save-prayer" class="btn-full-action" style="flex: 2;" onclick="savePrayerJournal()">기도 제목
+                저장하기</button>
+        </div>
+    </div>
+</div>

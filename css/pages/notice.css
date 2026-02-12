@@ -1,0 +1,324 @@
+/* Notice Page - Responsive Layout */
+.user-notice-page-wrapper {
+    padding: 24px 20px 100px;
+    animation: listFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Desktop Responsive */
+@media (min-width: 768px) {
+    .user-notice-page-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 32px 100px;
+    }
+
+    .section-header {
+        margin-bottom: 32px !important;
+    }
+
+    #user-notice-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .user-notice-page-wrapper {
+        max-width: 1400px;
+        padding: 48px 40px 100px;
+    }
+
+    #user-notice-list {
+        gap: 24px !important;
+    }
+}
+
+/* Notice List Base Styles */
+#user-notice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.section-subtitle {
+    font-size: 14px;
+    color: var(--text-soft);
+    margin-top: 4px;
+}
+
+.notice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+/* Notice Card */
+.notice-card {
+    background: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    border: 1px solid var(--border-subtle);
+    transition: var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.notice-card.important {
+    border-left: 5px solid var(--primary);
+    background: linear-gradient(to right, var(--primary-pale), var(--bg-surface));
+}
+
+.notice-card:active {
+    transform: scale(0.98);
+    background: var(--primary-light);
+}
+
+.notice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.notice-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge-all {
+    background: var(--secondary-light);
+    color: var(--secondary);
+}
+
+.badge-generation {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.badge-important {
+    background: #FFEDEA;
+    color: #FF7E67;
+}
+
+.notice-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.notice-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.notice-preview {
+    font-size: 14px;
+    color: var(--text-soft);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Empty State */
+.notice-empty-state {
+    text-align: center;
+    padding: 80px 32px;
+    background: var(--bg-surface);
+    border-radius: 24px;
+    border: 1px solid var(--border-subtle);
+}
+
+.icon-circle {
+    width: 64px;
+    height: 64px;
+    background: var(--primary-light);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+
+.icon-circle svg {
+    width: 32px;
+    height: 32px;
+    color: var(--primary);
+    opacity: 0.6;
+}
+
+/* FAB */
+.notice-fab {
+    position: fixed;
+    bottom: 110px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    box-shadow: 0 8px 24px rgba(74, 103, 65, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: var(--transition-base);
+}
+
+.notice-fab svg {
+    width: 28px;
+    height: 28px;
+}
+
+/* Checkbox Style */
+
+/* Modal Styles - Matching Sermon/Prayer */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 9999 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 500px;
+    background: #fff;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    overflow-y: visible;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 0;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1c1c1e;
+    letter-spacing: -0.5px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #8E8E93;
+    /* Start matching User Write Form label color */
+    margin-bottom: 8px;
+}
+
+.journal-input,
+.journal-textarea {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid #E5E5EA;
+    border-radius: 16px;
+    /* Matching User Form */
+    font-size: 16px;
+    /* Larger font for better readability */
+    color: #1C1C1E;
+    background: #FAFAFC;
+    /* Light gray background like User Form might have */
+    transition: all 0.2s ease;
+    outline: none;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.journal-input:focus,
+.journal-textarea:focus {
+    border-color: var(--primary);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 4px rgba(98, 114, 84, 0.1);
+}
+
+.journal-textarea {
+    min-height: 200px;
+    line-height: 1.6;
+    resize: none;
+}
+
+/* Select Specifics */
+select.journal-input {
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9L12 15L18 9' stroke='%238E8E93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+/* Buttons */
+.btn-full-action {
+    width: 100%;
+    padding: 18px;
+    border-radius: 16px;
+    background: var(--primary);
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: transform 0.1s, background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-full-action:active {
+    transform: scale(0.98);
+}
+
+.btn-delete-modal {
+    padding: 18px 24px;
+    border-radius: 16px;
+    background: #FFF1F0;
+    color: #FF4D4F;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+}

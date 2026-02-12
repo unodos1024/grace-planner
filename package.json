@@ -1,0 +1,11 @@
+{
+  "name": "grace-planner",
+  "version": "1.0.0",
+  "description": "Grace Planner Frontend",
+  "scripts": {
+    "start": "npx serve -l 3000"
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}

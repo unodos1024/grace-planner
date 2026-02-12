@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알림 센터</title>
+</head>
+
+<body>
+    <div class="user-notice-page-wrapper" style="padding: 24px 20px 100px;">
+        <div class="section-header" style="margin-bottom: 24px;">
+            <h2 class="section-title">새로운 소식</h2>
+        </div>
+
+        <!-- Admin FAB -->
+        <button id="admin-fab" class="hidden" onclick="openNoticeModal()"
+            style="position: fixed; bottom: 100px; right: 24px; width: 56px; height: 56px; border-radius: 28px; background: #627254; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: none; cursor: pointer; z-index: 1000;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                stroke-linejoin="round" style="width: 24px; height: 24px;">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
+
+        <!-- Notice Detail/Edit Modal -->
+        <div id="notice-modal" class="modal-overlay" onclick="closeNoticeModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <header class="modal-header">
+                    <h2 class="modal-title" id="notice-modal-title">알림 내용</h2>
+                    <button onclick="closeNoticeModal()"
+                        style="background:none;border:none;padding:4px;cursor:pointer;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                    </button>
+                </header>
+
+                <div class="modal-body">
+                    <input type="hidden" id="notice-input-id">
+
+                    <!-- Admin Edit View -->
+                    <div id="admin-edit-form" class="hidden">
+                        <div class="input-group">
+                            <label>대상 선택</label>
+                            <select id="notice-input-cohort" class="journal-input"
+                                style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 10px;">
+                                <option value="all">전체 대상</option>
+                                <!-- Dynamically populated -->
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>제목</label>
+                            <input type="text" id="notice-input-title" class="journal-input" placeholder="제목을 입력하세요">
+                        </div>
+                        <div class="input-group">
+                            <label>내용</label>
+                            <textarea id="notice-input-content" class="journal-textarea"
+                                style="height: 200px; resize: none; padding: 12px; line-height: 1.6;"
+                                placeholder="알림 내용을 입력하세요..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- User Read View -->
+                    <div id="user-read-view">
+                        <div style="margin-bottom: 16px;">
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <span id="notice-detail-badge" class="gw-card-label" style="margin: 0;"></span>
+                                <span id="notice-detail-date" style="font-size: 13px; color: var(--text-soft);"></span>
+                            </div>
+                            <h3 id="notice-detail-title"
+                                style="font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.4;">
+                            </h3>
+                        </div>
+                        <div id="notice-detail-content"
+                            style="font-size: 15px; line-height: 1.6; color: var(--text-main); white-space: pre-wrap; min-height: 200px;">
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div id="modal-actions" style="margin-top: 32px; display: flex; gap: 12px;">
+                        <button id="btn-delete-notice" class="btn-delete-modal hidden"
+                            onclick="deleteNoticeAction()">삭제하기</button>
+                        <button id="btn-save-notice" class="btn-full-action hidden" style="flex: 2; margin-top: 0;"
+                            onclick="saveNoticeAction()">등록하기</button>
+                        <button id="btn-close-notice" class="btn-full-action" onclick="closeNoticeModal()">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="user-notice-list">
+        </div>
+    </div>
+
+    <!-- Notice Detail Modal -->
+    <!-- This modal is now replaced by #notice-modal for both read and edit views -->
+    <!-- Keeping it commented out for reference if needed, but it's effectively removed from use -->
+    <!--
+    <div id="notice-detail-modal" class="modal-overlay" onclick="closeNoticeDetailModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <header class="modal-header">
+                <h2 class="modal-title">알림 내용</h2>
+                <button onclick="closeNoticeDetailModal()"
+                    style="background:none;border:none;padding:4px;cursor:pointer;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </header>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <span id="notice-detail-badge" class="gw-card-label" style="margin: 0;"></span>
+                        <span id="notice-detail-date" style="font-size: 13px; color: var(--text-soft);"></span>
+                    </div>
+                    <h3 id="notice-detail-title"
+                        style="font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.4;"></h3>
+                </div>
+                <div id="notice-detail-content"
+                    style="font-size: 15px; line-height: 1.6; color: var(--text-main); white-space: pre-wrap; min-height: 200px;">
+                </div>
+                <button class="btn-full-action" onclick="closeNoticeDetailModal()" style="margin-top: 32px;">중보하고
+                    닫기</button>
+            </div>
+        </div>
+    </div>
+    -->
+
+
+</body>
+
+</html>

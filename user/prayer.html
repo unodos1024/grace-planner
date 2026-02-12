@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>매일 기도 - Grace Planner</title>
+    <link rel="stylesheet" href="../css/common/core.css">
+    <link rel="stylesheet" href="../css/user/prayer.css">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><path d='M48 0 L48 48 L0 48 L0 25 Z' fill='%237B964D'/><path d='M52 0 L100 25 L100 48 L52 48 Z' fill='%23C6997A'/><path d='M0 52 L48 52 L48 100 L0 75 Z' fill='%238B89C3'/><path d='M52 52 L100 52 L100 75 L52 100 Z' fill='%23637A2C'/></svg>">
+</head>
+
+<body>
+    <!-- Auth Overlay (Login Gatekeeper) -->
+    <!-- Auth handled by index.html redirect -->
+
+    <div id="app">
+        <!-- Prayer Timer Screen -->
+        <div id="screen-prayer" class="app-screen active">
+            <header class="app-header">
+                <div>
+                    <h1 class="app-title">매일 기도</h1>
+                </div>
+                <div class="header-right">
+                    <div class="timer-total-badge" id="total-prayer-display"
+                        style="background: var(--primary-light); color: var(--primary); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;">
+                        누적 0분</div>
+                </div>
+            </header>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" id="tab-timer" onclick="switchPrayerTab('timer')">집중 기도</button>
+                <button class="tab-btn" id="tab-journal" onclick="switchPrayerTab('journal')">기도 저널</button>
+            </div>
+
+            <!-- Timer View -->
+            <div id="prayer-timer-view">
+
+                <div class="timer-main-container">
+                    <div class="timer-circular-container">
+                        <div class="timer-ring"></div>
+                        <div class="timer-inner-content">
+                            <div class="timer-icon-top">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="timer-digits" id="prayer-time">20:00</div>
+                            <div class="timer-status-label" id="timer-status" style="color: var(--primary);">준비 완료</div>
+                        </div>
+                    </div>
+
+                    <div class="timer-goal-text" id="timer-goal-message">30분 목표까지 20분 남음</div>
+                    <div class="timer-progress-bar-container">
+                        <div class="timer-progress-bar-fill" id="timer-progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="timer-footer-controls">
+                    <button class="timer-stop-btn" id="btn-prayer-reset">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                            <path d="M3 3v5h5"></path>
+                        </svg>
+                    </button>
+                    <button class="timer-main-btn" id="btn-prayer-toggle">
+                        <span id="btn-toggle-text">기도 시작하기</span>
+                    </button>
+                </div>
+
+                <p class="timer-info-text">화면이 꺼지지 않습니다</p>
+            </div>
+
+            <!-- Journal View -->
+            <div id="prayer-journal-view" class="hidden">
+                <div class="prayer-journal-container" id="prayer-journal-list">
+                    <!-- Cards will be injected here -->
+                    <div class="empty-state">
+                        <p>기록된 기도제목이 없습니다.<br>삶의 고백을 남겨보세요.</p>
+                    </div>
+                </div>
+
+                <button class="fab-btn" onclick="openPrayerModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prayer Modal -->
+    <div id="prayer-modal" class="modal-overlay" onclick="closePrayerModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="section-header">
+                <h2 class="section-title">기도 제목 남기기</h2>
+            </div>
+            <div class="input-group">
+                <label>오늘의 기도</label>
+                <textarea id="prayer-input-desc" class="journal-textarea" style="height: 160px;"
+                    placeholder="하나님께 드리고 싶은 진실한 마음의 고백을 적어보세요..."></textarea>
+            </div>
+            <button class="btn-full-action" onclick="savePrayerJournal()">기도 제목 저장하기</button>
+        </div>
+    </div>
+
+
+
+    <div id="confetti-container"></div>
+    <script src="../js/common/core.js"></script>
+    <script src="../js/user/prayer.js"></script>
+</body>
+
+</html>

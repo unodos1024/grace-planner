@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grace Planner</title>
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="css/common/theme.css" as="style">
+    <link rel="preload" href="css/common/reset.css" as="style">
+    <link rel="preload" href="css/common/layout.css" as="style">
+    <link rel="preload" href="js/common/constants.js" as="script">
+    <link rel="preload" href="js/common/utils.js" as="script">
+
+    <link rel="stylesheet" href="css/common/reset.css">
+    <link rel="stylesheet" href="css/common/theme.css">
+    <link rel="stylesheet" href="css/common/layout.css">
+    <style>
+        .splash-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-main);
+        }
+
+        .splash-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 24px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="splash-container">
+        <div class="splash-logo">
+            <svg viewBox="0 0 100 100">
+                <path d="M48 0 L48 48 L0 48 L0 25 Z" fill="#7B964D" />
+                <path d="M52 0 L100 25 L100 48 L52 48 Z" fill="#C6997A" />
+                <path d="M0 52 L48 52 L48 100 L0 75 Z" fill="#8B89C3" />
+                <path d="M52 52 L100 52 L100 75 L52 100 Z" fill="#637A2C" />
+            </svg>
+        </div>
+        <p style="color: var(--text-muted); font-size: 14px; letter-spacing: 0.05em;">말씀과 기도의 동행</p>
+    </div>
+
+    <script src="js/common/constants.js"></script>
+    <script src="js/common/utils.js"></script>
+    <script src="js/common/api.js"></script>
+    <script src="js/common/navigation.js"></script>
+    <script src="js/common/auth.js"></script>
+    <script src="js/common/core.js"></script>
+</body>
+
+</html>
