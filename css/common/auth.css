@@ -11,6 +11,8 @@
         left: 0;
         right: 0;
         bottom: 0;
+        height: 100%;
+        height: 100dvh;
         background: var(--bg-main);
         /* Light airy background like the images */
         display: none;
@@ -18,6 +20,7 @@
         justify-content: center;
         z-index: 999999;
         padding: 20px;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
     }
 
     .login-overlay.active {
@@ -28,12 +31,18 @@
         width: 100%;
         max-width: 420px;
         height: 100%;
-        /* Force full height */
+        height: -webkit-fill-available;
         background: transparent;
         text-align: center;
         display: flex;
         flex-direction: column;
         position: relative;
+    }
+
+    @supports (height: 100dvh) {
+        .login-container {
+            height: 100dvh;
+        }
     }
 
     .auth-step {

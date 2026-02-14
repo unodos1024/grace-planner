@@ -1112,7 +1112,137 @@
         document.getElementById('upload-placeholder').classList.remove('hidden');
     };
 
+    // --- Discipleship Training Schedule Logic (Dashboard) ---
+    window.switchScheduleMode = (mode) => {
+        const isTraining = mode === 'training';
+        document.getElementById('subview-general').classList.toggle('active', !isTraining);
+        document.getElementById('subview-training').classList.toggle('active', isTraining);
+        document.getElementById('subview-general').style.background = isTraining ? 'transparent' : 'white';
+        document.getElementById('subview-general').style.boxShadow = isTraining ? 'none' : '0 2px 4px rgba(0,0,0,0.05)';
+        document.getElementById('subview-training').style.background = isTraining ? 'white' : 'transparent';
+        document.getElementById('subview-training').style.boxShadow = isTraining ? '0 2px 4px rgba(0,0,0,0.05)' : 'none';
+
+        document.getElementById('panel-general-schedule').classList.toggle('hidden', isTraining);
+        document.getElementById('panel-training-schedule').classList.toggle('hidden', !isTraining);
+
+        if (isTraining) {
+            loadDashTrainingData();
+        }
+    };
+
+    const TRAINING_SCHEDULE_DEFAULT = [
+        { week: 1, date: "2/8", subject: "오리엔테이션", book: "" },
+        { week: 2, date: "3/1", subject: "나의 신앙고백과 간증", book: "길(옥한흠, 국제제자훈련원)" },
+        { week: 3, date: "3/8", subject: "하나님과 매일 만나는 생활", book: "" },
+        { week: 4, date: "3/15", subject: "살았고 운동력 있는 말씀 / 귀납적 성경 연구", book: "만화 성령론(백금산, 부흥과개혁사)" },
+        { week: 5, date: "3/22", subject: "무엇이 바른 기도인가 / 기도의 응답", book: "" },
+        { week: 6, date: "4/5", subject: "하나님은 누구신가", book: "탕부 하나님(팀켈러, 두란노서원)" },
+        { week: 7, date: "4/12", subject: "예수 그리스도는 누구신가", book: "" },
+        { week: 8, date: "4/19", subject: "삼위일체 하나님", book: "" },
+        { week: 9, date: "4/26", subject: "인간의 타락과 그 결과", book: "기독교의 기본진리(존 스토트, 생명의말씀사)" },
+        { week: 10, date: "5/10", subject: "예수 그리스도의 죽음", book: "" },
+        { week: 11, date: "5/17", subject: "예수 그리스도의 부활", book: "" },
+        { week: 12, date: "5/31", subject: "약속대로 오신 성령", book: "성령 세례와 충만(존 스토트, IVP)" },
+        { week: 13, date: "6/7", subject: "거듭난 사람", book: "" },
+        { week: 14, date: "6/14", subject: "믿음이란 무엇인가", book: "만화 구원론(백금산, 부흥과개혁사)" },
+        { week: 15, date: "6/21", subject: "의롭다 함을 받은 은혜", book: "" },
+        { week: 16, date: "6/28", subject: "우리 안에 계시는 성령", book: "" },
+        { week: 17, date: "7/5", subject: "그리스도인의 성화", book: "예수님처럼(맥스 루카도, 복있는 사람)" },
+        { week: 18, date: "7/12", subject: "예수 그리스도의 재림", book: "" },
+        { week: "-", date: "여름방학", subject: "해외선교 및 국내선교 / 1학기 마무리 MT", book: "하나님을 아는 지식(J.I. 패커, IVP)" },
+        { week: 19, date: "9/6", subject: "순종의 생활", book: "순종(앤드류 머레이. CLC)" },
+        { week: 20, date: "9/13", subject: "가을특별새벽부흥회", book: "" },
+        { week: 21, date: "9/20", subject: "봉사의 의무", book: "" },
+        { week: 22, date: "10/4", subject: "그리스도를 증거하는 생활", book: "" },
+        { week: 23, date: "10/11", subject: "말의 덕을 세우는 사람", book: "내면세계의 질서와 영적성장(고든맥도날드, IVP)" },
+        { week: 24, date: "10/18", subject: "가을 영성수련회", book: "" },
+        { week: 25, date: "10/25", subject: "영적 성장과 성숙", book: "결혼을 말하다(팀 켈러, 두란노서원)" },
+        { week: 26, date: "11/1", subject: "순결한 생활 / 그리스도인의 가정 생활", book: "" },
+        { week: 27, date: "11/8", subject: "신앙 인격의 연단", book: "고통에는 뜻이 있다(옥한흠, 국제제자훈련원)" },
+        { week: 28, date: "11/15", subject: "그리스도의 주재권", book: "" },
+        { week: 29, date: "11/22", subject: "청지기 직", book: "내 마음 그리스도의 집(로버트멍어, IVP소책자)" },
+        { week: 30, date: "11/29", subject: "영적 전투", book: "" },
+        { week: 31, date: "12/6", subject: "새 계명: 사랑하라", book: "사랑한다면 예수님처럼(필 라이큰, 생명의말씀사)" },
+        { week: 32, date: "12/13", subject: "수료 예배", book: "" }
+    ];
+
+    const loadDashTrainingData = () => {
+        const stored = window.Utils.getStorageItem('gw_full_schedule', TRAINING_SCHEDULE_DEFAULT);
+        renderDashTrainingPreview(stored);
+    };
+
+    const handleDashAdminPaste = (e) => {
+        e.preventDefault();
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const pastedData = clipboardData.getData('Text');
+        if (!pastedData) return;
+
+        const rows = pastedData.split(/\r\n|\n|\r/);
+        const parsedData = rows.map((row, index) => {
+            const columns = row.split('\t');
+            if (columns.length < 2) return null;
+            return {
+                week: parseInt(columns[0]) || (index + 1),
+                date: columns[1] ? columns[1].trim() : '',
+                subject: columns[2] ? columns[2].trim() : '',
+                book: (columns[3] || '').trim()
+            };
+        }).filter(item => item !== null);
+
+        if (parsedData.length > 0) renderDashTrainingPreview(parsedData);
+    };
+
+    const renderDashTrainingPreview = (data) => {
+        const container = document.getElementById('dash-admin-preview-container');
+        const body = document.getElementById('dash-admin-preview-body');
+        if (!container || !body) return;
+
+        container.classList.remove('hidden');
+        body.innerHTML = data.map((item) => `
+            <tr>
+                <td style="padding:8px;"><input type="text" class="edit-week" value="${item.week}" style="width:100%; border:1px solid #eee; padding:4px;"></td>
+                <td style="padding:8px;"><input type="text" class="edit-date" value="${item.date}" style="width:100%; border:1px solid #eee; padding:4px;"></td>
+                <td style="padding:8px;"><input type="text" class="edit-subject" value="${item.subject}" style="width:100%; border:1px solid #eee; padding:4px;"></td>
+                <td style="padding:8px;"><input type="text" class="edit-book" value="${item.book}" style="width:100%; border:1px solid #eee; padding:4px;"></td>
+            </tr>
+        `).join('');
+    };
+
+    window.saveDashTrainingSchedule = () => {
+        const newStartDate = document.getElementById('dash-admin-start-date').value;
+        const cohort = document.getElementById('dash-admin-cohort-select').value;
+        const rows = document.querySelectorAll('#dash-admin-preview-body tr');
+
+        const newSchedule = Array.from(rows).map(row => {
+            const inputs = row.querySelectorAll('input');
+            const weekVal = inputs[0].value.trim();
+            return {
+                week: isNaN(weekVal) || weekVal === '' ? weekVal : parseInt(weekVal),
+                date: inputs[1].value.trim(),
+                subject: inputs[2].value.trim(),
+                book: inputs[3].value.trim()
+            };
+        }).filter(item => item.week !== '');
+
+        if (newSchedule.length === 0) {
+            window.Utils.showToast('등록할 데이터가 없습니다.');
+            return;
+        }
+
+        try {
+            window.Utils.setStorageItem('gw_full_schedule', newSchedule);
+            window.Utils.setStorageItem('gw_cohort_schedule', { startDate: newStartDate, cohort: cohort });
+            window.Utils.showToast(`${cohort} 훈련 일정이 성공적으로 업데이트 되었습니다.`);
+            setTimeout(() => location.reload(), 1000);
+        } catch (e) {
+            window.Utils.showToast('저장 중 오류가 발생했습니다.');
+        }
+    };
+
     // --- Page Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('dash-admin-paste-zone')?.addEventListener('paste', handleDashAdminPaste);
+    });
     initModal();
     initAdminPage();
     if (window.Navigation && window.Navigation.updateNavUI) window.Navigation.updateNavUI();

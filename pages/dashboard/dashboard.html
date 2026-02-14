@@ -43,93 +43,164 @@
     <div id="admin-view-schedule" class="admin-view hidden">
         <div class="section-header">
             <h3 class="section-title">일정 관리 시스템</h3>
-            <div class="view-switcher">
-                <button class="switcher-btn active" id="view-mode-calendar" onclick="switchScheduleView('calendar')">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                        stroke-width="2.5">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                        <line x1="16" y1="2" x2="16" y2="6" />
-                        <line x1="8" y1="2" x2="8" y2="6" />
-                        <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                    <span>캘린더</span>
-                </button>
-                <button class="switcher-btn" id="view-mode-list" onclick="switchScheduleView('list')">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                        stroke-width="2.5">
-                        <line x1="8" y1="6" x2="21" y2="6" />
-                        <line x1="8" y1="12" x2="21" y2="12" />
-                        <line x1="8" y1="18" x2="21" y2="18" />
-                        <line x1="3" y1="6" x2="3.01" y2="6" />
-                        <line x1="3" y1="12" x2="3.01" y2="12" />
-                        <line x1="3" y1="18" x2="3.01" y2="18" />
-                    </svg>
-                    <span>목록</span>
-                </button>
+            <div class="view-switcher"
+                style="background: var(--bg-surface); padding: 4px; border-radius: 12px; display: flex; gap: 4px;">
+                <button class="switcher-btn active" id="subview-general" onclick="switchScheduleMode('general')"
+                    style="border:none; background:white; font-weight:700; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">일반
+                    일정</button>
+                <button class="switcher-btn" id="subview-training" onclick="switchScheduleMode('training')"
+                    style="border:none; background:transparent; font-weight:600;">훈련 일정</button>
             </div>
         </div>
 
-        <!-- Filter & Search Bar -->
-        <div class="schedule-filter-bar">
-            <div class="search-box">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
-                    style="opacity: 0.4;">
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="M21 21l-4.35-4.35" />
-                </svg>
-                <input type="text" id="schedule-search" placeholder="일정, 담당자 검색..." oninput="filterSchedules()">
-            </div>
-            <select id="schedule-category-filter" class="filter-select" onchange="filterSchedules()">
-                <option value="all">모든 구분</option>
-                <option value="WORSHIP">예배</option>
-                <option value="PRAYER">수요기도회</option>
-                <option value="MISSION">선교</option>
-                <option value="EVENT">행사</option>
-                <option value="MEETING">모임</option>
-            </select>
-        </div>
-
-        <!-- Main Display Areas -->
-        <div id="schedule-calendar-wrapper" class="schedule-container">
-            <div class="calendar-header">
-                <div class="calendar-nav">
-                    <button class="cal-nav-btn" onclick="moveCalendarMonth(-1)">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-                            stroke-width="3">
-                            <path d="M15 18l-6-6 6-6" />
+        <!-- 1. General Church Schedule (Calendar/List) -->
+        <div id="panel-general-schedule">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+                <div class="view-switcher">
+                    <button class="switcher-btn active" id="view-mode-calendar"
+                        onclick="switchScheduleView('calendar')">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
                         </svg>
+                        <span>캘린더</span>
                     </button>
-                    <h4 id="calendar-month-year">2026.02</h4>
-                    <button class="cal-nav-btn" onclick="moveCalendarMonth(1)">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-                            stroke-width="3">
-                            <path d="M9 18l6-6-6-6" />
+                    <button class="switcher-btn" id="view-mode-list" onclick="switchScheduleView('list')">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <line x1="8" y1="6" x2="21" y2="6" />
+                            <line x1="8" y1="12" x2="21" y2="12" />
+                            <line x1="8" y1="18" x2="21" y2="18" />
+                            <line x1="3" y1="6" x2="3.01" y2="6" />
+                            <line x1="3" y1="12" x2="3.01" y2="12" />
+                            <line x1="3" y1="18" x2="3.01" y2="18" />
                         </svg>
+                        <span>목록</span>
                     </button>
                 </div>
-                <button class="gw-btn-secondary" style="padding: 8px 12px; font-size: 12px;"
-                    onclick="goToToday()">Today</button>
             </div>
-            <div id="calendar-grid" class="calendar-grid-layout">
-                <!-- Days will be injected here -->
+
+            <!-- Filter & Search Bar -->
+            <div class="schedule-filter-bar">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
+                        style="opacity: 0.4;">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="M21 21l-4.35-4.35" />
+                    </svg>
+                    <input type="text" id="schedule-search" placeholder="일정, 담당자 검색..." oninput="filterSchedules()">
+                </div>
+                <select id="schedule-category-filter" class="filter-select" onchange="filterSchedules()">
+                    <option value="all">모든 구분</option>
+                    <option value="WORSHIP">예배</option>
+                    <option value="PRAYER">수요기도회</option>
+                    <option value="MISSION">선교</option>
+                    <option value="EVENT">행사</option>
+                    <option value="MEETING">모임</option>
+                </select>
+            </div>
+
+            <!-- Main Display Areas -->
+            <div id="schedule-calendar-wrapper" class="schedule-container">
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button class="cal-nav-btn" onclick="moveCalendarMonth(-1)">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="3">
+                                <path d="M15 18l-6-6 6-6" />
+                            </svg>
+                        </button>
+                        <h4 id="calendar-month-year">2026.02</h4>
+                        <button class="cal-nav-btn" onclick="moveCalendarMonth(1)">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="3">
+                                <path d="M9 18l6-6-6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <button class="gw-btn-secondary" style="padding: 8px 12px; font-size: 12px;"
+                        onclick="goToToday()">Today</button>
+                </div>
+                <div id="calendar-grid" class="calendar-grid-layout">
+                    <!-- Days will be injected here -->
+                </div>
+            </div>
+
+            <div id="schedule-list-wrapper" class="schedule-container hidden">
+                <div id="admin-schedule-list" class="advanced-list">
+                    <!-- List items injected here -->
+                </div>
+            </div>
+
+            <!-- FAB for New Schedule -->
+            <button class="floating-add-btn" id="btn-add-general" onclick="window.openScheduleForm()" title="새 일정 추가">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span class="fab-label">새 일정</span>
+            </button>
+        </div> <!-- End of panel-general-schedule -->
+
+        <!-- 2. Discipleship Training Schedule (Smart Importer) -->
+        <div id="panel-training-schedule" class="hidden">
+            <div class="gw-card" style="padding: 20px; margin-bottom: 20px;">
+                <h4
+                    style="font-size: 16px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <span style="background: var(--primary); width: 8px; height: 16px; border-radius: 4px;"></span>
+                    32주 훈련 일정 마스터 관리
+                </h4>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div class="gw-input-group" style="margin:0;">
+                        <label class="gw-label">훈련 기수</label>
+                        <select id="dash-admin-cohort-select" class="journal-input">
+                            <option>제자반 26기</option>
+                            <option>제자반 25기</option>
+                        </select>
+                    </div>
+                    <div class="gw-input-group" style="margin:0;">
+                        <label class="gw-label">개강 주일 날짜 (패턴 기준)</label>
+                        <input type="date" id="dash-admin-start-date" class="journal-input" value="2026-02-08">
+                    </div>
+                </div>
+
+                <div class="gw-input-group">
+                    <label class="gw-label">🚀 엑셀/테이블 데이터 붙여넣기 (스마트 인포터)</label>
+                    <textarea id="dash-admin-paste-zone" class="admin-paste-area"
+                        placeholder="엑셀에서 1주차~32주차 데이터를 복사해서 여기에 붙여넣으세요 (Ctrl+V)"></textarea>
+                    <p style="font-size: 11px; color: var(--text-soft); margin-top: 6px;">* 팁: 주차, 일시, 공과주제, 필독서 순서의 탭
+                        구분 데이터를 자동으로 인식합니다.</p>
+                </div>
+
+                <div id="dash-admin-preview-container" class="hidden">
+                    <div class="admin-table-scroll"
+                        style="margin-top: 16px; border: 1px solid var(--border-subtle); border-radius: 12px;">
+                        <table class="admin-edit-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">주차</th>
+                                    <th style="width: 80px;">날짜</th>
+                                    <th>공과 주제</th>
+                                    <th>필독서 / 과제</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-admin-preview-body">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="btn-full-action" style="margin-top: 24px; height: 56px; font-size: 16px;"
+                        onclick="saveDashTrainingSchedule()">
+                        위 계힉으로 32주 훈련 일정 한꺼번에 게시하기
+                    </button>
+                </div>
             </div>
         </div>
-
-        <div id="schedule-list-wrapper" class="schedule-container hidden">
-            <div id="admin-schedule-list" class="advanced-list">
-                <!-- List items injected here -->
-            </div>
-        </div>
-
-        <!-- FAB for New Schedule -->
-        <button class="floating-add-btn" onclick="window.openScheduleForm()" title="새 일정 추가">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
-                stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span class="fab-label">새 일정</span>
-        </button>
     </div>
 
     <!-- 📊 Statistics Dashboard View -->
@@ -143,7 +214,8 @@
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
                 <div class="gw-card"
                     style="padding: 20px; text-align: center; background: linear-gradient(135deg, #E8F5E9 0%, #FFFFFF 100%);">
-                    <div style="font-size: 13px; color: #2E7D32; font-weight: 700; margin-bottom: 8px;">이번 주 참여율</div>
+                    <div style="font-size: 13px; color: #2E7D32; font-weight: 700; margin-bottom: 8px;">이번 주 참여율
+                    </div>
                     <div id="sermon-kpi-rate" style="font-size: 28px; font-weight: 800; color: #1B5E20;">0%</div>
                 </div>
                 <div class="gw-card"
@@ -158,7 +230,8 @@
                 style="padding: 24px; background: white; border: 1px solid var(--border-subtle);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <div>
-                        <h4 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin: 0;">주차별 참여 인원 추이
+                        <h4 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin: 0;">주차별 참여 인원
+                            추이
                         </h4>
                         <p style="font-size: 12px; color: var(--text-soft); margin-top: 4px;">지난 6주간의 데이터 분석</p>
                     </div>
@@ -173,13 +246,15 @@
             <div id="admin-sermon-type-dist" class="gw-card"
                 style="padding: 20px; display: flex; align-items: center; justify-content: space-around; background: #FAFAFC;">
                 <div style="text-align: center;">
-                    <div style="font-size: 12px; color: var(--text-soft); font-weight: 600; margin-bottom: 4px;">주일설교
+                    <div style="font-size: 12px; color: var(--text-soft); font-weight: 600; margin-bottom: 4px;">
+                        주일설교
                     </div>
                     <div id="stats-type-sunday" style="font-size: 18px; font-weight: 700; color: #1976D2;">0</div>
                 </div>
                 <div style="width: 1px; height: 30px; background: var(--border-subtle);"></div>
                 <div style="text-align: center;">
-                    <div style="font-size: 12px; color: var(--text-soft); font-weight: 600; margin-bottom: 4px;">수요소식
+                    <div style="font-size: 12px; color: var(--text-soft); font-weight: 600; margin-bottom: 4px;">
+                        수요소식
                     </div>
                     <div id="stats-type-wed" style="font-size: 18px; font-weight: 700; color: #7B1FA2;">0</div>
                 </div>

@@ -17,12 +17,28 @@
     <div class="roadmap-section">
         <div class="section-label-row">
             <h3 class="section-label">전체 여정 (32주)</h3>
-            <div id="admin-schedule-controls" class="hidden">
-                <button class="admin-edit-btn" onclick="openScheduleAdmin()">일정 편집</button>
+            <div class="header-actions">
+                <button class="text-action-btn" id="toggle-list-view">리스트로 보기</button>
+                <div id="admin-schedule-controls" class="hidden">
+                    <button class="admin-edit-btn" onclick="openScheduleAdmin()">일정 편집</button>
+                </div>
             </div>
         </div>
         <div class="roadmap-grid" id="roadmap-grid">
             <!-- JavaScript로 1~32주차 칩 생성 -->
+        </div>
+
+        <!-- Full Schedule List View (Hidden by default) -->
+        <div id="full-schedule-list" class="full-schedule-container hidden">
+            <div class="schedule-list-header">
+                <div>주차</div>
+                <div>일시</div>
+                <div>공과 주제</div>
+                <div>필독서</div>
+            </div>
+            <div id="schedule-items-container">
+                <!-- JS handles rendering here -->
+            </div>
         </div>
     </div>
 
@@ -34,46 +50,87 @@
         </div>
         <h3 class="insight-subject" id="card-subject">나의 신앙고백과 간증</h3>
 
-        <!-- Verse Section -->
+        <!-- Goal Section -->
         <div class="detail-section">
-            <div class="detail-label">📖 암송 말씀 주제</div>
-            <div class="detail-content" id="card-verse-desc">로딩 중...</div>
+            <div class="detail-label">🎯 이번 주 훈련 목표</div>
+            <div class="detail-content" id="card-goals">
+                기본적인 신앙 인격을 형성하고 제자로서의 삶을 준비합니다.
+            </div>
         </div>
 
         <!-- Reading Section -->
         <div id="reading-insight-box" class="detail-section">
             <div class="detail-label">📚 필독 도서</div>
             <div class="detail-content">
-                <div id="card-book-title" style="font-weight: 700;">추천 도서 정보</div>
+                <div id="card-book-title" style="font-weight: 700; color: var(--text-main);">추천 도서 정보</div>
                 <div id="card-book-meta" class="reading-meta">범위 정보</div>
-            </div>
-        </div>
-
-        <!-- Goal Section -->
-        <div class="detail-section">
-            <div class="detail-label">🎯 훈련 목표</div>
-            <div class="detail-content" id="card-goals">
-                기본적인 신앙 인격을 형성하고 제자로서의 삶을 준비합니다.
             </div>
         </div>
     </div>
 
-    <!-- Admin Modal (Legacy Support) -->
+    <!-- Admin Modal (Smart Table Importer) -->
     <div id="schedule-admin-modal" class="gw-modal hidden">
-        <div class="gw-modal-content" style="max-width: 400px;">
+        <div class="gw-modal-content" style="max-width: 700px;"> <!-- Wider for table -->
             <div class="gw-modal-header">
-                <h3>훈련 일정 설정</h3>
+                <h3>훈련 일정 마스터 관리</h3>
                 <button class="close-btn" onclick="Utils.closeModal('schedule-admin-modal')">×</button>
             </div>
-            <div class="gw-modal-body" style="padding: 20px;">
-                <label style="display:block; margin-bottom:8px; font-weight:700;">훈련 시작일 (1주차 월요일)</label>
-                <input type="date" id="admin-start-date" class="gw-input" style="margin-bottom:20px;">
-                <label style="display:block; margin-bottom:8px; font-weight:700;">기수 선택</label>
-                <select id="admin-cohort-select" class="gw-input" style="margin-bottom:20px;">
-                    <option value="19">19기</option>
-                    <option value="20">20기</option>
-                </select>
-                <button class="gw-btn-primary" style="width:100%;" onclick="saveScheduleSettings()">설정 저장</button>
+            <div class="gw-modal-body" style="padding: 24px;">
+                <div class="admin-top-controls" style="display: flex; gap: 12px; margin-bottom: 24px;">
+                    <div style="flex: 1;">
+                        <label style="display:block; margin-bottom:6px; font-size:12px; font-weight:700;">기수 명칭</label>
+                        <select id="admin-cohort-select" class="gw-input">
+                            <option value="제자반 26기">제자반 26기</option>
+                            <option value="제자반 25기">제자반 25기</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display:block; margin-bottom:6px; font-size:12px; font-weight:700;">개강 주일</label>
+                        <input type="date" id="admin-start-date" class="gw-input">
+                    </div>
+                </div>
+
+                <div class="paste-section" style="margin-bottom: 24px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:800; color:var(--primary);">
+                        🚀 엑셀/테이블 데이터 붙여넣기
+                    </label>
+                    <p style="font-size:12px; color:var(--text-soft); margin-bottom:10px;">
+                        엑셀에서 '주차/날짜/공과/필독서' 영역을 드래그 복사한 뒤 아래 칸에 Ctrl+V 하세요.
+                    </p>
+                    <textarea id="admin-paste-zone" class="admin-paste-area"
+                        placeholder="이곳을 클릭하고 데이터를 붙여넣으세요..."></textarea>
+                </div>
+
+                <div id="admin-preview-container" class="hidden">
+                    <label style="display:block; margin-bottom:10px; font-weight:700;">데이터 파싱 결과 (미리보기)</label>
+                    <div class="admin-table-scroll">
+                        <table class="admin-edit-table">
+                            <thead>
+                                <tr>
+                                    <th width="50">주차</th>
+                                    <th width="70">날짜</th>
+                                    <th>공과 주제</th>
+                                    <th>필독서 / 비고</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-preview-body">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <textarea id="admin-schedule-json" class="hidden"></textarea>
+
+                <div style="margin-top:24px;">
+                    <button class="gw-btn-primary" style="width:100%; height:48px; font-weight:800;"
+                        onclick="saveScheduleSettings()">
+                        훈련 일정 및 데이터 한꺼번에 저장
+                    </button>
+                    <p style="text-align:center; font-size:11px; color:var(--text-soft); margin-top:10px;">
+                        저장 버튼을 누르면 모든 데이터가 즉시 훈련생 앱에 반영됩니다.
+                    </p>
+                </div>
             </div>
         </div>
     </div>

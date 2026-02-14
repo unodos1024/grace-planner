@@ -127,12 +127,12 @@
     color: white;
 }
 
-/* Verse Card 3D */
 .verse-card-3d {
     perspective: 1500px;
     width: 100%;
-    height: 280px;
-    margin-bottom: 32px;
+    height: 320px;
+    /* Fixed height is necessary for relative/absolute children */
+    margin: 20px 0 32px;
     cursor: pointer;
     position: relative;
     z-index: 5;
@@ -156,18 +156,21 @@
 .verse-front,
 .verse-back {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
     border-radius: 32px;
-    padding: 32px 28px;
+    padding: 40px 20px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    /* Better distribution */
+    justify-content: center;
     align-items: center;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    /* Keep long text inside */
 }
 
 .verse-front {
@@ -177,44 +180,62 @@
 
 .verse-back {
     background: #ffffff;
-    color: var(--text-main);
-    transform: rotateY(180deg);
-    border: 1px solid var(--border-strong);
+    color: #000000;
+    /* Pure black for clarity */
+    transform: rotateY(180deg) translateZ(1px);
+    border: 1px solid var(--border-subtle);
 }
 
 .verse-front h4,
 .verse-back h4 {
+    position: absolute;
+    top: 24px;
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
-    opacity: 0.7;
-    margin-bottom: 8px;
+    letter-spacing: 0.12em;
+    margin: 0;
 }
 
 .verse-front h4 {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.9);
+    /* More visible */
+}
+
+.verse-back h4 {
+    opacity: 1;
+    /* Fixed blurry/faint header */
+    color: var(--primary);
+    /* Use primary color for the label on the back */
 }
 
 .verse-content {
-    flex: 1;
+    font-size: clamp(16px, 4.8vw, 20px);
+    /* Reduced size to prevent overflow */
+    font-weight: 800;
+    line-height: 1.5;
+    word-break: keep-all;
+    letter-spacing: -0.01em;
+    margin: 10px 0;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(17px, 5vw, 21px);
-    /* Responsive font based on space */
-    font-weight: 800;
-    line-height: 1.6;
-    word-break: keep-all;
-    letter-spacing: -0.02em;
-    margin: 10px 0;
+    flex: 1;
+    /* Take up available space but honor padding */
 }
 
 .verse-ref {
-    font-size: 14px;
-    font-weight: 700;
-    opacity: 0.7;
-    margin-top: auto;
+    position: absolute;
+    bottom: 32px;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-soft);
+    margin: 0;
+}
+
+.verse-back .verse-ref {
+    color: var(--primary);
 }
 
 /* Task Grid */
