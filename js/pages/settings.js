@@ -214,6 +214,31 @@
         renderCalendar();
     };
 
+    // Oracle DB 사용자 목록 조회
+    const fetchOracleUsers = async () => {
+        const container = document.getElementById('oracle-user-list');
+        if (!container) return;
+
+        try {
+            // window.apiCall은 js/config.js에 정의됨
+            const users = await window.apiCall('/users');
+
+            if (users && users.length > 0) {
+                container.innerHTML = users.map(u => `
+                    <div class="oracle-user-item">
+                        <span class="user-id">ID: ${u.id}</span>
+                        <span class="user-name">${u.name}</span>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<p class="empty-text">조회된 사용자가 없습니다.</p>';
+            }
+        } catch (error) {
+            console.error('Failed to fetch Oracle users:', error);
+            container.innerHTML = '<p class="error-text">데이터를 불러오는데 실패했습니다.</p>';
+        }
+    };
+
     // 초기화
     updateUserInfo();
 
@@ -225,5 +250,6 @@
     }
 
     renderCalendar();
+    fetchOracleUsers();
 })();
 

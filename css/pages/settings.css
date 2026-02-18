@@ -340,3 +340,57 @@
     color: var(--text-soft);
     font-weight: 500;
 }
+
+/* 4. Oracle DB User List (ADO.NET Test) */
+.oracle-user-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.oracle-user-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    transition: var(--transition-base);
+}
+
+.oracle-user-item:hover {
+    border-color: var(--primary);
+    background: var(--primary-pale);
+    transform: translateY(-2px);
+}
+
+.oracle-user-item .user-id {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-pale);
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.oracle-user-item .user-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.loading-text,
+.empty-text,
+.error-text {
+    text-align: center;
+    padding: 30px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-soft);
+}
+
+.error-text {
+    color: var(--accent);
+}

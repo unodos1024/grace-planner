@@ -10,10 +10,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Oracle Wallet Setup
+var walletPath = Path.Combine(builder.Environment.ContentRootPath, "oracle_wallet");
+Environment.SetEnvironmentVariable("TNS_ADMIN", walletPath);
+
 // Database Configuration (Oracle)
 var connectionString = builder.Configuration.GetConnectionString("OracleDb");
 builder.Services.AddDbContext<GracePlannerContext>(options =>
     options.UseOracle(connectionString));
+
+// Register ADO.NET Data Service
+builder.Services.AddScoped<IOracleDataService, OracleDataService>();
 
 // Dependency Injection
 builder.Services.AddScoped<IDailyTaskRepository, DailyTaskRepository>();
