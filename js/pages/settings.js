@@ -46,15 +46,27 @@
             });
         }
 
-        container.innerHTML = weekData.map(data => `
-            <div class="prayer-day-column">
-                <div class="prayer-day-box ${data.isToday ? 'today' : ''}">
-                    <span class="time">${data.duration}</span>
-                    <span class="unit">min</span>
+        const totalMinutes = weekData.reduce((acc, curr) => acc + curr.duration, 0);
+        const totalEl = document.getElementById('prayer-total-stat');
+        if (totalEl) {
+            totalEl.querySelector('.total-value').innerText = `${totalMinutes} min`;
+        }
+
+        container.innerHTML = weekData.map(data => {
+            let achievementClass = 'achievement-low';
+            if (data.duration >= 20) achievementClass = 'achievement-high';
+            else if (data.duration >= 10) achievementClass = 'achievement-mid';
+
+            return `
+                <div class="prayer-day-column">
+                    <div class="prayer-day-box ${data.isToday ? 'today' : ''} ${achievementClass}">
+                        <span class="time">${data.duration}</span>
+                        <span class="unit">min</span>
+                    </div>
+                    <div class="prayer-day-label ${data.isToday ? 'today' : ''}">${data.dateDisplay}</div>
                 </div>
-                <div class="prayer-day-label ${data.isToday ? 'today' : ''}">${data.dateDisplay}</div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
         // PC 마우스 드래그 스크롤 기능
         let isDown = false;

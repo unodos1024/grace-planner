@@ -32,10 +32,9 @@
                 const date = new Date();
                 date.setDate(date.getDate() - i);
                 const dateStr = date.toISOString().split('T')[0];
-                const local = states.find(s => s.date.split('T')[0] === dateStr) || { prayerDuration: 0 };
+                const local = states.find(s => s.date.split('T')[0] === dateStr) || { prayerDuration: 0, date: date.toISOString() };
                 trendData.push(local);
             }
-            renderGrowthChart(trendData);
             updateDailyHero();
         } catch (e) {
             console.error('Failed to update dashboard', e);
@@ -83,22 +82,6 @@
         });
     };
 
-    const renderGrowthChart = (dailyStatuses) => {
-        const container = document.getElementById('prayer-chart');
-        if (!container) return;
-
-        const maxDuration = Math.max(...dailyStatuses.map(s => s.prayerDuration), 30);
-        container.innerHTML = dailyStatuses.map((status, i) => {
-            const height = (status.prayerDuration / maxDuration) * 100;
-            return `
-                <div class="chart-bar-group" style="flex:1; display:flex; flex-direction:column; align-items:center; gap:8px;">
-                    <div class="chart-bar" style="height: 100px; width: 12px; background: var(--bg-main); border-radius: 10px; overflow:hidden; position:relative;">
-                        <div class="chart-fill" style="height: ${height}%; width:100%; position:absolute; bottom:0; background: ${status.prayerDuration >= 20 ? 'var(--primary)' : 'var(--primary-pale)'}; border-radius:10px; transition: height 0.6s ease;"></div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    };
 
 
     const updateDailyHero = () => {

@@ -86,7 +86,33 @@
 }
 
 .section-title-box {
-    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
+}
+
+.total-stats-badge {
+    background: var(--primary-pale);
+    padding: 6px 12px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.total-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.total-value {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--primary);
 }
 
 .section-title {
@@ -131,32 +157,60 @@
 .prayer-day-box {
     width: 100%;
     aspect-ratio: 0.9;
-    background: var(--bg-main);
+    background: #FFFFFF;
     border: 1px solid var(--border-subtle);
-    border-radius: 16px;
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transition: var(--transition-base);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
 }
 
 .prayer-day-box.today {
     background: var(--primary-pale);
     border: 1.5px solid var(--primary);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 8px 20px rgba(123, 150, 77, 0.15);
+}
+
+/* Achievement states based on duration */
+.prayer-day-box.achievement-low {
+    border-color: var(--primary-pale);
+}
+
+.prayer-day-box.achievement-mid {
+    background: #F7FAF2;
+    border-color: rgba(123, 150, 77, 0.4);
+}
+
+.prayer-day-box.achievement-high {
+    background: linear-gradient(135deg, #FFFFFF 0%, #F5F9EE 100%);
+    border-color: var(--primary);
+    box-shadow: 0 6px 15px rgba(123, 150, 77, 0.1);
+}
+
+.prayer-day-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
 .prayer-day-box .time {
-    font-size: 18px;
-    font-weight: 800;
+    font-size: 20px;
+    font-weight: 900;
     color: var(--text-main);
+    letter-spacing: -0.02em;
+}
+
+.prayer-day-box.achievement-high .time {
+    color: var(--primary);
 }
 
 .prayer-day-box .unit {
     font-size: 10px;
     font-weight: 700;
     color: var(--text-soft);
+    margin-top: -2px;
 }
 
 .prayer-day-label {

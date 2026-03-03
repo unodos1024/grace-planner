@@ -305,3 +305,95 @@
 .hidden {
     display: none !important;
 }
+
+/* Prayer Stats Card (Settings Style) */
+.settings-section-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.section-title-box {
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.section-subtitle {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-soft);
+    display: block;
+    margin-top: 4px;
+}
+
+.prayer-week-grid {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.prayer-week-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.prayer-day-column {
+    flex-shrink: 0;
+    width: 62px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.prayer-day-box {
+    width: 100%;
+    aspect-ratio: 0.9;
+    background: var(--bg-main);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition-base);
+}
+
+.prayer-day-box.today {
+    background: var(--primary-pale);
+    border: 1.5px solid var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.prayer-day-box .time {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.prayer-day-box .unit {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-soft);
+}
+
+.prayer-day-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-soft);
+}
+
+.prayer-day-label.today {
+    color: var(--primary);
+}
