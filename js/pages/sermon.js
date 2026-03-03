@@ -4,33 +4,8 @@
     let currentTab = 'sunday'; // 'sunday' or 'my'
 
     const fetchSermonNotes = async () => {
-        const userId = window.Auth.getCurrentUserId();
-        const localKey = userId ? `${window.CONFIG.STORAGE_KEYS.SERMON_NOTES_PREFIX}${userId}` : 'gw_sermon_notes';
-        const localNotes = window.Utils.getStorageItem(localKey, []);
-
-        // Default to local notes first to prevent UI delay/blank state
-        allSermonNotes = localNotes;
+        allSermonNotes = await window.SermonService.fetchSermonNotes();
         renderSermonList();
-
-        try {
-            // Check if API_BASE is reachable or if we are in local-only mode
-            if (!window.CONFIG.API_BASE || window.CONFIG.API_BASE.includes('localhost:5116')) {
-                // Silently skip if backend is likely not running in dev
-                console.log('Skipping backend fetch (Dev mode/Local only)');
-                return;
-            }
-
-            const response = await fetch(`${window.CONFIG.API_BASE}/sermon`).catch(() => null);
-            if (response && response.ok) {
-                const serverNotes = await response.json();
-                if (serverNotes && serverNotes.length > 0) {
-                    allSermonNotes = serverNotes;
-                    renderSermonList();
-                }
-            }
-        } catch (e) {
-            // Error is handled, fallback is already in place
-        }
     };
 
     window.switchSermonTab = (tab) => {
@@ -122,34 +97,14 @@
             return;
         }
 
-        const localKey = window.Auth.getCurrentUserId() ? `${window.CONFIG.STORAGE_KEYS.SERMON_NOTES_PREFIX}${window.Auth.getCurrentUserId()}` : 'gw_sermon_notes';
-        let currentNotes = window.Utils.getStorageItem(localKey, []);
+        const worshipType = id ? undefined : (currentTab === 'sunday' ? 'SUNDAY' : 'WEDNESDAY');
+        await window.SermonService.saveNote(id, content, date, worshipType);
 
-        if (id) {
-            const index = currentNotes.findIndex(n => n.noteId === parseInt(id));
-            if (index !== -1) {
-                currentNotes[index] = { ...currentNotes[index], content, createdDate: new Date(date).toISOString() };
-                window.Utils?.showToast('기록이 수정되었습니다.');
-            }
-        } else {
-            const worshipType = currentTab === 'sunday' ? 'SUNDAY' : 'WEDNESDAY';
-            const newNote = {
-                noteId: Date.now(), content, createdDate: new Date(date).toISOString(), worshipType
-            };
-            currentNotes.unshift(newNote);
-            window.Utils?.showToast('새 기록이 저장되었습니다.');
-        }
+        if (id) window.Utils?.showToast('기록이 수정되었습니다.');
+        else window.Utils?.showToast('새 기록이 저장되었습니다.');
 
-
-        window.Utils.setStorageItem(localKey, currentNotes);
-        allSermonNotes = currentNotes;
-
-        try {
-            window.ApiClient.post('/sermon', { content, worshipType: (id ? undefined : (currentTab === 'sunday' ? 'SUNDAY' : 'MY')), createdDate: new Date(date).toISOString() })
-                .catch(e => console.log('Backend sync failed'));
-            renderSermonList();
-            window.closeSermonModal();
-        } catch (e) { console.error(e); }
+        fetchSermonNotes();
+        window.closeSermonModal();
     };
 
 
@@ -158,12 +113,8 @@
         if (!id) return;
         if (!confirm('이 기록을 삭제하시겠습니까?')) return;
 
-        const localKey = window.Auth.getCurrentUserId() ? `${window.CONFIG.STORAGE_KEYS.SERMON_NOTES_PREFIX}${window.Auth.getCurrentUserId()}` : 'gw_sermon_notes';
-        let currentNotes = window.Utils.getStorageItem(localKey, []);
-        currentNotes = currentNotes.filter(n => n.noteId !== parseInt(id));
-        window.Utils.setStorageItem(localKey, currentNotes);
-        allSermonNotes = currentNotes;
-        renderSermonList();
+        window.SermonService.deleteNote(id);
+        fetchSermonNotes();
         window.closeSermonModal();
         window.Utils?.showToast('기록이 삭제되었습니다.');
     };

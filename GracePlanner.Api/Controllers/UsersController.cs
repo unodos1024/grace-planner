@@ -1,6 +1,8 @@
 using GracePlanner.Api.Models.DTOs;
 using GracePlanner.Api.Services;
+using GracePlanner.Api.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace GracePlanner.Api.Controllers
@@ -9,41 +11,36 @@ namespace GracePlanner.Api.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly IOracleDataService _oracleDataService;
+        private readonly GracePlannerContext _context;
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IOracleDataService oracleDataService, ILogger<UsersController> logger)
+        public UsersController(GracePlannerContext context, ILogger<UsersController> logger)
         {
-            _oracleDataService = oracleDataService;
+            _context = context;
             _logger = logger;
         }
 
         /// <summary>
-        /// USERS 테이블의 모든 사용자를 조회합니다.
+        /// 모든 사용자를 조회합니다. (MySQL)
         /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
             try
             {
-                string sql = "SELECT ID, NAME FROM USERS";
-                DataTable dt = await _oracleDataService.ExecuteQueryAsync(sql);
-
-                var users = new List<UserDto>();
-                foreach (DataRow row in dt.Rows)
-                {
-                    users.Add(new UserDto
+                var users = await _context.Users
+                    .Select(u => new UserDto
                     {
-                        Id = Convert.ToInt32(row["ID"]),
-                        Name = row["NAME"].ToString() ?? string.Empty
-                    });
-                }
+                        Id = u.UserId,
+                        Name = u.Username
+                    })
+                    .ToListAsync();
 
                 return Ok(users);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching users from Oracle DB");
+                _logger.LogError(ex, "Error fetching users from MySQL DB");
                 return StatusCode(500, "Internal server error occurred while fetching data.");
             }
         }

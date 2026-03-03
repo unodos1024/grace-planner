@@ -43,12 +43,8 @@
 
     // Load cumulative time from storage
     const loadCumulativeTime = () => {
-        const userId = window.Auth.getCurrentUserId();
-        const taskKey = userId ? `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}` : 'gw_task_state';
-        const taskState = window.Utils.getStorageItem(taskKey, []);
-        const todayStr = window.Utils.getTodayISO();
-        const dayStatus = taskState.find(s => s.date.split('T')[0] === todayStr);
-        cumulativeSeconds = dayStatus ? (dayStatus.prayerDuration || 0) * 60 : 0;
+        const todayStatus = window.TaskService.getTodayTaskState();
+        cumulativeSeconds = (todayStatus.prayerDuration || 0) * 60;
     };
 
     // 3. UI Update Logic (Stopwatch Format: HH:MM:SS)
@@ -75,22 +71,8 @@
     };
 
     const persistCumulativeTime = () => {
-        const userId = window.Auth.getCurrentUserId();
-        const taskKey = userId ? `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}` : 'gw_task_state';
-        const taskState = window.Utils.getStorageItem(taskKey, []);
-        const todayStr = window.Utils.getTodayISO();
-        let dayStatus = taskState.find(s => s.date.split('T')[0] === todayStr);
-
         const totalDurationMins = Math.floor((cumulativeSeconds + elapsedSeconds) / 60);
-
-        if (!dayStatus) {
-            dayStatus = { date: todayStr, prayer: totalDurationMins >= 1, qt: false, bible: false, prayerDuration: totalDurationMins };
-            taskState.push(dayStatus);
-        } else {
-            dayStatus.prayerDuration = Math.max(dayStatus.prayerDuration, totalDurationMins);
-            if (totalDurationMins >= targetMinutes) dayStatus.prayer = true;
-        }
-        window.Utils.setStorageItem(taskKey, taskState);
+        window.TaskService.updatePrayerDuration(totalDurationMins);
     };
 
     window.setTimerDuration = (mins) => {
@@ -137,8 +119,7 @@
 
                         // Mark task as done (Persistent)
                         persistCumulativeTime();
-
-                        // API call
+                        // API sync is handled inside Service if we want, or here for specific event
                         window.ApiClient?.post('/prayer/log', { minutes: targetMinutes, date: new Date().toISOString() }).catch(() => { });
 
                         // We continue counting even after goal reached?
@@ -172,15 +153,7 @@
     // 4. Prayer Journal Logic
     let prayerJournal = [];
     const loadPrayerJournal = () => {
-        const userId = window.Auth.getCurrentUserId();
-        const key = userId ? `${window.CONFIG.STORAGE_KEYS.PRAYER_JOURNAL_PREFIX}${userId}` : 'gw_prayer_journal';
-        prayerJournal = window.Utils.getStorageItem(key, []);
-    };
-
-    const savePrayerJournalState = () => {
-        const userId = window.Auth.getCurrentUserId();
-        const key = userId ? `${window.CONFIG.STORAGE_KEYS.PRAYER_JOURNAL_PREFIX}${userId}` : 'gw_prayer_journal';
-        window.Utils.setStorageItem(key, prayerJournal);
+        prayerJournal = window.PrayerService.getJournal();
     };
 
     window.switchPrayerTab = (tab) => {
@@ -224,20 +197,13 @@
         }
 
         if (id) {
-            // Update mode
-            const index = prayerJournal.findIndex(p => p.id === parseInt(id));
-            if (index !== -1) {
-                prayerJournal[index].desc = desc;
-                window.Utils?.showToast('기도 제목이 수정되었습니다.');
-            }
+            window.PrayerService.updatePrayer(id, desc);
+            window.Utils?.showToast('기도 제목이 수정되었습니다.');
         } else {
-            // Create mode
-            const newPrayer = { id: Date.now(), desc, date: new Date().toISOString() };
-            prayerJournal.unshift(newPrayer);
+            window.PrayerService.addPrayer(desc);
             window.Utils?.showToast('기도 제목이 저장되었습니다.');
         }
 
-        savePrayerJournalState();
         renderPrayerJournal();
         window.closePrayerModal();
         document.getElementById('prayer-input-id').value = '';
@@ -280,8 +246,8 @@
         const id = document.getElementById('prayer-input-id').value;
         if (!id) return;
         if (!confirm('이 기도제목을 삭제하시겠습니까?')) return;
-        prayerJournal = prayerJournal.filter(p => p.id !== parseInt(id));
-        savePrayerJournalState();
+
+        window.PrayerService.deletePrayer(id);
         renderPrayerJournal();
         window.closePrayerModal();
         window.Utils?.showToast('기도 제목이 삭제되었습니다.');

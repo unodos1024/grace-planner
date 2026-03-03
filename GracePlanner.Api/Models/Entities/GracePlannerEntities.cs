@@ -99,4 +99,28 @@ namespace GracePlanner.Api.Models.Entities
         [Column("CREATED_AT")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
+    [Table("USERS")]
+    public class User
+    {
+        [Key]
+        [Column("USER_ID")]
+        public int UserId { get; set; }
+
+        [Column("USERNAME")]
+        [Required]
+        [MaxLength(50)]
+        public string Username { get; set; } = string.Empty;
+
+        [Column("EMAIL")]
+        [Required]
+        [MaxLength(100)]
+        public string Email { get; set; } = string.Empty;
+
+        [Column("PASSWORD_HASH")]
+        [Required]
+        public string PasswordHash { get; set; } = string.Empty;
+
+        [Column("CREATED_AT")]
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+    }
 }

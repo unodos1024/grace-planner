@@ -2,24 +2,11 @@
 (async () => {
     // 1. State Management
     let homeWeek = 1;
-    let localTaskState = [];
 
     // Determine today's default week from year progress
     const getTodayWeekIndex = () => {
         const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
         return (dayOfYear % 32) + 1;
-    };
-
-    const loadLocalTaskState = () => {
-        const userId = window.Auth.getCurrentUserId();
-        const key = userId ? `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}` : 'gw_task_state';
-        localTaskState = window.Utils.getStorageItem(key, []);
-    };
-
-    const saveLocalTaskState = () => {
-        const userId = window.Auth.getCurrentUserId();
-        const key = userId ? `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}` : 'gw_task_state';
-        window.Utils.setStorageItem(key, localTaskState);
     };
 
     // 2. Data Fetching & Rendering
@@ -28,37 +15,24 @@
         if (!userId) return;
 
         try {
-            const todayStr = window.Utils.getTodayISO();
-            const now = new Date();
-            const day = now.getDay();
-            const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Get Monday
-            const monday = new Date(now.setDate(diff));
-
-            const weekStatuses = [];
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(monday);
-                date.setDate(monday.getDate() + i);
-                const dateStr = date.toISOString().split('T')[0];
-                const local = localTaskState.find(s => s.date.split('T')[0] === dateStr) || { prayer: false, qt: false, bible: false, prayerDuration: 0 };
-                weekStatuses.push({ date: dateStr, ...local });
-            }
-
+            const weekStatuses = window.TaskService.getWeeklyProgress();
             renderCalendarStrip(weekStatuses);
 
-            const todayLocal = weekStatuses.find(s => s.date === todayStr.split('T')[0]) || { prayer: false, qt: false, bible: false };
+            const todayStatus = window.TaskService.getTodayTaskState();
             updateTaskCards([
-                { type: 'prayer', isCompleted: todayLocal.prayer },
-                { type: 'qt', isCompleted: todayLocal.qt },
-                { type: 'bible', isCompleted: todayLocal.bible }
+                { type: 'prayer', isCompleted: todayStatus.prayer },
+                { type: 'qt', isCompleted: todayStatus.qt },
+                { type: 'bible', isCompleted: todayStatus.bible }
             ]);
 
             // Growth Chart still uses last 7 days for trend
+            const states = window.TaskService.getAllTaskStates();
             const trendData = [];
             for (let i = 6; i >= 0; i--) {
                 const date = new Date();
                 date.setDate(date.getDate() - i);
                 const dateStr = date.toISOString().split('T')[0];
-                const local = localTaskState.find(s => s.date.split('T')[0] === dateStr) || { prayerDuration: 0 };
+                const local = states.find(s => s.date.split('T')[0] === dateStr) || { prayerDuration: 0 };
                 trendData.push(local);
             }
             renderGrowthChart(trendData);
@@ -73,7 +47,7 @@
         const todayLabel = document.getElementById('today-date-label');
         if (!strip) return;
 
-        const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
         const todayStr = new Date().toDateString();
 
         strip.innerHTML = dailyStatuses.map((status, i) => {
@@ -94,9 +68,9 @@
         }).join('');
 
         if (todayLabel) {
-            const monday = new Date(dailyStatuses[0].date);
-            const sunday = new Date(dailyStatuses[6].date);
-            todayLabel.innerHTML = `오늘의 제자훈련 <span style="font-size: 13px; font-weight: 600; color: var(--text-soft); margin-left:8px;">${monday.getMonth() + 1}/${monday.getDate()} ~ ${sunday.getMonth() + 1}/${sunday.getDate()}</span>`;
+            const startDay = new Date(dailyStatuses[0].date);
+            const endDay = new Date(dailyStatuses[6].date);
+            todayLabel.innerHTML = `오늘의 제자훈련 <span style="font-size: 13px; font-weight: 600; color: var(--text-soft); margin-left:8px;">${startDay.getMonth() + 1}/${startDay.getDate()} ~ ${endDay.getMonth() + 1}/${endDay.getDate()}</span>`;
         }
     };
 
@@ -147,24 +121,13 @@
         if (!card) return;
         const isCompleted = card.classList.contains('completed');
         const nextState = !isCompleted;
-        if (nextState && window.Utils.createConfetti) window.Utils.createConfetti();
-        nextState ? card.classList.add('completed') : card.classList.remove('completed');
 
-        const todayStr = window.Utils.getTodayISO();
-        let dayStatus = localTaskState.find(s => s.date.split('T')[0] === todayStr);
-        if (!dayStatus) {
-            dayStatus = { date: todayStr, prayer: false, qt: false, bible: false, prayerDuration: 0 };
-            localTaskState.push(dayStatus);
-        }
-        dayStatus[type] = nextState;
-        if (type === 'prayer') dayStatus.prayerDuration = nextState ? 20 : 0;
-        saveLocalTaskState();
-        fetchDashboardData();
+        // 2. Local State Update & Immediate Re-render (Dots)
+        const promise = window.TaskService.toggleTask(type, nextState);
+        fetchDashboardData(); // Update calendar dots immediately from local storage
 
-        const endpointMap = { 'qt': '/qt/check', 'bible': '/bible/check', 'prayer': '/prayer/log' };
-        if (endpointMap[type]) {
-            window.ApiClient?.post(endpointMap[type], { completed: nextState, date: new Date().toISOString() }).catch(console.error);
-        }
+        // 3. Background Sync (Don't wait for UI render)
+        await promise;
     };
 
     window.shareDailyVerse = () => {
@@ -244,10 +207,75 @@
         }, 2000);
     };
 
-    // 4. Initialize
-    homeWeek = getTodayWeekIndex();
-    loadLocalTaskState();
+    // 4. Touch & Swipe Gestures (Slide to change week, Click to flip)
+    const initVerseSwipe = () => {
+        const card3D = document.querySelector('.verse-card-3d');
+        if (!card3D) return;
+
+        let startX = 0;
+        let diffX = 0;
+        let isMoving = false;
+        const inner = card3D.querySelector('.verse-card-inner');
+
+        card3D.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            inner.style.transition = 'none';
+            isMoving = true;
+            diffX = 0;
+        }, { passive: true });
+
+        card3D.addEventListener('touchmove', (e) => {
+            if (!isMoving) return;
+            diffX = e.touches[0].clientX - startX;
+            // Preserving current rotation while sliding
+            const currentRotation = inner.classList.contains('flipped') ? 'rotateY(180deg)' : 'rotateY(0deg)';
+            inner.style.transform = `translateX(${diffX * 0.8}px) ${currentRotation}`;
+        }, { passive: true });
+
+        card3D.addEventListener('touchend', (e) => {
+            if (!isMoving) return;
+            isMoving = false;
+
+            const isFlipped = inner.classList.contains('flipped');
+            const rotation = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+
+            if (Math.abs(diffX) > 80) {
+                // Swipe Success - Slide Out
+                const direction = diffX > 0 ? 1 : -1; // 1: Right (Prev), -1: Left (Next)
+                inner.style.transition = 'transform 0.3s ease-in, opacity 0.2s';
+                inner.style.transform = `translateX(${direction * 120}%) ${rotation}`;
+                inner.style.opacity = '0';
+
+                setTimeout(() => {
+                    // Update Data
+                    direction > 0 ? prevHomeWeek() : nextHomeWeek();
+
+                    // Move new card to opposite side for slide-in
+                    inner.style.transition = 'none';
+                    inner.style.transform = `translateX(${direction * -120}%) rotateY(0deg)`;
+                    inner.style.opacity = '0.5';
+
+                    // Force Reflow
+                    inner.offsetHeight;
+
+                    // Slide back to center
+                    inner.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1.1), opacity 0.3s';
+                    inner.style.transform = 'translateX(0) rotateY(0deg)';
+                    inner.style.opacity = '1';
+                }, 300);
+            } else {
+                // Swipe Failed - Return to current state
+                inner.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                inner.style.transform = rotation;
+                inner.style.opacity = '1';
+            }
+        });
+    };
+
+    // 5. Initialize
+    homeWeek = 1; // Always start with Week 1
     await fetchDashboardData();
     renderHomeWeekGrid();
     updateHomeVerseDisplay();
+    initVerseSwipe();
 })();

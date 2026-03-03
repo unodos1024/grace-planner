@@ -5,8 +5,8 @@
 */
 
 :root {
-    --header-height: 64px;
-    --nav-height: 84px;
+    --header-height: 60px;
+    --nav-height: 68px;
     --sidebar-width: 280px;
 }
 
@@ -108,23 +108,26 @@ body.modal-open {
     padding: 0;
     /* iOS Safe Area Padding (Top) */
     padding-top: env(safe-area-inset-top, 0px);
-    /* Account for bottom navigation height */
-    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 20px));
+    /* Account for bottom navigation height + floating gap */
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 20px) + 20px);
 }
 
-/* 7. Bottom Navigation (Fixed at Bottom with Safe Area Support) */
+/* 7. Bottom Navigation (Floating Glassmorphism) */
 #mobile-nav-container {
-    position: relative;
-    /* Not fixed, not absolute - stays in flex flow */
-    width: 100%;
-    /* Increase height to be safe */
-    height: calc(var(--nav-height) + env(safe-area-inset-bottom, 20px));
-    border-top: 1px solid var(--border-subtle);
-    background: #FFFFFF;
-    z-index: 100;
-    padding-bottom: env(safe-area-inset-bottom, 20px);
-    flex-shrink: 0;
-    /* Important: Don't let the main content squeeze the nav */
+    position: fixed;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    left: 16px;
+    right: 16px;
+    height: var(--nav-height);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 28px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
 }
 
 

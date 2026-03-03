@@ -13,6 +13,7 @@ namespace GracePlanner.Api.Data
         public DbSet<BibleReading90> BibleReadings { get; set; }
         public DbSet<SermonNote> SermonNotes { get; set; }
         public DbSet<BookReview> BookReviews { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

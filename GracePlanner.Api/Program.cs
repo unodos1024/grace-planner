@@ -2,6 +2,9 @@ using GracePlanner.Api.Data;
 using GracePlanner.Api.Repositories;
 using GracePlanner.Api.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,17 +13,36 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Oracle Wallet Setup
-var walletPath = Path.Combine(builder.Environment.ContentRootPath, "oracle_wallet");
-Environment.SetEnvironmentVariable("TNS_ADMIN", walletPath);
-
-// Database Configuration (Oracle)
-var connectionString = builder.Configuration.GetConnectionString("OracleDb");
+// Database Configuration (MySQL)
+var connectionString = builder.Configuration.GetConnectionString("MySqlDb");
 builder.Services.AddDbContext<GracePlannerContext>(options =>
-    options.UseOracle(connectionString));
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-// Register ADO.NET Data Service
-builder.Services.AddScoped<IOracleDataService, OracleDataService>();
+// Authentication & JWT Configuration
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
+
+// Dependency Injection
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Dependency Injection
 builder.Services.AddScoped<IDailyTaskRepository, DailyTaskRepository>();
@@ -51,6 +73,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

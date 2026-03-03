@@ -2,40 +2,51 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap');
 
 :root {
-    /* Semantic Colors */
-    --primary: #4A6741;
-    --primary-dark: #3A5233;
-    --primary-light: #F4F7F2;
-    --primary-pale: #E9EDEA;
+    /* Palette - Premium HSL based */
+    --p-h: 105;
+    --p-s: 23%;
+    --p-l: 33%;
+
+    --primary: hsl(var(--p-h), var(--p-s), var(--p-l));
+    --primary-dark: hsl(var(--p-h), var(--p-s), calc(var(--p-l) - 10%));
+    --primary-light: hsl(var(--p-h), var(--p-s), 96%);
+    --primary-pale: hsl(var(--p-h), var(--p-s), 92%);
     --accent: #FF7E67;
+    --accent-glow: rgba(255, 126, 103, 0.4);
+
     --bg-main: #FDFDFB;
     --bg-surface: #FFFFFF;
+    --bg-glass: rgba(255, 255, 255, 0.7);
 
-    /* Text Colors - WCAG AA Contrast Optimization */
+    /* Text Colors */
     --text-main: #1D1D1F;
     --text-muted: #57575C;
-    /* Higher contrast than #6E6E73 */
     --text-soft: #76767A;
-    /* Higher contrast than #A1A1A6 */
     --text-inverse: #FFFFFF;
 
-    /* Border & Separator */
-    --border-subtle: rgba(0, 0, 0, 0.08);
-    /* Slightly stronger for visibility */
-    --border-strong: rgba(0, 0, 0, 0.12);
+    /* Border & Glass */
+    --border-subtle: rgba(0, 0, 0, 0.05);
+    --border-strong: rgba(0, 0, 0, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.3);
 
-    /* Radius & Touch Area */
+    /* Radius & Layout */
     --radius-full: 9999px;
+    --radius-2xl: 32px;
     --radius-xl: 24px;
     --radius-lg: 20px;
     --radius-md: 12px;
     --radius-sm: 8px;
-    --min-touch-target: 44px;
-    /* Apple/Google standard */
+
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.1);
+    --shadow-primary: 0 8px 20px hsla(var(--p-h), var(--p-s), var(--p-l), 0.2);
 
     /* Transitions */
-    --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    --transition-fast: 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    --transition-bounce: 0.5s cubic-bezier(0.68, -0.6, 0.32, 1.6);
 }
 
 /* Base Polish */
@@ -93,38 +104,51 @@ body {
     display: none !important;
 }
 
-/* Common UI Utilities */
-.gw-btn-primary {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-md);
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: var(--shadow-primary);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: var(--min-touch-target);
+/* Glassmorphism Classes */
+.glass-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
 }
 
-.gw-btn-primary:active {
-    transform: scale(0.96);
+.premium-gradient {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
 }
 
-.gw-btn-secondary {
-    background: var(--primary-pale);
-    color: var(--primary);
-    border: none;
-    border-radius: var(--radius-md);
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    min-height: var(--min-touch-target);
+.gw-card {
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    padding: 20px;
+    transition: var(--transition-base);
+    box-shadow: var(--shadow-sm);
+}
+
+.gw-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+}
+
+/* Scrollbar Polish */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-soft);
 }
 
 /* Empty State Styling */
