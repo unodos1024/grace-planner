@@ -11,8 +11,15 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: './index.html',
+                login: './pages/auth/login.html',
+                dashboard: './pages/dashboard/dashboard.html',
+                home: './pages/home/home.html',
                 layout: './pages/layout/layout.html',
-                login: './pages/auth/login.html'
+                notice: './pages/notice/notice.html',
+                prayer: './pages/prayer/prayer.html',
+                schedule: './pages/schedule/schedule.html',
+                sermon: './pages/sermon/sermon.html',
+                settings: './pages/settings/settings.html'
             }
         }
     }
