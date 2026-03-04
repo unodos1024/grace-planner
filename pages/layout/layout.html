@@ -56,6 +56,16 @@
             <header class="mobile-top-bar">
                 <h1 class="app-title">Grace Planner</h1>
                 <div class="header-icons">
+                    <button class="icon-btn hidden" id="btn-pending-approvals" onclick="Router.navigate('members')"
+                        title="가입 승인 대기" aria-label="가입 승인 대기 확인">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <polyline points="16 11 18 13 22 9"></polyline>
+                        </svg>
+                        <span class="notification-badge" id="pending-badge" style="background: var(--accent);">0</span>
+                    </button>
                     <button class="icon-btn" onclick="Router.navigate('notice')" title="알림" aria-label="알림 확인">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                             stroke-linecap="round" stroke-linejoin="round">
@@ -140,6 +150,26 @@
 
                 // Store function globally for notice page to call
                 window.updateNotificationBadge = updateNotificationBadge;
+
+                // Pending Approvals Badge (Admin only)
+                if (user.role === 'pastor') {
+                    const updatePendingBadge = () => {
+                        const allUsers = window.Utils.getStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, []);
+                        const pendingCount = allUsers.filter(u => !u.isApproved).length;
+                        const btn = document.getElementById('btn-pending-approvals');
+                        const badge = document.getElementById('pending-badge');
+                        if (btn) {
+                            if (pendingCount > 0) {
+                                btn.classList.remove('hidden');
+                                if (badge) badge.innerText = pendingCount;
+                            } else {
+                                btn.classList.add('hidden');
+                            }
+                        }
+                    };
+                    updatePendingBadge();
+                    window.updatePendingBadge = updatePendingBadge;
+                }
 
                 // Initialize Router
                 Router.init();

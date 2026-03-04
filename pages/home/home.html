@@ -1,5 +1,4 @@
-<div class="home-page-wrapper">
-    <!-- Weekly Discipleship Section -->
+<div class="home-page-wrapper dashboard-page">
     <div class="section-header">
         <div class="title-with-icon">
             <div class="section-icon training">
@@ -9,8 +8,11 @@
                     </path>
                 </svg>
             </div>
-            <h2 class="section-title" id="today-date-label">오늘의 제자훈련</h2>
+            <div class="training-title-group">
+                <h2 class="section-title" id="today-date-label">오늘의 제자훈련</h2>
+            </div>
         </div>
+        <div id="today-date-range" class="goal-label"></div>
     </div>
 
     <!-- Weekly Calendar -->
@@ -19,48 +21,103 @@
     </div>
 
 
-    <!-- Daily Task Grid -->
-    <section class="task-grid">
-        <div class="task-item" id="card-prayer" onclick="toggleTask('prayer')" aria-label="기도 완료 체크" role="button">
-            <div class="icon-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path
-                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C15.09 3.81 16.76 3 18.5 3 21.58 3 24 5.42 24 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21.35z">
-                    </path>
-                </svg>
-            </div>
-            <div style="text-align:center;">
-                <div class="task-title">기도</div>
-            </div>
-        </div>
-
-        <div class="task-item" id="card-qt" onclick="toggleTask('qt')" aria-label="성구암송 완료 체크" role="button">
-            <div class="icon-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                </svg>
-            </div>
-            <div style="text-align:center;">
-                <div class="task-title">성구암송</div>
+    <div class="section-sub-header" data-section="all-tasks">
+        <div class="header-main-title">
+            <h3 class="section-sub-title">과제 미션</h3>
+            <div id="mini-status-all-tasks" class="mini-status-bar hidden">
+                <div class="mini-status-group daily">
+                    <div class="mini-dot prayer" onclick="event.stopPropagation(); toggleTask('prayer')">🙏</div>
+                    <div class="mini-dot qt" onclick="event.stopPropagation(); toggleTask('qt')">📖</div>
+                </div>
+                <div class="mini-status-group weekly">
+                    <div class="mini-dot memorization" onclick="event.stopPropagation(); toggleTask('memorization')">📌
+                    </div>
+                    <div class="mini-dot summary" onclick="event.stopPropagation(); toggleTask('summary')">📝</div>
+                    <div class="mini-dot phone" onclick="event.stopPropagation(); toggleTask('phone')">📞</div>
+                </div>
             </div>
         </div>
-
-        <div class="task-item" id="card-bible" onclick="toggleTask('bible')" aria-label="QT 완료 체크" role="button">
-            <div class="icon-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-13.4 8.38 8.38 0 0 1 3.8.9L21 3z"></path>
+        <div class="header-side-box">
+            <span class="goal-label">전체 목표</span>
+            <button class="btn-fold" id="btn-fold-all-tasks" onclick="toggleSection('all-tasks')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
-            </div>
-            <div style="text-align:center;">
-                <div class="task-title">QT</div>
-            </div>
+            </button>
         </div>
-    </section>
+    </div>
 
+    <div class="collapsible-content" id="grid-all-tasks">
+        <section class="task-grid daily">
+            <div class="task-item" id="card-prayer" onclick="toggleTask('prayer')" role="button">
+                <div class="task-card-main">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path
+                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C15.09 3.81 16.76 3 18.5 3 21.58 3 24 5.42 24 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21.35z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="task-info">
+                        <div class="task-title">기도</div>
+                        <div id="task-prayer-duration" class="task-meta">매일 20분 이상</div>
+                    </div>
+                </div>
+            </div>
+            <div class="task-item" id="card-qt" onclick="toggleTask('qt')" role="button">
+                <div class="task-card-main">
+                    <div class="icon-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                        </svg>
+                    </div>
+                    <div class="task-info">
+                        <div class="task-title">QT</div>
+                        <div class="task-meta">매일 말씀</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="task-grid weekly">
+            <div class="task-item" id="card-memorization" onclick="toggleTask('memorization')" role="button">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+                <div class="task-info">
+                    <div class="task-title">성구암송</div>
+                    <div class="task-meta">주 1회</div>
+                </div>
+            </div>
+            <div class="task-item" id="card-summary" onclick="toggleTask('summary')" role="button">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                        <line x1="8" y1="21" x2="16" y2="21" />
+                        <line x1="12" y1="17" x2="12" y2="21" />
+                    </svg>
+                </div>
+                <div class="task-info">
+                    <div class="task-title">말씀요약</div>
+                    <div class="task-meta">주 2회</div>
+                </div>
+            </div>
+            <div class="task-item" id="card-phone" onclick="toggleTask('phone')" role="button">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path
+                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                        </path>
+                    </svg>
+                </div>
+                <div class="task-info">
+                    <div class="task-title">전화교제</div>
+                    <div class="task-meta">주 2회</div>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <!-- Verse Selection Section -->
     <div class="section-header">

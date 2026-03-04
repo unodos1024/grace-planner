@@ -6,7 +6,9 @@
 */
 
 .prayer-page-wrapper {
-    padding: 24px 20px 100px;
+    padding: 16px 20px;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 #screen-prayer {
@@ -18,7 +20,6 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-top: 20px;
 }
 
 /* Tab Navigation (Page Specific) */
@@ -306,25 +307,32 @@
     display: none !important;
 }
 
-/* Prayer Stats Card (Settings Style) */
+/* Prayer Stats Card (Refined Glassmorphism) */
 .settings-section-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-xl);
-    padding: 20px;
-    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-2xl);
+    padding: 20px 18px 14px;
+    box-shadow: var(--shadow-md);
+    margin: 12px 0 10px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    width: 100%;
 }
 
 .section-title-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
 }
 
 .section-title {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 800;
     color: var(--text-main);
     margin: 0;
-    line-height: 1.2;
+    letter-spacing: -0.02em;
 }
 
 .section-subtitle {
@@ -335,9 +343,34 @@
     margin-top: 4px;
 }
 
+/* Total Stats Badge */
+.total-stats-badge {
+    background: var(--primary-pale);
+    padding: 8px 14px;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.total-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--primary);
+    text-transform: uppercase;
+    opacity: 0.7;
+    letter-spacing: 0.05em;
+}
+
+.total-value {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--primary);
+}
+
 .prayer-week-grid {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     overflow-x: auto;
     padding-bottom: 8px;
     scrollbar-width: none;
@@ -350,47 +383,62 @@
 
 .prayer-day-column {
     flex-shrink: 0;
-    width: 62px;
+    width: 64px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .prayer-day-box {
     width: 100%;
-    aspect-ratio: 0.9;
-    background: var(--bg-main);
+    aspect-ratio: 0.85;
+    background: #FFFFFF;
     border: 1px solid var(--border-subtle);
-    border-radius: 16px;
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transition: var(--transition-base);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .prayer-day-box.today {
     background: var(--primary-pale);
-    border: 1.5px solid var(--primary);
-    box-shadow: var(--shadow-sm);
+    border: 2px solid var(--primary);
+    box-shadow: 0 8px 24px rgba(123, 150, 77, 0.2);
+    /* transform: translateY(-2px); */
+}
+
+/* Achievement Levels */
+.prayer-day-box.achievement-high {
+    background: linear-gradient(135deg, #FFFFFF 0%, #F5F9EE 100%);
+    border-color: var(--primary);
 }
 
 .prayer-day-box .time {
-    font-size: 18px;
-    font-weight: 800;
+    font-size: 20px;
+    font-weight: 900;
     color: var(--text-main);
+    letter-spacing: -0.03em;
+}
+
+.prayer-day-box.today .time,
+.prayer-day-box.achievement-high .time {
+    color: var(--primary);
 }
 
 .prayer-day-box .unit {
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-soft);
+    margin-top: -2px;
 }
 
 .prayer-day-label {
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     color: var(--text-soft);
 }
 

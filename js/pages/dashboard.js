@@ -12,6 +12,75 @@
     let adminFilterMember = 'all';
     let currentCohortFilter = null;
     let adminCurrentScheduleWeek = 1;
+    let dashboardFilter = 'all'; // Smart filter state
+
+    window.setDashboardFilter = (filter) => {
+        dashboardFilter = filter;
+        document.querySelectorAll('.filter-chip').forEach(btn => {
+            btn.classList.toggle('active', btn.id === `f-${filter}`);
+        });
+        initAdminPage();
+    };
+
+    const renderAdminInsights = (users, week) => {
+        const cohortUsers = users.filter(u => u.role === 'believer' && u.isApproved && String(u.cohort) === currentCohortFilter);
+        if (cohortUsers.length === 0) return;
+
+        const cohortInfo = window.Utils.getStorageItem('gw_cohort_schedule', { startDate: '2026-02-08' });
+        const startDate = new Date(cohortInfo.startDate);
+        const weekStart = new Date(startDate);
+        weekStart.setDate(startDate.getDate() + ((week - 1) * 7));
+        const dayOfWeek = weekStart.getDay();
+        const sunday = new Date(weekStart);
+        sunday.setDate(weekStart.getDate() - dayOfWeek);
+        sunday.setHours(0, 0, 0, 0);
+        const saturday = new Date(sunday);
+        saturday.setDate(sunday.getDate() + 7);
+
+        const isReadingWeek = (week % 3 === 0);
+        let totalDailyPossible = cohortUsers.length * 14; // 7 days * (Prayer + QT)
+        let totalWeeklyPossible = cohortUsers.length * (3 + (isReadingWeek ? 1 : 0));
+        let totalDailyDone = 0;
+        let totalWeeklyDone = 0;
+        let totalAttendanceDone = 0;
+
+        cohortUsers.forEach(u => {
+            const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${u.id}`;
+            const userTasks = window.Utils.getStorageItem(taskKey, []);
+            const weekTasks = userTasks.filter(s => {
+                const d = new Date(s.date);
+                return d >= sunday && d < saturday;
+            });
+
+            // Daily Stats
+            totalDailyDone += weekTasks.filter(s => s.prayer).length;
+            totalDailyDone += weekTasks.filter(s => s.bible).length;
+
+            // Weekly Stats
+            if (weekTasks.some(s => s.qt)) totalWeeklyDone++; // Memorization
+            if (weekTasks.some(s => s.summary)) totalWeeklyDone++;
+            if (weekTasks.some(s => s.phone)) totalWeeklyDone++;
+            if (isReadingWeek && weekTasks.some(s => s.book || s.reading)) totalWeeklyDone++;
+
+            // Attendance Stats
+            if (weekTasks.some(s => s.attendance)) totalAttendanceDone++;
+        });
+
+        const dailyRate = Math.round((totalDailyDone / totalDailyPossible) * 100) || 0;
+        const weeklyRate = Math.round((totalWeeklyDone / totalWeeklyPossible) * 100) || 0;
+        const attendanceRate = Math.round((totalAttendanceDone / cohortUsers.length) * 100) || 0;
+
+        const setBar = (id, val) => {
+            const bar = document.getElementById(`chart-bar-${id}`);
+            const text = document.getElementById(`chart-val-${id}`);
+            if (bar) bar.style.width = `${val}%`;
+            if (text) text.innerText = `${val}%`;
+        };
+
+        setBar('daily', dailyRate);
+        setBar('weekly', weeklyRate);
+        setBar('attendance', attendanceRate);
+    };
 
     // Utility: Drag Scroll for filters
     const enableDragScroll = (id) => {
@@ -72,13 +141,22 @@
             v.classList.toggle('active', v.id === `admin-view-${currentAdminTab}`);
         });
 
-        // Stats
-        const total = registeredUsers.filter(u => u.role === 'believer' && u.isApproved && !u.isGraduated).length;
-        const pending = registeredUsers.filter(u => !u.isApproved).length;
-        const statTotal = document.getElementById('admin-stat-total');
-        const statPending = document.getElementById('admin-stat-pending');
-        if (statTotal) statTotal.innerText = total;
-        if (statPending) statPending.innerText = pending;
+        // Initialize Week Selectors (Overview + Members tabs)
+        const cohortInfo = window.Utils.getStorageItem('gw_cohort_schedule', { startDate: '2026-02-08' });
+        const startDateForWeek = new Date(cohortInfo.startDate);
+        const today = new Date();
+        const diffDays = Math.floor((today - startDateForWeek) / (1000 * 60 * 60 * 24));
+        const currentWeek = Math.max(1, Math.min(32, Math.floor(diffDays / 7) + 1));
+
+        let weekOptions = '';
+        for (let i = 1; i <= 32; i++) {
+            weekOptions += `<option value="${i}" ${i === currentWeek ? 'selected' : ''}>${i}주차</option>`;
+        }
+
+        ['admin-cohort-week-select', 'admin-members-week-select'].forEach(id => {
+            const sel = document.getElementById(id);
+            if (sel && sel.options.length === 0) sel.innerHTML = weekOptions;
+        });
 
         // Render Active Tab Content
         if (currentAdminTab === 'overview') {
@@ -148,6 +226,8 @@
             registeredUsers[userIndex].isApproved = true;
             window.Utils.setStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, registeredUsers);
             window.Utils.showToast(`${registeredUsers[userIndex].name}님을 승인했습니다.`);
+            // Refresh pending badge in header
+            if (window.updatePendingBadge) window.updatePendingBadge();
             initAdminPage();
         }
     };
@@ -181,85 +261,191 @@
         if (!list) return;
 
         if (!currentCohortFilter) {
-            list.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">
-                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-                </div>
-                <p class="empty-state-text">조회할 기수를 선택하시면<br>훈련생 현황이 표시됩니다.</p>
-            </div>
-        `;
+            list.innerHTML = `<div class="empty-state">...</div>`;
             return;
         }
 
-        const filtered = users.filter(u => u.role === 'believer' && u.isApproved)
-            .filter(u => String(u.cohort) === currentCohortFilter)
-            .sort((a, b) => a.name.localeCompare(b.name));
+        const cohortInfo = window.Utils.getStorageItem('gw_cohort_schedule', { startDate: '2026-02-08' });
+        const startDate = new Date(cohortInfo.startDate);
+        const weekSelect = document.getElementById('admin-cohort-week-select');
+        const selectedWeek = weekSelect ? parseInt(weekSelect.value) : 1;
+
+        const weekStartOffset = (selectedWeek - 1) * 7;
+        const weekStartDate = new Date(startDate);
+        weekStartDate.setDate(startDate.getDate() + weekStartOffset);
+        const dayOfWeek = weekStartDate.getDay();
+        const sunday = new Date(weekStartDate);
+        sunday.setDate(weekStartDate.getDate() - dayOfWeek);
+        sunday.setHours(0, 0, 0, 0);
+        const saturday = new Date(sunday);
+        saturday.setDate(sunday.getDate() + 7);
+
+        let filtered = users.filter(u => u.role === 'believer' && u.isApproved && String(u.cohort) === currentCohortFilter);
+
+        // Apply Smart Filters
+        if (dashboardFilter === 'unsubmitted') {
+            filtered = filtered.filter(u => {
+                const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${u.id}`;
+                const userTasks = window.Utils.getStorageItem(taskKey, []);
+                const weekTasks = userTasks.filter(s => {
+                    const d = new Date(s.date);
+                    return d >= sunday && d < saturday;
+                });
+                const missionsDone = (weekTasks.some(s => s.qt) ? 1 : 0) + (weekTasks.some(s => s.summary) ? 1 : 0) + (weekTasks.some(s => s.phone) ? 1 : 0);
+                return missionsDone < 3;
+            });
+        } else if (dashboardFilter === 'absent') {
+            filtered = filtered.filter(u => {
+                const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${u.id}`;
+                const userTasks = window.Utils.getStorageItem(taskKey, []);
+                return !userTasks.some(s => {
+                    const d = new Date(s.date);
+                    return d >= sunday && d < saturday && s.attendance;
+                });
+            });
+        } else if (dashboardFilter === 'birthday') {
+            const today = new Date();
+            const todayMonth = today.getMonth() + 1;
+            const todayDate = today.getDate();
+            filtered = filtered.filter(u => {
+                if (!u.birth) return false;
+                const [y, m, d] = u.birth.split('-').map(Number);
+                // Check if birthday falls in the current week (Sunday to Saturday)
+                const bYear = today.getFullYear();
+                const bDate = new Date(bYear, m - 1, d);
+                return bDate >= sunday && bDate < saturday;
+            });
+        }
+
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
 
         if (filtered.length === 0) {
-            list.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">
-                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                </div>
-                <p class="empty-state-text">${currentCohortFilter}기에 등록된<br>훈련생이 아직 없습니다.</p>
-            </div>
-        `;
+            list.innerHTML = `<div class="empty-state"><p class="empty-state-text">조건에 맞는 훈련생이 없습니다.</p></div>`;
             return;
         }
-
-        // Task Tracking View (Default)
-        const today = new Date();
-        const day = today.getDay();
-        const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-        const monday = new Date(today.setDate(diff));
-        monday.setHours(0, 0, 0, 0);
 
         list.innerHTML = filtered.map(u => {
             const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${u.id}`;
             const userTasks = window.Utils.getStorageItem(taskKey, []);
 
-            let dayDotsHtml = '';
-            const dayLabels = ['월', '화', '수', '목', '금', '토', '일'];
+            let dayItemsHtml = '';
+            const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
+
+            const weekTasks = userTasks.filter(s => {
+                const d = new Date(s.date);
+                return d >= sunday && d < saturday;
+            });
+
+            const isAttended = weekTasks.some(s => s.attendance);
+            const hasMemo = weekTasks.some(s => s.qt);
+            const hasSummary = weekTasks.some(s => s.summary);
+            const hasPhone = weekTasks.some(s => s.phone);
+            const isReadingWeek = (selectedWeek % 3 === 0);
+            const hasReading = weekTasks.some(s => s.book || s.reading);
+
+            let totalMissions = 3 + (isReadingWeek ? 1 : 0);
+            let completedMissions = (hasMemo ? 1 : 0) + (hasSummary ? 1 : 0) + (hasPhone ? 1 : 0) + (isReadingWeek && hasReading ? 1 : 0);
+            const progressPercent = Math.round((completedMissions / totalMissions) * 100);
+            const allDone = completedMissions >= totalMissions;
+
+            // Birthday check for icon
+            let isBirthWeek = false;
+            if (u.birth) {
+                const [by, bm, bd] = u.birth.split('-').map(Number);
+                const bCurrent = new Date(sunday.getFullYear(), bm - 1, bd);
+                isBirthWeek = bCurrent >= sunday && bCurrent < saturday;
+            }
+
+            const todayStr = new Date().toDateString();
 
             for (let i = 0; i < 7; i++) {
-                const d = new Date(monday);
-                d.setDate(monday.getDate() + i);
+                const d = new Date(sunday);
+                d.setDate(sunday.getDate() + i);
                 const dStr = d.toISOString().split('T')[0];
                 const dayData = userTasks.find(s => s.date.split('T')[0] === dStr) || {};
+                const isToday = d.toDateString() === todayStr;
 
-                dayDotsHtml += `
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1;">
-                            <span style="font-size: 9px; color: var(--text-soft); font-weight: 600;">${dayLabels[i]}</span>
-                            <div style="display: flex; flex-direction: column; gap: 3px;">
-                                <div style="width: 6px; height: 6px; border-radius: 50%; background: ${dayData.prayer ? '#FF7E67' : '#E5E5EA'};"></div>
-                                <div style="width: 6px; height: 6px; border-radius: 50%; background: ${dayData.qt ? '#4CD964' : '#E5E5EA'};"></div>
-                                <div style="width: 6px; height: 6px; border-radius: 50%; background: ${dayData.bible ? '#5856D6' : '#E5E5EA'};"></div>
-                            </div>
-                        </div>
-                    `;
+                dayItemsHtml += `
+                <div class="day-item ${isToday ? 'active' : ''}">
+                    <span class="day-name">${dayLabels[i]}</span>
+                    <span class="day-num">${d.getDate()}</span>
+                    <div class="day-dots">
+                        <div class="dot prayer ${dayData.prayer ? 'done' : ''}"></div>
+                        <div class="dot qt ${dayData.bible ? 'done' : ''}"></div>
+                    </div>
+                </div>
+            `;
             }
 
             return `
-                    <div class="gw-card" style="padding: 16px; margin-bottom: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--bg-main);">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div class="avatar-circle" style="width: 32px; height: 32px; font-size: 13px;">${u.name[0]}</div>
-                                <div style="font-weight: 700; font-size: 15px; color: var(--text-main);">${u.name}</div>
-                            </div>
-                            <div style="font-size: 10px; color: var(--text-soft); background: var(--bg-main); padding: 2px 8px; border-radius: 4px;">이번 주 과제 현황</div>
+            <div class="cohort-member-card admin-compact">
+                <div class="calendar-strip admin-integrated">
+                    <div class="member-profile-mini" onclick="handleToggleAttendance('${u.id}', '${sunday.toISOString()}')" style="cursor: pointer;" title="클릭하여 출석 토글">
+                        <div class="avatar-circle-sm" style="${isAttended ? 'background: var(--primary); color: white;' : ''}">
+                            ${isAttended ? '出' : u.name[0]}
                         </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            ${dayDotsHtml}
-                        </div>
-                        <div style="display: flex; gap: 12px; margin-top: 12px; padding-top: 8px; font-size: 9px; color: var(--text-soft); justify-content: center; border-top: 1px dashed var(--bg-main);">
-                            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 5px; height: 5px; border-radius: 50%; background: #FF7E67;"></div> 기도</div>
-                            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 5px; height: 5px; border-radius: 50%; background: #4CD964;"></div> 성구암송</div>
-                            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 5px; height: 5px; border-radius: 50%; background: #5856D6;"></div> 말씀요약</div>
-                        </div>
+                        <div class="member-name-sm">${u.name}${isBirthWeek ? ' 🎂' : ''}</div>
                     </div>
-                `;
+
+                    <div class="days-container-mini">
+                        ${dayItemsHtml}
+                    </div>
+
+                    <div class="calendar-divider"></div>
+
+                    <div class="weekly-summary-item">
+                        <div class="weekly-progress-circle ${allDone ? 'all-done' : ''}" style="--progress: ${progressPercent}">
+                            ${allDone ? `
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                            ` : `
+                                <span style="font-size: 11px; font-weight: 800; color: var(--text-soft); font-family: 'Outfit';">
+                                    ${completedMissions}/${totalMissions}
+                                </span>
+                            `}
+                        </div>
+                        <span class="weekly-label">${isReadingWeek ? '독후감' : '미션'}</span>
+                    </div>
+                </div>
+            </div>
+        `;
         }).join('');
+    };
+
+    window.handleToggleAttendance = (userId, sundayIso) => {
+        const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}`;
+        const userTasks = window.Utils.getStorageItem(taskKey, []);
+        const sunday = new Date(sundayIso);
+        const saturday = new Date(sunday);
+        saturday.setDate(sunday.getDate() + 7);
+
+        const weekTaskIndex = userTasks.findIndex(s => {
+            const d = new Date(s.date);
+            return d >= sunday && d < saturday && s.attendance !== undefined;
+        });
+
+        if (weekTaskIndex > -1) {
+            userTasks[weekTaskIndex].attendance = !userTasks[weekTaskIndex].attendance;
+        } else {
+            const existingTaskInWeek = userTasks.find(s => {
+                const d = new Date(s.date);
+                return d >= sunday && d < saturday;
+            });
+
+            if (existingTaskInWeek) {
+                existingTaskInWeek.attendance = true;
+            } else {
+                userTasks.push({
+                    date: sunday.toISOString(),
+                    attendance: true
+                });
+            }
+        }
+
+        window.Utils.setStorageItem(taskKey, userTasks);
+        initAdminPage();
+        window.Utils.showToast('출석 상태가 변경되었습니다.');
     };
 
     // --- History List Modal Logic ---
@@ -284,12 +470,12 @@
             const snippet = content.replace(/\n/g, ' ').substring(0, 50);
 
             return `
-                <div class="gw-card" onclick="openAdminContentDetailModal({
-                    type: '${data.type}',
+                    < div class="gw-card" onclick = "openAdminContentDetailModal({
+                type: '${data.type}',
                     userName: '${data.user.name}',
-                    cohort: '${data.user.cohort}',
-                    date: '${item.date}',
-                    content: \`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`
+                        cohort: '${data.user.cohort}',
+                            date: '${item.date}',
+                                content: \`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`
                 })" style="height: 52px; padding: 0 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; background: var(--bg-surface); border: 1px solid var(--border-subtle); margin:0; flex-shrink: 0;">
                     <div style="font-size: 11px; font-weight: 700; color: var(--primary); white-space: nowrap; width: 45px;">${dateStr}</div>
                     <div style="font-size: 14px; color: var(--text-main); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex:1; opacity: 0.8;">
@@ -546,39 +732,105 @@
                 return a.name.localeCompare(b.name);
             });
 
-        listContainer.innerHTML = targetUsers.map(u => `
-            <div class="gw-card" style="opacity: ${u.isGraduated ? 0.6 : 1}; padding: 16px; position: relative;">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span class="gw-card-label" style="background: var(--primary-light); color: var(--primary); margin: 0; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${u.cohort}기</span>
-                        ${u.isGraduated ? '<span class="gw-card-label" style="background: var(--text-soft); color: white; margin: 0; padding: 2px 6px; border-radius: 4px; font-size: 11px;">수료</span>' : ''}
-                        <h4 class="gw-card-title" style="font-size: 17px; margin: 0;">${u.name} ${u.roleTitle && u.roleTitle !== '성도' ? `<span style="font-size: 13px; font-weight: normal; color: var(--text-soft);">(${u.roleTitle})</span>` : ''}</h4>
+        listContainer.innerHTML = targetUsers.map(u => {
+            // --- Attendance Logic for this member ---
+            const cohortInfo = window.Utils.getStorageItem('gw_cohort_schedule', { startDate: '2026-02-08' });
+            const startDate = new Date(cohortInfo.startDate);
+            const weekSelectEl = document.getElementById('admin-members-week-select');
+            const selectedWeek = weekSelectEl ? parseInt(weekSelectEl.value) : 1;
+
+            const weekStartOffset = (selectedWeek - 1) * 7;
+            const weekStartDate = new Date(startDate);
+            weekStartDate.setDate(startDate.getDate() + weekStartOffset);
+            const dayOfWeek = weekStartDate.getDay();
+            const sunday = new Date(weekStartDate);
+            sunday.setDate(weekStartDate.getDate() - dayOfWeek);
+            sunday.setHours(0, 0, 0, 0);
+            const saturday = new Date(sunday);
+            saturday.setDate(sunday.getDate() + 7);
+
+            const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${u.id}`;
+            const userTasks = window.Utils.getStorageItem(taskKey, []);
+            const isAttended = userTasks.some(s => {
+                const d = new Date(s.date);
+                return d >= sunday && d < saturday && s.attendance;
+            });
+
+            // Birthday highlight
+            let isBirthdayThisWeek = false;
+            if (u.birth) {
+                const [, bm, bd] = u.birth.split('-').map(Number);
+                const bCurrent = new Date(sunday.getFullYear(), bm - 1, bd);
+                isBirthdayThisWeek = bCurrent >= sunday && bCurrent < saturday;
+            }
+
+            return `
+            <div class="gw-card" style="opacity: ${u.isGraduated ? 0.6 : 1}; padding: 14px 16px; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;">
+                        <span class="gw-card-label" style="background: var(--primary-light); color: var(--primary); margin: 0; padding: 2px 6px; border-radius: 4px; font-size: 11px; flex-shrink: 0;">${u.cohort}기</span>
+                        ${u.isGraduated ? '<span class="gw-card-label" style="background: var(--text-soft); color: white; margin: 0; padding: 2px 6px; border-radius: 4px; font-size: 11px; flex-shrink: 0;">수료</span>' : ''}
+                        <h4 class="gw-card-title" style="font-size: 16px; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            ${u.name}${isBirthdayThisWeek ? ' 🎂' : ''}
+                            ${u.roleTitle && u.roleTitle !== '성도' ? `<span style="font-size: 12px; font-weight: normal; color: var(--text-soft);">(${u.roleTitle})</span>` : ''}
+                        </h4>
                     </div>
+                    <!-- Attendance Toggle -->
+                    <button onclick="handleMemberAttendance('${u.id}', '${sunday.toISOString()}')"
+                        style="
+                            flex-shrink: 0; margin-left: 10px;
+                            padding: 6px 14px; border-radius: 10px; border: 2px solid;
+                            font-size: 13px; font-weight: 800; cursor: pointer;
+                            transition: all 0.2s ease;
+                            ${isAttended
+                    ? 'background: var(--primary); color: white; border-color: var(--primary);'
+                    : 'background: var(--bg-main); color: var(--text-soft); border-color: var(--border-subtle);'}
+                        ">
+                        ${isAttended ? '✓ 출석' : '미출석'}
+                    </button>
                 </div>
                 
-                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-main);">
-                    <!-- 생년월일 -->
-                    <div style="display: flex; align-items: center;">
-                        <span style="color: var(--text-soft); width: 60px; font-size: 12px;">생년월일</span>
-                        <span style="font-weight: 500;">${u.birth || '-'}</span>
-                    </div>
-
-                    <!-- 전화번호 (복사 기능) -->
-                    <div style="display: flex; align-items: center;">
-                        <span style="color: var(--text-soft); width: 60px; font-size: 12px;">전화번호</span>
-                        <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
-                            <span style="font-weight: 500; color: ${u.phone ? 'var(--text-main)' : 'var(--text-soft)'};">${u.phone || '미등록'}</span>
-                            ${u.phone ? `
-                            <button onclick="copyToClipboard('${u.phone}')" 
-                                style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 2px 6px; cursor: pointer; display: flex; align-items: center; gap: 2px;">
-                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                <span style="font-size: 10px; color: var(--text-soft);">복사</span>
-                            </button>` : ''}
-                        </div>
-                    </div>
+                <div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-soft);">
+                    <span>📅 ${u.birth || '-'}</span>
+                    ${u.phone ? `<span style="display: flex; align-items: center; gap: 4px;">
+                        📞 ${u.phone}
+                        <button onclick="copyToClipboard('${u.phone}')"
+                            style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 1px 5px; cursor: pointer; font-size: 10px; color: var(--text-soft);">복사</button>
+                    </span>` : '<span>📞 미등록</span>'}
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
+    };
+
+    window.handleMemberAttendance = (userId, sundayIso) => {
+        const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}`;
+        const userTasks = window.Utils.getStorageItem(taskKey, []);
+        const sunday = new Date(sundayIso);
+        const saturday = new Date(sunday);
+        saturday.setDate(sunday.getDate() + 7);
+
+        const weekTaskIndex = userTasks.findIndex(s => {
+            const d = new Date(s.date);
+            return d >= sunday && d < saturday && s.attendance !== undefined;
+        });
+
+        if (weekTaskIndex > -1) {
+            userTasks[weekTaskIndex].attendance = !userTasks[weekTaskIndex].attendance;
+        } else {
+            const existing = userTasks.find(s => {
+                const d = new Date(s.date);
+                return d >= sunday && d < saturday;
+            });
+            if (existing) {
+                existing.attendance = true;
+            } else {
+                userTasks.push({ date: sundayIso, attendance: true });
+            }
+        }
+        window.Utils.setStorageItem(taskKey, userTasks);
+        initAdminPage();
+        window.Utils.showToast('출석 상태가 변경되었습니다.');
     };
 
     window.copyToClipboard = (text) => {
@@ -607,66 +859,7 @@
         initAdminPage();
     };
 
-    let editingMemberId = null;
-    window.openAdminMemberModal = (userId) => {
-        const users = window.Utils.getStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, []);
-        const user = users.find(u => u.id === userId);
-        if (!user) return;
-        editingMemberId = userId;
-        document.getElementById('edit-member-id').value = user.id;
-        document.getElementById('edit-member-name').value = user.name || '';
-        document.getElementById('edit-member-birth').value = user.birth || '';
-        document.getElementById('edit-member-phone').value = user.phone || '';
-        document.getElementById('edit-member-cohort').value = user.cohort || '';
-        document.getElementById('edit-member-role-title').value = user.roleTitle || '성도';
 
-        document.getElementById('admin-member-modal').classList.add('active');
-    };
-
-    window.closeAdminMemberModal = () => {
-        document.getElementById('admin-member-modal').classList.remove('active');
-        editingMemberId = null;
-    };
-
-    window.saveMemberChanges = () => {
-        if (!editingMemberId) return;
-        const newName = document.getElementById('edit-member-name').value.trim();
-        const newBirth = document.getElementById('edit-member-birth').value.trim();
-        const newPhone = document.getElementById('edit-member-phone').value.trim();
-        const newCohort = document.getElementById('edit-member-cohort').value.trim();
-        const newRoleTitle = document.getElementById('edit-member-role-title').value;
-
-        if (!newName || !newBirth || !newCohort) {
-            window.Utils.showToast('이름, 생년월일, 기수는 필수입니다.');
-            return;
-        }
-
-        let users = window.Utils.getStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, []);
-        const idx = users.findIndex(u => u.id === editingMemberId);
-        if (idx > -1) {
-            users[idx].name = newName;
-            users[idx].birth = newBirth;
-            users[idx].phone = newPhone;
-            users[idx].cohort = newCohort;
-            users[idx].roleTitle = newRoleTitle;
-            window.Utils.setStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, users);
-            window.Utils.showToast('정보가 수정되었습니다.');
-            closeAdminMemberModal();
-            initAdminPage();
-        }
-    };
-
-    window.deleteMember = () => {
-        if (!editingMemberId) return;
-        if (confirm('정말로 이 회원을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.')) {
-            let users = window.Utils.getStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, []);
-            const newUsers = users.filter(u => u.id !== editingMemberId);
-            window.Utils.setStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, newUsers);
-            window.Utils.showToast('회원이 삭제되었습니다.');
-            closeAdminMemberModal();
-            initAdminPage();
-        }
-    };
 
     // Notices Management
     const renderAdminNotices = () => {

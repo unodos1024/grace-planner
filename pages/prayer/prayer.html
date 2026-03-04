@@ -51,6 +51,27 @@
             </svg>
         </button>
     </div>
+
+    <!-- 1. 최근 7일 기도시간 (Soft Elevation & Border) -->
+    <div id="settings-prayer-section" class="settings-section-card" style="margin-top: 24px;">
+        <div class="section-title-box">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <h3 class="section-title">기도 기록</h3>
+                <select id="prayer-week-select" class="filter-select"
+                    style="min-width: 90px; height: 32px; padding: 0 8px; font-size: 12px; border-radius: 8px; border: 1px solid var(--border-subtle); background: var(--bg-surface-glass); color: var(--text-soft);"
+                    onchange="renderPrayerWeek()">
+                    <!-- JavaScript로 채워짐 -->
+                </select>
+            </div>
+            <div class="total-stats-badge" id="prayer-total-stat">
+                <span class="total-label">이번 주 총계</span>
+                <span class="total-value">0 min</span>
+            </div>
+        </div>
+        <div class="prayer-week-grid" id="prayer-week-grid">
+            <!-- JavaScript로 채워짐 -->
+        </div>
+    </div>
 </div>
 
 <!-- Prayer Modal (JS will move this to #modal-root) -->

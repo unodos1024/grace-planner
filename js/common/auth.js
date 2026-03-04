@@ -290,16 +290,15 @@ const initMockUsers = () => {
 
     // Add 10 more mock data if not exists
     const additionalUsers = [
-        { id: 'user2', pw: '1', name: '김철수', role: 'believer', birth: '1990-02-05', cohort: '6', isApproved: true, phone: '010-1111-2222', roleTitle: '집사' },
-        { id: 'user3', pw: '1', name: '이영희', role: 'believer', birth: '1992-02-12', cohort: '6', isApproved: true, phone: '010-3333-4444', roleTitle: '권사' },
-        { id: 'user4', pw: '1', name: '박민수', role: 'believer', birth: '1985-02-20', cohort: '7', isApproved: true, phone: '010-5555-6666', roleTitle: '성도' }, // Today? approx.
-        { id: 'user5', pw: '1', name: '정수진', role: 'believer', birth: '1988-11-25', cohort: '8', isApproved: true, phone: '010-7777-8888', roleTitle: '성도' },
-        { id: 'user6', pw: '1', name: '최동훈', role: 'believer', birth: '1995-02-28', cohort: '8', isApproved: true, phone: '010-9999-0000', roleTitle: '집사' },
-        { id: 'user7', pw: '1', name: '강지혜', role: 'believer', birth: '1998-02-14', cohort: '9', isApproved: true, phone: '010-1212-3434', roleTitle: '성도' },
-        { id: 'user8', pw: '1', name: '윤서준', role: 'believer', birth: '1993-03-05', cohort: '9', isApproved: true, phone: '010-5656-7878', roleTitle: '성도' },
-        { id: 'user9', pw: '1', name: '임현주', role: 'believer', birth: '1991-03-12', cohort: '10', isApproved: true, phone: '010-9090-1212', roleTitle: '권사' },
-        { id: 'user10', pw: '1', name: '장도윤', role: 'believer', birth: '1987-02-10', cohort: '10', isApproved: true, phone: '010-3434-5656', roleTitle: '장로' },
-        { id: 'user11', pw: '1', name: '송은영', role: 'believer', birth: '1994-04-18', cohort: '11', isApproved: true, phone: '010-7878-9090', roleTitle: '성도' }
+        { id: 'user1', pw: '1', name: '김종덕', role: 'believer', birth: '1992-07-08', cohort: '6', isApproved: true, phone: '010-3333-4444', roleTitle: '집사' },
+        { id: 'user2', pw: '1', name: '김종원', role: 'believer', birth: '1985-06-20', cohort: '7', isApproved: true, phone: '010-5555-6666', roleTitle: '집사' }, // Today? approx.
+        { id: 'user3', pw: '1', name: '방상훈', role: 'believer', birth: '1988-06-13', cohort: '8', isApproved: true, phone: '010-7777-8888', roleTitle: '집사' },
+        { id: 'user4', pw: '1', name: '신윤권', role: 'believer', birth: '1995-11-25', cohort: '8', isApproved: true, phone: '010-9999-0000', roleTitle: '집사' },
+        { id: 'user5', pw: '1', name: '이용범', role: 'believer', birth: '1998-09-12', cohort: '9', isApproved: true, phone: '010-1212-3434', roleTitle: '집사' },
+        { id: 'user6', pw: '1', name: '이주호', role: 'believer', birth: '1993-04-12', cohort: '9', isApproved: true, phone: '010-5656-7878', roleTitle: '집사' },
+        { id: 'user7', pw: '1', name: '임지헌', role: 'believer', birth: '1991-05-27', cohort: '10', isApproved: true, phone: '010-9090-1212', roleTitle: '집사' },
+        { id: 'user8', pw: '1', name: '조경용', role: 'believer', birth: '1987-12-24', cohort: '10', isApproved: true, phone: '010-3434-5656', roleTitle: '집사' },
+        { id: 'user9', pw: '1', name: '홍현진', role: 'believer', birth: '1994-08-24', cohort: '11', isApproved: true, phone: '010-7878-9090', roleTitle: '집사' }
     ];
 
     let changed = false;

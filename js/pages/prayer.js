@@ -160,6 +160,7 @@
         document.querySelectorAll('.tab-trigger').forEach(btn => btn.classList.toggle('active', btn.id === `tab-${tab}`));
         document.getElementById('prayer-timer-view')?.classList.toggle('hidden', tab !== 'timer');
         document.getElementById('prayer-journal-view')?.classList.toggle('hidden', tab !== 'journal');
+        document.getElementById('settings-prayer-section')?.classList.toggle('hidden', tab !== 'timer');
     };
 
     window.openPrayerModal = () => {
@@ -255,10 +256,117 @@
 
 
 
+    // 5. Weekly Prayer Stats Logic
+    const renderPrayerWeek = () => {
+        const container = document.getElementById('prayer-week-grid');
+        const weekSelect = document.getElementById('prayer-week-select');
+        if (!container) return;
+
+        // Initialize Select if empty
+        const cohortInfo = window.Utils.getStorageItem('gw_cohort_schedule', { startDate: '2026-02-08' });
+        const startDate = new Date(cohortInfo.startDate);
+
+        if (weekSelect && weekSelect.options.length === 0) {
+            const today = new Date();
+            const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            const currentWeek = Math.max(1, Math.min(32, Math.floor(diffDays / 7) + 1));
+
+            let options = '';
+            for (let i = 1; i <= 32; i++) {
+                options += `<option value="${i}" ${i === currentWeek ? 'selected' : ''}>${i}주차</option>`;
+            }
+            weekSelect.innerHTML = options;
+        }
+
+        const selectedWeek = weekSelect ? parseInt(weekSelect.value) : 1;
+        const baseDate = new Date(startDate);
+        baseDate.setDate(startDate.getDate() + ((selectedWeek - 1) * 7));
+        baseDate.setHours(0, 0, 0, 0);
+
+        const userId = window.Auth.getCurrentUserId();
+        const key = userId ? `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}` : 'gw_task_state';
+        const localTaskState = window.Utils.getStorageItem(key, []);
+
+        const weekData = [];
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(baseDate);
+            date.setDate(baseDate.getDate() + i);
+            const dateStr = date.toISOString().split('T')[0];
+            const local = localTaskState.find(s => s.date.split('T')[0] === dateStr) || {
+                prayerDuration: 0
+            };
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const dateDisplay = `${month}/${day}`;
+            const duration = local.prayerDuration || 0;
+
+            weekData.push({
+                dateDisplay,
+                duration,
+                isToday: dateStr === todayStr
+            });
+        }
+
+        const totalMinutes = weekData.reduce((acc, curr) => acc + curr.duration, 0);
+        const totalEl = document.getElementById('prayer-total-stat');
+        if (totalEl) {
+            totalEl.querySelector('.total-label').innerText = `${selectedWeek}주차 총계`;
+            totalEl.querySelector('.total-value').innerText = `${totalMinutes} min`;
+        }
+
+        container.innerHTML = weekData.map(data => {
+            let achievementClass = 'achievement-low';
+            if (data.duration >= 20) achievementClass = 'achievement-high';
+            else if (data.duration >= 10) achievementClass = 'achievement-mid';
+
+            return `
+                <div class="prayer-day-column" style="flex: 1;">
+                    <div class="prayer-day-box ${data.isToday ? 'today' : ''} ${achievementClass}">
+                        <span class="time">${data.duration}</span>
+                        <span class="unit">min</span>
+                    </div>
+                    <div class="prayer-day-label ${data.isToday ? 'today' : ''}">${data.dateDisplay}</div>
+                </div>
+            `;
+        }).join('');
+
+        // PC Scroll interaction
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        container.addEventListener('mousedown', (e) => {
+            isDown = true;
+            container.style.cursor = 'grabbing';
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+        });
+        container.addEventListener('mouseleave', () => {
+            isDown = false;
+        });
+        container.addEventListener('mouseup', () => {
+            isDown = false;
+            container.style.cursor = 'grab';
+        });
+        container.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX) * 2;
+            container.scrollLeft = scrollLeft - walk;
+        });
+
+        requestAnimationFrame(() => {
+            container.scrollLeft = container.scrollWidth;
+        });
+    };
+
     // Initialization
     initModal();
     loadCumulativeTime();
     updateTimerUI();
     renderPrayerJournal();
+    renderPrayerWeek();
 })();
 

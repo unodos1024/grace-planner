@@ -16,93 +16,7 @@
         if (avatarEl) avatarEl.innerText = user.name[0];
     };
 
-    // 주간 기도시간 그리드 렌더링
-    const renderPrayerWeek = () => {
-        const container = document.getElementById('prayer-week-grid');
-        if (!container) return;
 
-        const userId = window.Auth.getCurrentUserId();
-        const key = userId ? `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}` : 'gw_task_state';
-        const localTaskState = window.Utils.getStorageItem(key, []);
-
-        const weekData = [];
-
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toISOString().split('T')[0];
-            const local = localTaskState.find(s => s.date.split('T')[0] === dateStr) || {
-                prayerDuration: 0
-            };
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            const dateDisplay = `${month}/${day}`;
-            const duration = local.prayerDuration || 0;
-
-            weekData.push({
-                dateDisplay,
-                duration,
-                isToday: i === 0
-            });
-        }
-
-        const totalMinutes = weekData.reduce((acc, curr) => acc + curr.duration, 0);
-        const totalEl = document.getElementById('prayer-total-stat');
-        if (totalEl) {
-            totalEl.querySelector('.total-value').innerText = `${totalMinutes} min`;
-        }
-
-        container.innerHTML = weekData.map(data => {
-            let achievementClass = 'achievement-low';
-            if (data.duration >= 20) achievementClass = 'achievement-high';
-            else if (data.duration >= 10) achievementClass = 'achievement-mid';
-
-            return `
-                <div class="prayer-day-column">
-                    <div class="prayer-day-box ${data.isToday ? 'today' : ''} ${achievementClass}">
-                        <span class="time">${data.duration}</span>
-                        <span class="unit">min</span>
-                    </div>
-                    <div class="prayer-day-label ${data.isToday ? 'today' : ''}">${data.dateDisplay}</div>
-                </div>
-            `;
-        }).join('');
-
-        // PC 마우스 드래그 스크롤 기능
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-
-        container.addEventListener('mousedown', (e) => {
-            isDown = true;
-            container.style.cursor = 'grabbing';
-            startX = e.pageX - container.offsetLeft;
-            scrollLeft = container.scrollLeft;
-            e.preventDefault();
-        });
-
-        container.addEventListener('mouseleave', () => {
-            isDown = false;
-            container.style.cursor = 'grab';
-        });
-
-        container.addEventListener('mouseup', () => {
-            isDown = false;
-            container.style.cursor = 'grab';
-        });
-
-        container.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - container.offsetLeft;
-            const walk = (x - startX) * 2.5;
-            container.scrollLeft = scrollLeft - walk;
-        });
-
-        requestAnimationFrame(() => {
-            container.scrollLeft = container.scrollWidth;
-        });
-    };
 
     // 달력 렌더링
     const renderCalendar = () => {
@@ -254,12 +168,7 @@
     // 초기화
     updateUserInfo();
 
-    if (user && user.role === 'pastor') {
-        const prayerSection = document.getElementById('settings-prayer-section');
-        if (prayerSection) prayerSection.style.display = 'none';
-    } else {
-        renderPrayerWeek();
-    }
+
 
     renderCalendar();
     fetchOracleUsers();

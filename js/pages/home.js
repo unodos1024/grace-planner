@@ -19,10 +19,19 @@
             renderCalendarStrip(weekStatuses);
 
             const todayStatus = window.TaskService.getTodayTaskState();
+            // const isBookWeek = window.TaskService.isBookReportWeek(new Date()); // Book mission removed
+
+            // Weekly counts for Summary, Memorization, and Phone Fellowship
+            const summaryCount = window.TaskService.getWeeklyTaskCount('summary', new Date());
+            const memoCount = window.TaskService.getWeeklyTaskCount('qt', new Date()); // Home Memo -> Internal QT
+            const phoneCount = window.TaskService.getWeeklyTaskCount('phone', new Date());
+
             updateTaskCards([
-                { type: 'prayer', isCompleted: todayStatus.prayer },
-                { type: 'qt', isCompleted: todayStatus.qt },
-                { type: 'bible', isCompleted: todayStatus.bible }
+                { type: 'prayer', isCompleted: todayStatus.prayer, meta: `매일 20분 이상` },
+                { type: 'qt', isCompleted: todayStatus.bible },
+                { type: 'memorization', isCompleted: memoCount >= 1 },
+                { type: 'summary', isCompleted: summaryCount >= 1 },
+                { type: 'phone', isCompleted: phoneCount >= 1 }
             ]);
 
             // Growth Chart still uses last 7 days for trend
@@ -49,7 +58,23 @@
         const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
         const todayStr = new Date().toDateString();
 
-        strip.innerHTML = dailyStatuses.map((status, i) => {
+        // Calculate Weekly Mission Progress for Summary
+        const summaryCount = window.TaskService.getWeeklyTaskCount('summary', new Date());
+        const memoCount = window.TaskService.getWeeklyTaskCount('qt', new Date());
+        const phoneCount = window.TaskService.getWeeklyTaskCount('phone', new Date());
+        const todayStatus = window.TaskService.getTodayTaskState();
+
+        let completedMissions = 0;
+        let totalMissions = 3; // 암송(1), 요약(2), 전화(2)
+
+        if (memoCount >= 1) completedMissions++;
+        if (summaryCount >= 1) completedMissions++;
+        if (phoneCount >= 1) completedMissions++;
+
+        const progressPercent = Math.min(100, Math.round((completedMissions / totalMissions) * 100));
+        const allDone = completedMissions >= totalMissions;
+
+        const daysHtml = dailyStatuses.map((status, i) => {
             const date = new Date(status.date);
             const isToday = date.toDateString() === todayStr;
 
@@ -61,15 +86,41 @@
                         <div class="dot prayer ${status.prayer ? 'done' : ''}"></div>
                         <div class="dot qt ${status.qt ? 'done' : ''}"></div>
                         <div class="dot bible ${status.bible ? 'done' : ''}"></div>
+                        <div class="dot phone ${status.phone ? 'done' : ''}"></div>
+                        <div class="dot book ${status.book ? 'done' : ''}"></div>
                     </div>
                 </div>
             `;
         }).join('');
 
+        const weeklyHtml = `
+            <div class="calendar-divider"></div>
+            <div class="weekly-summary-item">
+                <div class="weekly-progress-circle ${allDone ? 'all-done' : ''}" style="--progress: ${progressPercent}">
+                    ${allDone ? `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                    ` : `
+                        <span style="font-size: 11px; font-weight: 800; color: var(--text-soft); font-family: 'Outfit';">
+                            ${completedMissions}/${totalMissions}
+                        </span>
+                    `}
+                </div>
+                <span class="weekly-label">미션</span>
+            </div>
+        `;
+
+        strip.innerHTML = daysHtml + weeklyHtml;
+
         if (todayLabel) {
-            const startDay = new Date(dailyStatuses[0].date);
-            const endDay = new Date(dailyStatuses[6].date);
-            todayLabel.innerHTML = `오늘의 제자훈련 <span style="font-size: 13px; font-weight: 600; color: var(--text-soft); margin-left:8px;">${startDay.getMonth() + 1}/${startDay.getDate()} ~ ${endDay.getMonth() + 1}/${endDay.getDate()}</span>`;
+            todayLabel.innerText = '오늘의 제자훈련';
+            const rangeEl = document.getElementById('today-date-range');
+            if (rangeEl) {
+                const startDay = new Date(dailyStatuses[0].date);
+                const endDay = new Date(dailyStatuses[6].date);
+                rangeEl.innerText = `${startDay.getMonth() + 1}/${startDay.getDate()} ~ ${endDay.getMonth() + 1}/${endDay.getDate()}`;
+            }
         }
     };
 
@@ -77,10 +128,52 @@
         tasks.forEach(task => {
             const card = document.getElementById(`card-${task.type}`);
             if (card) {
-                task.isCompleted ? card.classList.add('completed') : card.classList.remove('completed');
+                const btn = card.querySelector('.task-action-btn');
+                const metaEl = card.querySelector('.task-meta');
+
+                if (task.isCompleted) {
+                    card.classList.add('completed');
+                } else {
+                    card.classList.remove('completed');
+                }
+
+                if (metaEl && task.meta) metaEl.innerText = task.meta;
+
+                // Update Mini Status Dots
+                const miniDot = document.querySelector(`.mini-dot.${task.type}`);
+                if (miniDot) {
+                    miniDot.classList.toggle('done', !!task.isCompleted);
+                }
             }
         });
     };
+
+    window.toggleSection = (sectionId = 'all-tasks') => {
+        const header = document.querySelector(`.section-sub-header[data-section="${sectionId}"]`);
+        const miniBar = document.getElementById(`mini-status-${sectionId}`);
+        if (!header) return;
+
+        const isCollapsed = header.classList.toggle('collapsed');
+        if (miniBar) {
+            miniBar.classList.toggle('hidden', !isCollapsed);
+        }
+
+        // Save state
+        localStorage.setItem(`home_collapsed_${sectionId}`, isCollapsed);
+    };
+
+    const initSectionStates = () => {
+        const id = 'all-tasks';
+        const isCollapsed = localStorage.getItem(`home_collapsed_${id}`) === 'true';
+        if (isCollapsed) {
+            const header = document.querySelector(`.section-sub-header[data-section="${id}"]`);
+            const miniBar = document.getElementById(`mini-status-${id}`);
+            if (header) header.classList.add('collapsed');
+            if (miniBar) miniBar.classList.remove('hidden');
+        }
+    };
+
+
 
 
 
@@ -105,11 +198,14 @@
         const isCompleted = card.classList.contains('completed');
         const nextState = !isCompleted;
 
-        // 2. Local State Update & Immediate Re-render (Dots)
-        const promise = window.TaskService.toggleTask(type, nextState);
-        fetchDashboardData(); // Update calendar dots immediately from local storage
+        // Internal Key Mapping
+        let internalKey = type;
+        if (type === 'qt') internalKey = 'bible'; // Home QT -> Internal Bible
+        if (type === 'summary') internalKey = 'summary'; // Internal summary
+        if (type === 'memorization') internalKey = 'qt'; // Home Memo -> Internal QT
 
-        // 3. Background Sync (Don't wait for UI render)
+        const promise = window.TaskService.toggleTask(internalKey, nextState);
+        fetchDashboardData();
         await promise;
     };
 
@@ -257,6 +353,7 @@
 
     // 5. Initialize
     homeWeek = 1; // Always start with Week 1
+    initSectionStates();
     await fetchDashboardData();
     renderHomeWeekGrid();
     updateHomeVerseDisplay();
