@@ -4,7 +4,7 @@
         <!-- Cohort Management -->
         <div class="cohort-section" style="padding-top: 12px;">
             <div class="section-header">
-                <h3 class="section-title">훈련생 현황</h3>
+                <h3 class="section-title">훈련현황</h3>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 13px; font-weight: 700; color: var(--text-soft);">주차:</span>
                     <select id="admin-cohort-week-select" class="filter-select"
@@ -261,14 +261,19 @@
 
     <!-- Member Management View -->
     <div id="admin-view-members" class="admin-view hidden">
-        <div class="section-header">
-            <h3 class="section-title">회원 명부 관리</h3>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 13px; font-weight: 700; color: var(--text-soft);">주차:</span>
-                <select id="admin-members-week-select" class="filter-select"
-                    style="min-width: 90px; height: 36px; padding: 0 10px; font-size: 13px; border-radius: 10px;"
-                    onchange="initAdminPage()">
-                </select>
+        <div class="section-header"
+            style="flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                <h3 class="section-title" style="margin: 0;">회원 관리</h3>
+            </div>
+
+            <div class="view-switcher">
+                <button class="switcher-btn active" id="btn-member-tab-believer"
+                    onclick="switchMemberTab('believer')">훈련생</button>
+                <button class="switcher-btn" id="btn-member-tab-pastor" onclick="switchMemberTab('pastor')">목회자</button>
+                <button class="switcher-btn" id="btn-member-tab-pending" onclick="switchMemberTab('pending')">
+                    가입 대기 <span id="pending-member-badge" class="pending-badge">0</span>
+                </button>
             </div>
         </div>
         <div class="cohort-filter-scroll" id="admin-members-filters"></div>
@@ -307,7 +312,73 @@
 </div>
 <!-- /dashboard-page-wrapper -->
 
-<!-- Member Edit Modal (Moved to #modal-root by JS) -->
+<!-- Member Edit Modal -->
+<div id="admin-member-edit-modal" class="modal-overlay" onclick="closeAdminMemberEditModal()">
+    <div class="modal-content" style="max-width: 400px;" onclick="event.stopPropagation()">
+        <header class="modal-header">
+            <h2 class="modal-title">회원 정보 수정</h2>
+            <button onclick="closeAdminMemberEditModal()"
+                style="background:none; border:none; color:var(--text-soft); cursor:pointer;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+
+        <div class="modal-body">
+            <div class="input-group">
+                <label>아이디 (확인 전용)</label>
+                <input type="text" id="edit-member-id" class="journal-input" readonly
+                    style="background: var(--bg-main); color: var(--text-soft);">
+            </div>
+
+            <div class="input-group">
+                <label>비밀번호 수정</label>
+                <input type="text" id="edit-member-pw" class="journal-input" placeholder="새 비밀번호 입력">
+            </div>
+
+            <div class="input-group">
+                <label>회원 구분</label>
+                <select id="edit-member-system-role" class="journal-input">
+                    <option value="believer">훈련생</option>
+                    <option value="pastor">목회자</option>
+                </select>
+            </div>
+
+            <div class="input-group" id="edit-member-cohort-group">
+                <label>기수</label>
+                <input type="number" id="edit-member-cohort" class="journal-input" placeholder="기수 (예: 11)">
+            </div>
+
+            <div class="input-group">
+                <label>이름</label>
+                <input type="text" id="edit-member-name" class="journal-input" placeholder="이름">
+            </div>
+
+            <div class="input-group">
+                <label>직함 (성도/집사 등)</label>
+                <input type="text" id="edit-member-role" class="journal-input" placeholder="직함">
+            </div>
+
+            <div class="input-group">
+                <label>생년월일</label>
+                <input type="date" id="edit-member-birth" class="journal-input">
+            </div>
+
+            <div class="input-group">
+                <label>전화번호</label>
+                <input type="tel" id="edit-member-phone" class="journal-input" placeholder="010-0000-0000">
+            </div>
+
+            <div style="margin-top: 32px; display: flex; gap: 12px;">
+                <button id="edit-member-delete-btn" class="btn-pending-reject" style="flex: 1; display: none;"
+                    onclick="deleteAdminMemberFromEdit()">가입 거절</button>
+                <button class="gw-btn-secondary" style="flex: 1;" onclick="closeAdminMemberEditModal()">취소</button>
+                <button class="btn-full-action" style="flex: 2;" onclick="saveAdminMemberEdit()">저장하기</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <!-- History List Modal -->

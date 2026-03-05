@@ -13,6 +13,18 @@
     let currentCohortFilter = null;
     let adminCurrentScheduleWeek = 1;
     let dashboardFilter = 'all'; // Smart filter state
+    let currentMemberTab = 'believer';
+
+    window.switchMemberTab = (tab) => {
+        currentMemberTab = tab;
+        ['believer', 'pastor', 'pending'].forEach(t => {
+            const btn = document.getElementById(`btn-member-tab-${t}`);
+            if (btn) {
+                btn.classList.toggle('active', t === tab);
+            }
+        });
+        initAdminPage();
+    };
 
     window.setDashboardFilter = (filter) => {
         dashboardFilter = filter;
@@ -117,9 +129,19 @@
     const initModal = () => {
         const root = document.getElementById('modal-root');
         if (root) {
-            ['admin-member-modal', 'notice-modal', 'admin-history-list-modal', 'admin-content-detail-modal', 'schedule-form-modal', 'schedule-detail-modal'].forEach(id => {
+            ['admin-member-modal', 'admin-member-edit-modal', 'notice-modal', 'admin-history-list-modal', 'admin-content-detail-modal', 'schedule-form-modal', 'schedule-detail-modal'].forEach(id => {
                 const m = document.getElementById(id);
                 if (m) root.appendChild(m);
+            });
+        }
+
+        const roleSelect = document.getElementById('edit-member-system-role');
+        if (roleSelect) {
+            roleSelect.addEventListener('change', (e) => {
+                const cohortGroup = document.getElementById('edit-member-cohort-group');
+                if (cohortGroup) {
+                    cohortGroup.style.display = (e.target.value === 'pastor') ? 'none' : 'block';
+                }
             });
         }
 
@@ -153,7 +175,7 @@
             weekOptions += `<option value="${i}" ${i === currentWeek ? 'selected' : ''}>${i}주차</option>`;
         }
 
-        ['admin-cohort-week-select', 'admin-members-week-select'].forEach(id => {
+        ['admin-cohort-week-select'].forEach(id => {
             const sel = document.getElementById(id);
             if (sel && sel.options.length === 0) sel.innerHTML = weekOptions;
         });
@@ -220,16 +242,18 @@
     };
 
     window.handleApproveUser = (targetId) => {
+        // 승인 버튼 클릭 시 바로 승인하지 않고, 기수 등 정보를 입력할 수 있게 모달을 엽니다.
+        window.openAdminMemberEditModal(targetId);
+    };
+
+    window.handleRejectUser = (targetId) => {
+        if (!confirm('가입 요청을 거절하고 삭제하시겠습니까?')) return;
         let registeredUsers = window.Utils.getStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, []);
-        const userIndex = registeredUsers.findIndex(u => u.id === targetId);
-        if (userIndex > -1) {
-            registeredUsers[userIndex].isApproved = true;
-            window.Utils.setStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, registeredUsers);
-            window.Utils.showToast(`${registeredUsers[userIndex].name}님을 승인했습니다.`);
-            // Refresh pending badge in header
-            if (window.updatePendingBadge) window.updatePendingBadge();
-            initAdminPage();
-        }
+        registeredUsers = registeredUsers.filter(u => u.id !== targetId);
+        window.Utils.setStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, registeredUsers);
+        window.Utils.showToast('가입이 취소/삭제되었습니다.');
+        if (window.updatePendingBadge) window.updatePendingBadge();
+        initAdminPage();
     };
 
     const renderCohortFilters = (users) => {
@@ -343,8 +367,8 @@
             const isReadingWeek = (selectedWeek % 3 === 0);
             const hasReading = weekTasks.some(s => s.book || s.reading);
 
-            let totalMissions = 3 + (isReadingWeek ? 1 : 0);
-            let completedMissions = (hasMemo ? 1 : 0) + (hasSummary ? 1 : 0) + (hasPhone ? 1 : 0) + (isReadingWeek && hasReading ? 1 : 0);
+            let totalMissions = 3;
+            let completedMissions = (hasMemo ? 1 : 0) + (hasSummary ? 1 : 0) + (hasPhone ? 1 : 0);
             const progressPercent = Math.round((completedMissions / totalMissions) * 100);
             const allDone = completedMissions >= totalMissions;
 
@@ -378,8 +402,8 @@
             }
 
             return `
-            <div class="cohort-member-card admin-compact">
-                <div class="calendar-strip admin-integrated">
+            <div class="cohort-member-card admin-compact card-style">
+                <div class="admin-compact-header">
                     <div class="member-profile-mini" onclick="handleToggleAttendance('${u.id}', '${sunday.toISOString()}')" style="cursor: pointer;" title="클릭하여 출석 토글">
                         <div class="avatar-circle-sm" style="${isAttended ? 'background: var(--primary); color: white;' : ''}">
                             ${isAttended ? '出' : u.name[0]}
@@ -387,25 +411,43 @@
                         <div class="member-name-sm">${u.name}${isBirthWeek ? ' 🎂' : ''}</div>
                     </div>
 
+                    <div style="display: flex; gap: 8px;">
+                        <div class="weekly-summary-item">
+                            <div class="weekly-progress-circle ${allDone ? 'all-done' : ''}" style="--progress: ${progressPercent}">
+                                ${allDone ? `
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                        <path d="M20 6L9 17l-5-5" />
+                                    </svg>
+                                ` : `
+                                    <span style="font-size: 11px; font-weight: 800; color: var(--text-soft); font-family: 'Outfit';">
+                                        ${completedMissions}/${totalMissions}
+                                    </span>
+                                `}
+                            </div>
+                            <span class="weekly-label">주간미션</span>
+                        </div>
+                        ${isReadingWeek ? `
+                            <div class="weekly-summary-item">
+                                <div class="weekly-progress-circle ${hasReading ? 'all-done' : ''}" style="--progress: ${hasReading ? 100 : 0};">
+                                    ${hasReading ? `
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                            <path d="M20 6L9 17l-5-5" />
+                                        </svg>
+                                    ` : `
+                                        <span style="font-size: 11px; font-weight: 800; color: var(--text-soft); font-family: 'Outfit';">
+                                            0/1
+                                        </span>
+                                    `}
+                                </div>
+                                <span class="weekly-label">독후감</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div class="admin-compact-body">
                     <div class="days-container-mini">
                         ${dayItemsHtml}
-                    </div>
-
-                    <div class="calendar-divider"></div>
-
-                    <div class="weekly-summary-item">
-                        <div class="weekly-progress-circle ${allDone ? 'all-done' : ''}" style="--progress: ${progressPercent}">
-                            ${allDone ? `
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                    <path d="M20 6L9 17l-5-5" />
-                                </svg>
-                            ` : `
-                                <span style="font-size: 11px; font-weight: 800; color: var(--text-soft); font-family: 'Outfit';">
-                                    ${completedMissions}/${totalMissions}
-                                </span>
-                            `}
-                        </div>
-                        <span class="weekly-label">${isReadingWeek ? '독후감' : '미션'}</span>
                     </div>
                 </div>
             </div>
@@ -470,12 +512,12 @@
             const snippet = content.replace(/\n/g, ' ').substring(0, 50);
 
             return `
-                    < div class="gw-card" onclick = "openAdminContentDetailModal({
-                type: '${data.type}',
+                <div class="gw-card" onclick="openAdminContentDetailModal({
+                    type: '${data.type}',
                     userName: '${data.user.name}',
-                        cohort: '${data.user.cohort}',
-                            date: '${item.date}',
-                                content: \`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`
+                    cohort: '${data.user.cohort}',
+                    date: '${item.date}',
+                    content: \`${content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`
                 })" style="height: 52px; padding: 0 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; background: var(--bg-surface); border: 1px solid var(--border-subtle); margin:0; flex-shrink: 0;">
                     <div style="font-size: 11px; font-weight: 700; color: var(--primary); white-space: nowrap; width: 45px;">${dateStr}</div>
                     <div style="font-size: 14px; color: var(--text-main); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex:1; opacity: 0.8;">
@@ -533,8 +575,13 @@
         const filterContainer = document.getElementById('admin-prayers-filters');
 
         if (filterContainer) {
-            const cohorts = [...new Set(users.filter(u => u.role === 'believer' && u.isApproved && u.cohort).map(u => u.cohort))].sort((a, b) => a - b);
-            let html = `<button class="cohort-chip ${adminFilterPrayer === 'all' ? 'active' : ''}" onclick="filterAdminPrayer('all')">전체</button>`;
+            const cohorts = [...new Set(users.filter(u => u.role === 'believer' && u.isApproved && u.cohort).map(u => u.cohort))].sort((a, b) => b - a);
+
+            if (cohorts.length > 0 && adminFilterPrayer === 'all') {
+                adminFilterPrayer = String(cohorts[0]);
+            }
+
+            let html = '';
             cohorts.forEach(c => {
                 html += `<button class="cohort-chip ${adminFilterPrayer === String(c) ? 'active' : ''}" onclick="filterAdminPrayer('${c}')">${c}기</button>`;
             });
@@ -544,7 +591,7 @@
         if (!listContainer) return;
 
         const targetUsers = users.filter(u => u.role === 'believer' && u.isApproved)
-            .filter(u => adminFilterPrayer === 'all' || String(u.cohort) === adminFilterPrayer);
+            .filter(u => String(u.cohort) === adminFilterPrayer);
 
         const allUserPrayers = targetUsers.map(u => {
             const key = `${window.CONFIG.STORAGE_KEYS.PRAYER_JOURNAL_PREFIX}${u.id}`;
@@ -713,41 +760,125 @@
     const renderAdminMembers = (users) => {
         const listContainer = document.getElementById('admin-members-list');
         const filterContainer = document.getElementById('admin-members-filters');
+        const weekWrap = document.getElementById('admin-members-week-wrap');
+        const pendingBadge = document.getElementById('pending-member-badge');
+
+        const pendingUsers = users.filter(u => !u.isApproved);
+
+        // Update badge
+        if (pendingBadge) {
+            if (pendingUsers.length > 0) {
+                pendingBadge.style.display = 'inline-block';
+                pendingBadge.innerText = pendingUsers.length;
+            } else {
+                pendingBadge.style.display = 'none';
+            }
+        }
+
+        // Toggle UI visibilities based on tab
+        if (currentMemberTab !== 'believer') {
+            if (filterContainer) filterContainer.style.display = 'none';
+            if (weekWrap) weekWrap.style.display = 'none';
+        } else {
+            if (filterContainer) filterContainer.style.display = 'flex';
+            if (weekWrap) weekWrap.style.display = 'flex';
+        }
+
+        if (!listContainer) return;
+
+        // Render based on selected Tab
+        if (currentMemberTab === 'pending') {
+            if (pendingUsers.length === 0) {
+                listContainer.innerHTML = `<div class="sermon-empty-state"><p>승인 대기 중인 회원이 없습니다.</p></div>`;
+                return;
+            }
+            listContainer.innerHTML = pendingUsers.map(u => `
+                <div class="gw-card" style="display: flex; justify-content: space-between; align-items: center; border: 1.5px solid #FF7E67; background: #FFFBF7; padding: 18px 20px; transition: none;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <h4 class="gw-card-title" style="font-size: 17px; margin: 0;">${u.name}</h4>
+                            <span style="background: #FF7E67; color: white; padding: 2px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; letter-spacing: -0.02em;">승인 대기</span>
+                        </div>
+                        <p class="gw-card-desc" style="font-size: 13px; font-weight: 600; color: #8E8E93; margin: 0;">
+                            ${u.role === 'pastor' ? '목회자' : `${u.cohort ? u.cohort + '기' : '기수 미입력'} | ${u.birth || '생일 미상'}`}
+                        </p>
+                    </div>
+                    <div class="member-actions-group">
+                        <button class="gw-btn-secondary" style="padding: 10px 18px;" onclick="openAdminMemberEditModal('${u.id}')">상세보기</button>
+                    </div>
+                </div>
+            `).join('');
+            return;
+        }
+
+        if (currentMemberTab === 'pastor') {
+            const pastorUsers = users.filter(u => u.role === 'pastor' && u.isApproved);
+            if (pastorUsers.length === 0) {
+                listContainer.innerHTML = `<div class="sermon-empty-state"><p>등록된 목회자가 없습니다.</p></div>`;
+                return;
+            }
+            listContainer.innerHTML = pastorUsers.map(u => `
+                <div class="gw-card" style="padding: 14px 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 class="gw-card-title" style="font-size: 16px; margin: 0;">${u.name} <span style="font-size: 12px; font-weight: normal; color: var(--text-soft);">(목회자)</span></h4>
+                        <button onclick="openAdminMemberEditModal('${u.id}')"
+                            style="
+                                flex-shrink: 0;
+                                padding: 6px 14px; border-radius: 10px; border: 1px solid var(--border-subtle);
+                                font-size: 13px; font-weight: 800; cursor: pointer; background: var(--bg-surface); color: var(--text-main);
+                            ">
+                            수정
+                        </button>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-soft); margin-top: 8px;">
+                        <span>📞 ${u.phone || '미등록'}</span>
+                    </div>
+                </div>
+            `).join('');
+            return;
+        }
+
+        // --- Only Believer Tab Logic Down Here ---
 
         if (filterContainer) {
-            const cohorts = [...new Set(users.filter(u => u.role === 'believer' && u.isApproved && u.cohort).map(u => u.cohort))].sort((a, b) => a - b);
-            let html = `<button class="cohort-chip ${adminFilterMember === 'all' ? 'active' : ''}" onclick="filterAdminMember('all')">전체</button>`;
+            const cohorts = [...new Set(users.filter(u => u.role === 'believer' && u.isApproved && u.cohort).map(u => u.cohort))].sort((a, b) => b - a);
+
+            if (cohorts.length > 0 && adminFilterMember === 'all') {
+                adminFilterMember = String(cohorts[0]);
+            }
+
+            let html = '';
             cohorts.forEach(c => {
                 html += `<button class="cohort-chip ${adminFilterMember === String(c) ? 'active' : ''}" onclick="filterAdminMember('${c}')">${c}기</button>`;
             });
             filterContainer.innerHTML = html;
         }
 
-        if (!listContainer) return;
-
         const targetUsers = users.filter(u => u.role === 'believer' && u.isApproved)
-            .filter(u => adminFilterMember === 'all' || String(u.cohort) === adminFilterMember)
+            .filter(u => String(u.cohort) === adminFilterMember)
             .sort((a, b) => {
                 if (a.cohort !== b.cohort) return a.cohort - b.cohort;
                 return a.name.localeCompare(b.name);
             });
 
-        listContainer.innerHTML = targetUsers.map(u => {
-            // --- Attendance Logic for this member ---
-            const cohortInfo = window.Utils.getStorageItem('gw_cohort_schedule', { startDate: '2026-02-08' });
-            const startDate = new Date(cohortInfo.startDate);
-            const weekSelectEl = document.getElementById('admin-members-week-select');
-            const selectedWeek = weekSelectEl ? parseInt(weekSelectEl.value) : 1;
+        // --- Attendance Setup for Current Week ---
+        const cohortInfo = window.Utils.getStorageItem('gw_cohort_schedule', { startDate: '2026-02-08' });
+        const startDate = new Date(cohortInfo.startDate);
+        const today = new Date();
+        const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+        const selectedWeek = Math.max(1, Math.min(32, Math.floor(diffDays / 7) + 1));
 
-            const weekStartOffset = (selectedWeek - 1) * 7;
-            const weekStartDate = new Date(startDate);
-            weekStartDate.setDate(startDate.getDate() + weekStartOffset);
-            const dayOfWeek = weekStartDate.getDay();
-            const sunday = new Date(weekStartDate);
-            sunday.setDate(weekStartDate.getDate() - dayOfWeek);
-            sunday.setHours(0, 0, 0, 0);
-            const saturday = new Date(sunday);
-            saturday.setDate(sunday.getDate() + 7);
+        const weekStartOffset = (selectedWeek - 1) * 7;
+        const weekStartDate = new Date(startDate);
+        weekStartDate.setDate(startDate.getDate() + weekStartOffset);
+        const dayOfWeek = weekStartDate.getDay();
+        const sunday = new Date(weekStartDate);
+        sunday.setDate(weekStartDate.getDate() - dayOfWeek);
+        sunday.setHours(0, 0, 0, 0);
+        const saturday = new Date(sunday);
+        saturday.setDate(sunday.getDate() + 7);
+
+        listContainer.innerHTML = targetUsers.map(u => {
 
             const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${u.id}`;
             const userTasks = window.Utils.getStorageItem(taskKey, []);
@@ -775,19 +906,29 @@
                             ${u.roleTitle && u.roleTitle !== '성도' ? `<span style="font-size: 12px; font-weight: normal; color: var(--text-soft);">(${u.roleTitle})</span>` : ''}
                         </h4>
                     </div>
-                    <!-- Attendance Toggle -->
-                    <button onclick="handleMemberAttendance('${u.id}', '${sunday.toISOString()}')"
-                        style="
-                            flex-shrink: 0; margin-left: 10px;
-                            padding: 6px 14px; border-radius: 10px; border: 2px solid;
-                            font-size: 13px; font-weight: 800; cursor: pointer;
-                            transition: all 0.2s ease;
-                            ${isAttended
+                    <!-- Actions -->
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="handleMemberAttendance('${u.id}', '${sunday.toISOString()}')"
+                            style="
+                                flex-shrink: 0;
+                                padding: 6px 14px; border-radius: 10px; border: 2px solid;
+                                font-size: 13px; font-weight: 800; cursor: pointer;
+                                transition: all 0.2s ease;
+                                ${isAttended
                     ? 'background: var(--primary); color: white; border-color: var(--primary);'
                     : 'background: var(--bg-main); color: var(--text-soft); border-color: var(--border-subtle);'}
-                        ">
-                        ${isAttended ? '✓ 출석' : '미출석'}
-                    </button>
+                            ">
+                            ${isAttended ? '✓ 출석' : '미출석'}
+                        </button>
+                        <button onclick="openAdminMemberEditModal('${u.id}')"
+                            style="
+                                flex-shrink: 0;
+                                padding: 6px 14px; border-radius: 10px; border: 1px solid var(--border-subtle);
+                                font-size: 13px; font-weight: 800; cursor: pointer; background: var(--bg-surface); color: var(--text-main);
+                            ">
+                            수정
+                        </button>
+                    </div>
                 </div>
                 
                 <div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-soft);">
@@ -801,6 +942,90 @@
             </div>
         `;
         }).join('');
+    };
+
+    window.openAdminMemberEditModal = (userId) => {
+        const users = window.Utils.getStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, []);
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+
+        const modalTitle = document.querySelector('#admin-member-edit-modal .modal-title');
+        const saveBtn = document.querySelector('#admin-member-edit-modal .btn-full-action');
+        const deleteBtn = document.getElementById('edit-member-delete-btn');
+
+        if (user.isApproved) {
+            if (modalTitle) modalTitle.innerText = '회원 정보 수정';
+            if (saveBtn) saveBtn.innerText = '저장하기';
+            if (deleteBtn) deleteBtn.style.display = 'none';
+        } else {
+            if (modalTitle) modalTitle.innerText = '가입 승인 및 정보 확인';
+            if (saveBtn) saveBtn.innerText = '승인 완료';
+            if (deleteBtn) deleteBtn.style.display = 'block';
+        }
+
+        document.getElementById('edit-member-id').value = user.id;
+        document.getElementById('edit-member-pw').value = user.pw || '';
+        document.getElementById('edit-member-system-role').value = user.role || 'believer';
+        document.getElementById('edit-member-cohort').value = user.cohort || '';
+        document.getElementById('edit-member-name').value = user.name || '';
+        document.getElementById('edit-member-role').value = user.roleTitle || '성도';
+        document.getElementById('edit-member-birth').value = user.birth || '';
+        document.getElementById('edit-member-phone').value = user.phone || '';
+
+        // Role-based field visibility
+        const cohortGroup = document.getElementById('edit-member-cohort-group');
+        if (cohortGroup) {
+            cohortGroup.style.display = (user.role === 'pastor') ? 'none' : 'block';
+        }
+
+        document.getElementById('admin-member-edit-modal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeAdminMemberEditModal = () => {
+        const modal = document.getElementById('admin-member-edit-modal');
+        if (modal) modal.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    window.saveAdminMemberEdit = () => {
+        const userId = document.getElementById('edit-member-id').value;
+        const users = window.Utils.getStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, []);
+        const userIndex = users.findIndex(u => u.id === userId);
+
+        if (userIndex > -1) {
+            const wasApproved = users[userIndex].isApproved;
+
+            users[userIndex].pw = document.getElementById('edit-member-pw').value;
+            users[userIndex].role = document.getElementById('edit-member-system-role').value;
+            users[userIndex].cohort = parseInt(document.getElementById('edit-member-cohort').value) || users[userIndex].cohort;
+            users[userIndex].name = document.getElementById('edit-member-name').value;
+            users[userIndex].roleTitle = document.getElementById('edit-member-role').value;
+            users[userIndex].birth = document.getElementById('edit-member-birth').value;
+            users[userIndex].phone = document.getElementById('edit-member-phone').value;
+            users[userIndex].isApproved = true; // Mark as approved upon saving
+
+            window.Utils.setStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, users);
+
+            const msg = wasApproved ? '회원 정보가 수정되었습니다.' : '회원 가입이 승인 및 완료되었습니다.';
+            window.Utils.showToast(msg);
+
+            closeAdminMemberEditModal();
+            initAdminPage();
+        }
+    };
+
+    window.deleteAdminMemberFromEdit = () => {
+        const userId = document.getElementById('edit-member-id').value;
+        if (!confirm('정말로 이 가입 요청을 거절하고 삭제하시겠습니까?')) return;
+
+        let registeredUsers = window.Utils.getStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, []);
+        registeredUsers = registeredUsers.filter(u => u.id !== userId);
+
+        window.Utils.setStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, registeredUsers);
+        window.Utils.showToast('가입 요청이 거절되었습니다.');
+        closeAdminMemberEditModal();
+        initAdminPage();
     };
 
     window.handleMemberAttendance = (userId, sundayIso) => {

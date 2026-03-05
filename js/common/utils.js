@@ -30,23 +30,27 @@ const Utils = {
     getStorageItem(key, defaultValue = null) {
         const item = localStorage.getItem(key);
         if (!item) return defaultValue;
-        try {
-            // First try to parse as-is (legacy support/raw JSON)
-            return JSON.parse(item);
-        } catch {
+
+        // 1. Try Base64 Decoding first if it looks like encoded PII (new security layer)
+        // Base64 encoded JSON usually doesn't start with { or [
+        if (!item.startsWith('{') && !item.startsWith('[')) {
             try {
-                // Then try to decode (New security layer)
                 const decoded = decodeURIComponent(escape(atob(item)));
                 try {
                     return JSON.parse(decoded);
                 } catch {
-                    // Decoded but not JSON (raw string)
-                    return decoded;
+                    return decoded; // Decoded but raw string
                 }
             } catch {
-                // Not base64 or decoding failed, return item as-is (legacy raw string)
-                return item || defaultValue;
+                // Not Base64, continue to raw JSON check
             }
+        }
+
+        // 2. Try raw JSON parsing (legacy support)
+        try {
+            return JSON.parse(item);
+        } catch {
+            return item || defaultValue; // Raw string or fallback
         }
     },
 

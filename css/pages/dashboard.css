@@ -98,6 +98,28 @@
     margin-bottom: 20px;
 }
 
+/* Common Secondary Button Style */
+.gw-btn-secondary {
+    padding: 14px 20px;
+    background: #F2F2F7;
+    color: #48484A;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.gw-btn-secondary:active {
+    background: #E5E5EA;
+    transform: scale(0.98);
+}
+
 .insight-title {
     font-size: 16px;
     font-weight: 800;
@@ -610,15 +632,18 @@ select.journal-input:focus {
 /* --- Advanced Schedule Styles --- */
 .view-switcher {
     display: flex;
-    background: var(--bg-main);
+    background: var(--primary-pale);
     padding: 4px;
-    border-radius: 12px;
+    border-radius: 14px;
     gap: 4px;
+    width: 100%;
 }
 
 .switcher-btn {
+    flex: 1;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 8px 16px;
     border: none;
@@ -627,14 +652,23 @@ select.journal-input:focus {
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    border-radius: 8px;
-    transition: var(--transition-base);
+    border-radius: 10px;
+    transition: var(--transition-fast);
 }
 
 .switcher-btn.active {
     background: var(--bg-surface);
     color: var(--primary);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pending-badge {
+    background: var(--accent);
+    color: white;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 800;
 }
 
 .schedule-filter-bar {
@@ -1329,52 +1363,58 @@ select.journal-input:focus {
     padding: 0;
     box-shadow: none;
     margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.calendar-strip.admin-integrated {
+.cohort-member-card.admin-compact.card-style {
     background: var(--bg-surface);
     border-radius: var(--radius-xl);
-    padding: 6px 12px;
+    padding: 16px;
     border: 1px solid var(--border-subtle);
     box-shadow: var(--shadow-sm);
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    gap: 16px;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.cohort-member-card.admin-compact:hover .calendar-strip.admin-integrated {
+.cohort-member-card.admin-compact.card-style:hover {
     border-color: var(--primary-light);
-    box-shadow: 0 2px 12px rgba(74, 103, 65, 0.08);
+    box-shadow: 0 4px 16px rgba(74, 103, 65, 0.08);
+}
+
+.admin-compact-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed var(--border-subtle);
+    padding-bottom: 12px;
 }
 
 .member-profile-mini {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 4px;
-    width: 60px;
-    /* Scaled up */
-    flex-shrink: 0;
-    border-right: 1px solid var(--border-subtle);
-    padding-right: 10px;
+    gap: 12px;
 }
 
 .avatar-circle-sm {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
     background: var(--primary-pale);
     color: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .member-name-sm {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 800;
     color: var(--text-main);
     white-space: nowrap;
@@ -1383,36 +1423,40 @@ select.journal-input:focus {
     max-width: 100%;
 }
 
+.admin-compact-body {
+    width: 100%;
+}
+
 .days-container-mini {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
     gap: 4px;
-    flex: 1;
 }
 
-/* Day Item Overrides for Admin Integrated */
-.calendar-strip.admin-integrated .day-item {
+/* Day Item Overrides for Admin Compact */
+.admin-compact.card-style .day-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
     flex: 1;
     position: relative;
     padding: 0;
 }
 
-.calendar-strip.admin-integrated .day-name {
-    font-size: 11px;
+.admin-compact.card-style .day-name {
+    font-size: 12px;
     font-weight: 700;
     color: var(--text-soft);
-    margin-bottom: 2px;
 }
 
-.calendar-strip.admin-integrated .day-num {
+.admin-compact.card-style .day-num {
     font-size: 14px;
     font-weight: 800;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1420,19 +1464,19 @@ select.journal-input:focus {
     border-radius: 50%;
 }
 
-.calendar-strip.admin-integrated .day-item.active .day-num {
+.admin-compact.card-style .day-item.active .day-num {
     background: var(--primary);
     color: white;
     border-radius: 10px;
 }
 
-.calendar-strip.admin-integrated .day-dots {
+.admin-compact.card-style .day-dots {
     display: flex;
-    gap: 3px;
+    gap: 4px;
     margin-top: 2px;
 }
 
-.calendar-strip.admin-integrated .dot {
+.admin-compact.card-style .dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
@@ -1441,36 +1485,26 @@ select.journal-input:focus {
     transition: all 0.15s ease;
 }
 
-.calendar-strip.admin-integrated .dot.prayer.done {
+.admin-compact.card-style .dot.prayer.done {
     background: var(--accent);
     border-color: var(--accent);
 }
 
-.calendar-strip.admin-integrated .dot.qt.done {
+.admin-compact.card-style .dot.qt.done {
     background: #34C759;
     border-color: #34C759;
 }
 
-.calendar-strip.admin-integrated .calendar-divider {
-    width: 1px;
-    height: 28px;
-    background: var(--border-subtle);
-    margin: 0 4px;
-}
-
 /* Weekly Summary Badge from home.css */
-.calendar-strip.admin-integrated .weekly-summary-item {
+.admin-compact.card-style .weekly-summary-item {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding-left: 2px;
-    flex-shrink: 0;
+    gap: 8px;
 }
 
-.calendar-strip.admin-integrated .weekly-progress-circle {
-    width: 38px;
-    height: 38px;
+.admin-compact.card-style .weekly-progress-circle {
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: var(--bg-main);
     display: flex;
@@ -1482,7 +1516,7 @@ select.journal-input:focus {
     z-index: 1;
 }
 
-.calendar-strip.admin-integrated .weekly-progress-circle::before {
+.admin-compact.card-style .weekly-progress-circle::before {
     content: '';
     position: absolute;
     top: -2px;
@@ -1495,7 +1529,7 @@ select.journal-input:focus {
     transition: background 0.4s ease;
 }
 
-.calendar-strip.admin-integrated .weekly-progress-circle::after {
+.admin-compact.card-style .weekly-progress-circle::after {
     content: '';
     position: absolute;
     top: 1px;
@@ -1507,28 +1541,84 @@ select.journal-input:focus {
     z-index: -1;
 }
 
-.calendar-strip.admin-integrated .weekly-progress-circle.all-done {
+.admin-compact.card-style .weekly-progress-circle.all-done {
     background: var(--primary);
     border-color: var(--primary);
 }
 
-.calendar-strip.admin-integrated .weekly-progress-circle.all-done::after {
+.admin-compact.card-style .weekly-progress-circle.all-done::after {
     background: var(--primary);
 }
 
-.calendar-strip.admin-integrated .weekly-progress-circle svg {
-    width: 20px;
-    height: 20px;
+.admin-compact.card-style .weekly-progress-circle svg {
+    width: 18px;
+    height: 18px;
     color: var(--text-soft);
 }
 
-.calendar-strip.admin-integrated .weekly-progress-circle.all-done svg {
+.admin-compact.card-style .weekly-progress-circle.all-done svg {
     color: white;
 }
 
-.calendar-strip.admin-integrated .weekly-label {
-    font-size: 10px;
+.admin-compact.card-style .weekly-label {
+    font-size: 11px;
     font-weight: 800;
-    color: var(--primary);
-    white-space: nowrap;
+    color: var(--text-soft);
+}
+
+/* Empty State */
+.sermon-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-soft);
+    font-size: 15px;
+    line-height: 1.6;
+    background: var(--bg-surface);
+    border-radius: 20px;
+    border: 1px dashed var(--border-strong);
+    /* margin-top: 20px; */
+}
+
+/* Pending Member Actions */
+.btn-pending-approve {
+    padding: 8px 16px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-pending-approve:active {
+    transform: scale(0.95);
+    background: #3A5634;
+}
+
+.btn-pending-reject {
+    padding: 14px 20px;
+    background: white;
+    color: #FF6B6B;
+    border: 1px solid #FFE5E5;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-pending-reject:active {
+    transform: scale(0.95);
+    background: #FFF5F5;
+}
+
+.member-actions-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }

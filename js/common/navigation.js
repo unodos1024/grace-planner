@@ -20,7 +20,7 @@ const Navigation = {
             { id: 'prayers', label: '기도제목', icon: icons.prayer },
             { id: 'schedule', label: '일정관리', icon: icons.calendar },
             { id: 'stats', label: '통계', icon: icons.stats },
-            { id: 'members', label: '회원관리', icon: icons.members },
+            { id: 'members', label: '훈련생관리', icon: icons.members },
             { id: 'notice', label: '알림', icon: icons.notice },
             { id: 'settings', label: '설정', icon: icons.settings }
         ] : [

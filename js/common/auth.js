@@ -1,7 +1,7 @@
 
 const Auth = {
     signupData: {
-        role: 'believer', id: '', pw: '', name: '', birth: '', phone: ''
+        role: 'believer', id: '', pw: '', name: '', birth: '', phone: '', isIdChecked: false
     },
 
     getCurrentUserId() {
@@ -135,59 +135,78 @@ const Auth = {
             btn.classList.toggle('active', btn.dataset.role === role);
         });
 
-        // Toggle fields visibility
-        const fields = document.getElementById('believer-info-fields');
-        if (fields) {
-            fields.classList.toggle('hidden', role !== 'believer');
+        // Re-run validation
+        this.checkSignupInput();
+    },
 
-            // Clear fields when switching to pastor so validation doesn't get stuck on hidden fields (optional, but good practice)
-            if (role === 'pastor') {
-                const birth = document.getElementById('signup-birth');
-                const phone = document.getElementById('signup-phone');
-                if (birth) birth.value = '';
-                if (phone) phone.value = '';
-            }
+    resetIdCheck() {
+        this.signupData.isIdChecked = false;
+        const id = document.getElementById('signup-id').value.trim();
+        const btn = document.querySelector('.btn-check-id');
+        const msgEl = document.getElementById('id-check-msg');
+
+        if (btn) btn.classList.toggle('active', id.length > 0);
+        if (msgEl) {
+            msgEl.innerText = '';
+            msgEl.classList.remove('show', 'available', 'taken');
+        }
+        this.checkSignupInput();
+    },
+
+    checkDuplicateId() {
+        const id = document.getElementById('signup-id').value.trim();
+        const msgEl = document.getElementById('id-check-msg');
+
+        if (id.length < 1) {
+            alert('사용하실 아이디를 입력해주세요.');
+            return;
         }
 
-        // Re-run validation
+        const registeredUsers = window.Utils.getStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, []);
+        const exists = registeredUsers.some(u => u.id === id);
+
+        if (msgEl) {
+            msgEl.classList.add('show');
+            msgEl.classList.remove('available', 'taken');
+        }
+
+        if (exists) {
+            this.signupData.isIdChecked = false;
+            if (msgEl) {
+                msgEl.innerText = '이미 사용 중인 아이디입니다.';
+                msgEl.classList.add('taken');
+            }
+        } else {
+            this.signupData.isIdChecked = true;
+            if (msgEl) {
+                msgEl.innerText = '사용 가능한 아이디입니다.';
+                msgEl.classList.add('available');
+            }
+        }
         this.checkSignupInput();
     },
 
     // Consolidated Input Check with Real-time Feedback
     checkSignupInput() {
-        const idEl = document.getElementById('signup-id');
-        const pwEl = document.getElementById('signup-pw');
-        const nameEl = document.getElementById('signup-name');
+        // Use direct object reference to be absolutely sure
+        const isIdChecked = Auth.signupData.isIdChecked;
 
-        const id = idEl.value.trim();
-        const pw = pwEl.value.trim();
-        const name = nameEl.value.trim();
+        const id = document.getElementById('signup-id').value.trim();
+        const pw = document.getElementById('signup-pw').value.trim();
+        const name = document.getElementById('signup-name').value.trim();
+        const birth = document.getElementById('signup-birth').value.trim();
+        const phone = document.getElementById('signup-phone').value.trim();
 
-        // 1. Validation Logic
-        const isIdValid = /^[a-zA-Z0-9]{4,12}$/.test(id);
-        const isPwValid = pw.length >= 4;
-        const isNameValid = name.length >= 2;
+        // 1. Basic Presence & Length Checks
+        const isIdOk = id.length >= 1 && isIdChecked;
+        const isPwOk = pw.length >= 1;
+        const isNameOk = name.length >= 1;
 
-        let isRoleValid = true;
-        if (this.signupData.role === 'believer') {
-            const birth = document.getElementById('signup-birth').value.trim();
-            const phone = document.getElementById('signup-phone').value.trim();
-            isRoleValid = /^\d{4}-\d{2}-\d{2}$/.test(birth) && /^\d{3}-\d{4}-\d{4}$/.test(phone);
-        }
+        // 2. Format Checks (allowing some flexibility with regex)
+        const isBirthOk = /^\d{4}-\d{2}-\d{2}$/.test(birth);
+        const isPhoneOk = /^\d{3}-\d{3,4}-\d{4}$/.test(phone);
 
-        const isValid = isIdValid && isPwValid && isNameValid && isRoleValid;
-
-        // 2. Visual Feedback (Minimizing Layout Shift)
-        const updateFieldState = (el, valid, condition) => {
-            const group = el.closest('.input-group');
-            if (group) {
-                if (condition && !valid) group.classList.add('error');
-                else group.classList.remove('error');
-            }
-        };
-
-        if (id.length > 0) updateFieldState(idEl, isIdValid, id.length >= 4);
-        if (pw.length > 0) updateFieldState(pwEl, isPwValid, pw.length >= 1);
+        const isValid = isIdOk && isPwOk && isNameOk && isBirthOk && isPhoneOk;
 
         const btn = document.getElementById('btn-signup-confirm');
         if (btn) {
@@ -203,16 +222,20 @@ const Auth = {
         this.signupData.id = document.getElementById('signup-id').value.trim();
         this.signupData.pw = document.getElementById('signup-pw').value.trim();
         this.signupData.name = document.getElementById('signup-name').value.trim();
-        if (this.signupData.role === 'believer') {
-            this.signupData.birth = document.getElementById('signup-birth').value.trim();
-            this.signupData.phone = document.getElementById('signup-phone').value.trim();
+        this.signupData.birth = document.getElementById('signup-birth').value.trim();
+        this.signupData.phone = document.getElementById('signup-phone').value.trim();
+
+        if (!this.signupData.isIdChecked) {
+            alert('아이디 중복확인을 해주세요.');
+            return;
         }
 
         let registeredUsers = window.Utils.getStorageItem(window.CONFIG.STORAGE_KEYS.REGISTERED_USERS, []);
 
         if (registeredUsers.find(u => u.id === this.signupData.id)) {
             alert('이미 존재하는 아이디입니다.');
-            // Focus on ID field
+            this.signupData.isIdChecked = false;
+            this.checkSignupInput();
             document.getElementById('signup-id').focus();
             return;
         }
@@ -222,8 +245,8 @@ const Auth = {
             pw: this.signupData.pw,
             name: this.signupData.name,
             role: this.signupData.role,
-            birth: this.signupData.role === 'believer' ? this.signupData.birth : '',
-            phone: this.signupData.role === 'believer' ? this.signupData.phone : '',
+            birth: this.signupData.birth,
+            phone: this.signupData.phone,
             isApproved: false
         };
 
@@ -253,9 +276,13 @@ const Auth = {
 
         if (value.length < 4) {
             input.value = value;
-        } else if (value.length < 8) {
+        } else if (value.length < 7) {
             input.value = `${value.slice(0, 3)}-${value.slice(3)}`;
+        } else if (value.length < 11) {
+            // 10 digits: 010-123-4567
+            input.value = `${value.slice(0, 3)}-${value.slice(3, 6)}-${value.slice(6)}`;
         } else {
+            // 11 digits: 010-1234-5678
             input.value = `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7)}`;
         }
         this.checkSignupInput();
@@ -271,6 +298,8 @@ window.selectRole = (role) => Auth.selectRole(role);
 window.checkSignupInput = () => Auth.checkSignupInput();
 window.submitSignup = () => Auth.submitSignup();
 window.handleLogout = () => Auth.handleLogout();
+window.checkDuplicateId = () => Auth.checkDuplicateId();
+window.resetIdCheck = () => Auth.resetIdCheck();
 
 // Formatters
 window.formatBirthDate = (el) => Auth.formatBirthDate(el);
@@ -298,7 +327,10 @@ const initMockUsers = () => {
         { id: 'user6', pw: '1', name: '이주호', role: 'believer', birth: '1993-04-12', cohort: '9', isApproved: true, phone: '010-5656-7878', roleTitle: '집사' },
         { id: 'user7', pw: '1', name: '임지헌', role: 'believer', birth: '1991-05-27', cohort: '10', isApproved: true, phone: '010-9090-1212', roleTitle: '집사' },
         { id: 'user8', pw: '1', name: '조경용', role: 'believer', birth: '1987-12-24', cohort: '10', isApproved: true, phone: '010-3434-5656', roleTitle: '집사' },
-        { id: 'user9', pw: '1', name: '홍현진', role: 'believer', birth: '1994-08-24', cohort: '11', isApproved: true, phone: '010-7878-9090', roleTitle: '집사' }
+        { id: 'user9', pw: '1', name: '홍현진', role: 'believer', birth: '1994-08-24', cohort: '11', isApproved: true, phone: '010-7878-9090', roleTitle: '집사' },
+        { id: 'pending1', pw: '1', name: '강석기', role: 'believer', birth: '1990-03-15', cohort: '12', isApproved: false, phone: '010-1111-2222', roleTitle: '성도' },
+        { id: 'pending2', pw: '1', name: '박하늘', role: 'believer', birth: '1996-12-05', cohort: '12', isApproved: false, phone: '010-3333-4444', roleTitle: '성도' },
+        { id: 'pending3', pw: '1', name: '최진우', role: 'pastor', birth: '1982-08-20', isApproved: false, phone: '010-5555-6666', roleTitle: '강도사' }
     ];
 
     let changed = false;

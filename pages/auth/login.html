@@ -71,8 +71,15 @@
                     <div class="signup-section-card">
                         <label class="input-label">계정 설정</label>
                         <div class="input-group-vertical">
-                            <input type="text" id="signup-id" class="auth-input-light" placeholder="사용하실 아이디를 입력해주세요"
-                                oninput="checkSignupInput()">
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="signup-id" class="auth-input-light"
+                                    style="flex: 1; margin-bottom: 0;" placeholder="사용하실 아이디를 입력해주세요"
+                                    oninput="Auth.resetIdCheck()">
+                                <button type="button" class="btn-check-id"
+                                    onclick="Auth.checkDuplicateId()">중복확인</button>
+                            </div>
+                            <p id="id-check-msg">
+                            </p>
                             <input type="password" id="signup-pw" class="auth-input-light" placeholder="비밀번호를 입력해주세요"
                                 oninput="checkSignupInput()">
                         </div>
@@ -83,20 +90,16 @@
                         <div class="input-group-vertical">
                             <input type="text" id="signup-name" class="auth-input-light" placeholder="실명을 입력해주세요"
                                 oninput="checkSignupInput()">
-
-                            <div id="believer-info-fields">
-                                <input type="text" id="signup-birth" class="auth-input-light"
-                                    placeholder="생년월일 (YYYY-MM-DD)" maxlength="10" oninput="formatBirthDate(this)">
-                                <input type="tel" id="signup-phone" class="auth-input-light"
-                                    placeholder="휴대폰 번호 (010-0000-0000)" maxlength="13"
-                                    oninput="formatPhoneNumber(this)">
-                            </div>
+                            <input type="text" id="signup-birth" class="auth-input-light"
+                                placeholder="생년월일 (YYYY-MM-DD)" maxlength="10" oninput="formatBirthDate(this)">
+                            <input type="tel" id="signup-phone" class="auth-input-light"
+                                placeholder="휴대폰 번호 (010-0000-0000)" maxlength="13" oninput="formatPhoneNumber(this)">
                         </div>
+                        <button class="btn-primary-auth" id="btn-signup-confirm" disabled onclick="submitSignup()">은혜의
+                            동행
+                            시작하기</button>
                     </div>
                 </div>
-
-                <button class="btn-primary-auth" id="btn-signup-confirm" disabled onclick="submitSignup()">은혜의 동행
-                    시작하기</button>
             </div>
 
             <!-- Step 6: Final -->

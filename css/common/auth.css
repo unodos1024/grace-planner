@@ -1,7 +1,9 @@
     :root {
-        --primary: #416ec9;
-        /* Updated Primary Blue */
-        --bg-main: #F5F7FA;
+        --primary: #4A6741;
+        /* Main App Green */
+        --primary-light: #E9F0E8;
+        --bg-main: #FDFDFB;
+        /* Soft Cream White */
     }
 
     /* login-overlay Styles (High-level gatekeeper) */
@@ -329,34 +331,42 @@
     /* General Form Overrides for Light Theme Auth */
     .auth-input-light {
         width: 100%;
-        padding: 18px;
+        padding: 16px 20px;
         background: #FFFFFF;
         border: 1px solid #E5E5EA;
-        border-radius: 16px;
+        border-radius: 14px;
         font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 16px;
+        font-weight: 500;
+        margin-bottom: 12px;
+        color: var(--text-main);
+        transition: all 0.2s ease;
+    }
+
+    .auth-input-light:focus {
+        border-color: var(--primary);
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(74, 103, 65, 0.1);
+        outline: none;
     }
 
     .btn-primary-auth {
         width: 100%;
-        padding: 20px;
+        padding: 18px;
         background: #E9E9EB;
-        /* Disabled by default like image */
         color: #AEAEB2;
         border: none;
-        border-radius: 24px;
-        font-size: 17px;
-        font-weight: 800;
+        border-radius: 18px;
+        font-size: 16px;
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s;
-        margin-top: 20px;
+        transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        margin-top: 16px;
     }
 
     .btn-primary-auth.active {
         background: var(--primary);
         color: white;
-        box-shadow: 0 10px 20px rgba(82, 109, 78, 0.2);
+        box-shadow: 0 8px 24px rgba(74, 103, 65, 0.2);
     }
 
     .social-icon {
@@ -540,12 +550,69 @@
     }
 
     .role-select-btn.active {
-        background: #416ec9;
-        /* App primary blue */
+        background: var(--primary);
         color: #fff;
-        border-color: #416ec9;
-        box-shadow: 0 4px 12px rgba(65, 110, 201, 0.25);
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(74, 103, 65, 0.2);
         font-weight: 600;
+    }
+
+    .btn-check-id {
+        padding: 0 16px;
+        height: 52px;
+        background: #F2F2F7;
+        color: #AEAEB2;
+        border: 1px solid #E5E5EA;
+        border-radius: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .btn-check-id.active {
+        background: var(--primary-light);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        opacity: 1;
+    }
+
+    .btn-check-id:active {
+        background: #E5E5EA;
+        transform: scale(0.96);
+    }
+
+    #id-check-msg {
+        display: none;
+        font-size: 13px;
+        font-weight: 600;
+        margin: -8px 0 16px 0;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+    }
+
+    #id-check-msg.show {
+        display: flex;
+    }
+
+    #id-check-msg.available {
+        color: #2D6A4F;
+    }
+
+    #id-check-msg.taken {
+        color: var(--accent);
+    }
+
+    #id-check-msg::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
     }
 
     /* Login Form Specifics */

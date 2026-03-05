@@ -50,7 +50,7 @@ const Router = {
         },
         'members': {
             url: '../dashboard/dashboard.html',
-            title: '회원 관리 - Grace Planner',
+            title: '훈련생 관리 - Grace Planner',
             js: ['../../js/pages/dashboard.js'],
             css: ['../../css/pages/dashboard.css']
         },
