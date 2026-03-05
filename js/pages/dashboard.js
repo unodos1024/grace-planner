@@ -865,6 +865,7 @@
         const cohortInfo = window.Utils.getStorageItem('gw_cohort_schedule', { startDate: '2026-02-08' });
         const startDate = new Date(cohortInfo.startDate);
         const today = new Date();
+        const isSunday = today.getDay() === 0;
         const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
         const selectedWeek = Math.max(1, Math.min(32, Math.floor(diffDays / 7) + 1));
 
@@ -909,11 +910,14 @@
                     <!-- Actions -->
                     <div style="display: flex; gap: 8px;">
                         <button onclick="handleMemberAttendance('${u.id}', '${sunday.toISOString()}')"
+                            ${isSunday ? '' : 'disabled title="출석 체크는 일요일에만 가능합니다"'}
                             style="
                                 flex-shrink: 0;
                                 padding: 6px 14px; border-radius: 10px; border: 2px solid;
-                                font-size: 13px; font-weight: 800; cursor: pointer;
+                                font-size: 13px; font-weight: 800; 
+                                cursor: ${isSunday ? 'pointer' : 'default'};
                                 transition: all 0.2s ease;
+                                opacity: ${isSunday ? 1 : 0.6};
                                 ${isAttended
                     ? 'background: var(--primary); color: white; border-color: var(--primary);'
                     : 'background: var(--bg-main); color: var(--text-soft); border-color: var(--border-subtle);'}
@@ -1029,6 +1033,12 @@
     };
 
     window.handleMemberAttendance = (userId, sundayIso) => {
+        const today = new Date();
+        if (today.getDay() !== 0) {
+            window.Utils.showToast('출석 체크는 일요일에만 가능합니다.', 'error');
+            return;
+        }
+
         const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}`;
         const userTasks = window.Utils.getStorageItem(taskKey, []);
         const sunday = new Date(sundayIso);
