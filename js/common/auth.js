@@ -310,6 +310,12 @@ const initMockUsers = () => {
     const REGISTERED_USERS_KEY = window.CONFIG?.STORAGE_KEYS?.REGISTERED_USERS || 'grace_walk_registered_users';
     let users = window.Utils.getStorageItem(REGISTERED_USERS_KEY, []);
 
+    // Ensure users is an array
+    if (!Array.isArray(users)) {
+        console.warn('Registered users list corrupted, resetting to mock data');
+        users = [];
+    }
+
     if (users.length === 0) {
         users = [
             { id: 'admin', pw: '1', name: '관리자', role: 'pastor', isApproved: true },

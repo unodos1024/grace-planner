@@ -17,9 +17,10 @@ const TaskService = {
             prayer: false,
             qt: false,
             bible: false,
+            prep: false,
+            reading: false,
             summary: false,
             phone: false,
-            book: false,
             prayerDuration: 0
         };
     },
@@ -35,9 +36,10 @@ const TaskService = {
                 prayer: false,
                 qt: false,
                 bible: false,
+                prep: false,
+                reading: false,
                 summary: false,
                 phone: false,
-                book: false,
                 prayerDuration: 0
             };
             states.push(dayStatus);
@@ -50,7 +52,7 @@ const TaskService = {
 
         window.Utils.setStorageItem(this.getStorageKey(), states);
 
-        // API Sync
+        /* API Sync - Disabled until connection
         const endpointMap = { 'qt': '/qt/check', 'bible': '/bible/check', 'prayer': '/prayer/log' };
         if (endpointMap[type]) {
             try {
@@ -63,6 +65,7 @@ const TaskService = {
                 console.error('Task API sync failed', e);
             }
         }
+        */
         return dayStatus;
     },
 
@@ -77,8 +80,9 @@ const TaskService = {
                 prayer: false,
                 qt: false,
                 bible: false,
+                prep: false,
+                reading: false,
                 phone: false,
-                book: false,
                 prayerDuration: 0
             };
             states.push(dayStatus);
@@ -105,17 +109,19 @@ const TaskService = {
         const states = this.getAllTaskStates();
         const now = new Date();
 
-        // Use local dates to find the start of the week (Sunday)
+        // Use local dates to find the start of the week (Monday)
         const todayAtMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const dayOfWeek = todayAtMidnight.getDay(); // 0 for Sunday
+        const dayOfWeek = todayAtMidnight.getDay(); // 0 for Sunday, 1 for Monday
 
-        const sunday = new Date(todayAtMidnight);
-        sunday.setDate(todayAtMidnight.getDate() - dayOfWeek);
+        const monday = new Date(todayAtMidnight);
+        // Adjust for Monday start: (1: Mon -> 0 shift, 0: Sun -> 6 shift)
+        const shift = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        monday.setDate(todayAtMidnight.getDate() - shift);
 
         const weekStatuses = [];
         for (let i = 0; i < 7; i++) {
-            const current = new Date(sunday);
-            current.setDate(sunday.getDate() + i);
+            const current = new Date(monday);
+            current.setDate(monday.getDate() + i);
 
             // Format to YYYY-MM-DD in local time
             const year = current.getFullYear();
@@ -128,8 +134,9 @@ const TaskService = {
                 prayer: false,
                 qt: false,
                 bible: false,
+                prep: false,
+                reading: false,
                 phone: false,
-                book: false,
                 prayerDuration: 0
             };
             weekStatuses.push(status);
@@ -142,7 +149,9 @@ const TaskService = {
         const now = new Date(dateInWeek);
         const dayOfWeek = now.getDay();
         const start = new Date(now);
-        start.setDate(now.getDate() - dayOfWeek);
+        // Adjust for Monday start: (1: Mon -> 0 shift, 0: Sun -> 6 shift)
+        const shift = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        start.setDate(now.getDate() - shift);
         start.setHours(0, 0, 0, 0);
 
         const end = new Date(start);

@@ -14,7 +14,7 @@ const Router = {
         },
         'sermon': {
             url: '../sermon/sermon.html',
-            title: '말씀요약 - Grace Planner',
+            title: '설교요약 - Grace Planner',
             js: ['../../js/pages/sermon.js'],
             css: ['../../css/pages/sermon.css']
         },
@@ -44,7 +44,7 @@ const Router = {
         },
         'sermons': {
             url: '../dashboard/dashboard.html',
-            title: '말씀요약 관리 - Grace Planner',
+            title: '설교요약 관리 - Grace Planner',
             js: ['../../js/pages/dashboard.js'],
             css: ['../../css/pages/dashboard.css']
         },

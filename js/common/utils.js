@@ -31,27 +31,36 @@ const Utils = {
         const item = localStorage.getItem(key);
         if (!item) return defaultValue;
 
-        // 1. Try Base64 Decoding first if it looks like encoded PII (new security layer)
-        // Base64 encoded JSON usually doesn't start with { or [
-        if (!item.startsWith('{') && !item.startsWith('[')) {
+        // 1. Try Base64 Decoding if it looks like encoded PII
+        // Non-JSON strings (like "user") that are short might pass atob but fail parsing
+        if (!item.startsWith('{') && !item.startsWith('[') && item.length > 4) {
             try {
                 const decoded = decodeURIComponent(escape(atob(item)));
+                // Only return if it's a valid JSON or a meaningful string
                 try {
                     return JSON.parse(decoded);
                 } catch {
-                    return decoded; // Decoded but raw string
+                    // If it's not JSON but decoded successfully, return the string
+                    return decoded;
                 }
-            } catch {
-                // Not Base64, continue to raw JSON check
+            } catch (e) {
+                // Not valid Base64 or malformed URI, ignore and continue
             }
         }
 
-        // 2. Try raw JSON parsing (legacy support)
-        try {
-            return JSON.parse(item);
-        } catch {
-            return item || defaultValue; // Raw string or fallback
+        // 2. Try raw JSON parsing
+        // Optimization: Only parse if it looks like JSON
+        if (item.startsWith('{') || item.startsWith('[')) {
+            try {
+                return JSON.parse(item);
+            } catch (e) {
+                console.warn(`Storage key "${key}" contains invalid JSON.`, e);
+                return item || defaultValue;
+            }
         }
+
+        // 3. Just a raw string
+        return item || defaultValue;
     },
 
     setStorageItem(key, value) {

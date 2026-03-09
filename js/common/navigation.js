@@ -26,7 +26,7 @@ const Navigation = {
         ] : [
             { id: 'home', label: '홈', icon: icons.home },
             { id: 'prayer', label: '기도', icon: icons.prayer },
-            { id: 'sermon', label: '말씀요약', icon: icons.sermon },
+            { id: 'sermon', label: '설교요약', icon: icons.sermon },
             { id: 'schedule', label: '일정관리', icon: icons.calendar },
             { id: 'notice', label: '알림', icon: icons.notice },
             { id: 'settings', label: '설정', icon: icons.settings }
@@ -42,7 +42,7 @@ const Navigation = {
         ] : [
             { id: 'home', label: '홈', icon: icons.home },
             { id: 'prayer', label: '기도', icon: icons.prayer },
-            { id: 'sermon', label: '말씀요약', icon: icons.sermon },
+            { id: 'sermon', label: '설교요약', icon: icons.sermon },
             { id: 'schedule', label: '일정관리', icon: icons.calendar }
         ];
 

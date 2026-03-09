@@ -631,12 +631,20 @@ select.journal-input:focus {
 
 /* --- Advanced Schedule Styles --- */
 .view-switcher {
-    display: flex;
-    background: var(--primary-pale);
-    padding: 4px;
-    border-radius: 14px;
-    gap: 4px;
+    display: inline-flex;
+    background: #F2F2F7;
+    padding: 3px;
+    border-radius: 12px;
+    gap: 2px;
+    width: fit-content;
+    align-items: center;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+/* Full width support for headers */
+.admin-view .section-header .view-switcher {
     width: 100%;
+    margin: 8px 0;
 }
 
 .switcher-btn {
@@ -644,22 +652,74 @@ select.journal-input:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 8px 16px;
+    gap: 6px;
+    padding: 10px 16px;
     border: none;
     background: transparent;
-    color: var(--text-soft);
+    color: #8E8E93;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    border-radius: 10px;
-    transition: var(--transition-fast);
+    border-radius: 9px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
 }
 
 .switcher-btn.active {
-    background: var(--bg-surface);
+    background: white;
     color: var(--primary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.switcher-btn svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.switcher-btn.active svg {
+    opacity: 1;
+}
+
+.switcher-btn:not(.active):hover {
+    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* Tab-style Section Header (Stacked) */
+.section-header.tab-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 24px 20px 0;
+}
+
+.section-header.tab-header .view-switcher {
+    width: 100%;
+    margin: 0;
+}
+
+/* Compact Switcher (for small toggles like Calendar/List) */
+.view-switcher.compact {
+    padding: 2px;
+    border-radius: 10px;
+    background: #F2F2F7;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.view-switcher.compact .switcher-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    border-radius: 8px;
+    gap: 4px;
+    min-height: 28px;
+}
+
+.view-switcher.compact .switcher-btn svg {
+    width: 14px;
+    height: 14px;
 }
 
 .pending-badge {

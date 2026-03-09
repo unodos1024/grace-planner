@@ -59,7 +59,7 @@
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     flex-shrink: 0;
 }
 
@@ -128,6 +128,10 @@
 .dot.bible.done {
     background: #4CD964;
     /* QT color */
+}
+
+.dot.reading.done {
+    background: #007AFF;
 }
 
 .dot.qt,
@@ -300,89 +304,180 @@
     gap: 8px;
 }
 
+.goal-label {
+    background: var(--bg-surface);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    /* Slightly darker for better readability on light bg */
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.collapsed .goal-label {
+    display: flex;
+}
+
+/* Sync btn-fold to be round like the verse toggle */
 .btn-fold {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     border: none;
-    background: var(--bg-main);
+    background: transparent;
     color: var(--text-soft);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition-fast);
 }
 
 .btn-fold svg {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     transition: transform 0.3s ease;
 }
 
-.collapsed .btn-fold svg {
-    transform: rotate(-90deg);
+.btn-fold:hover {
+    background: var(--primary-pale);
+    color: var(--primary);
 }
 
-.collapsed .goal-label {
-    display: none;
+.section-header:not(.collapsed) .btn-fold {
+    background: var(--primary);
+    color: white;
+}
+
+.collapsed .btn-fold svg {
+    transform: rotate(180deg);
+}
+
+.foldable-header .training-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
 }
 
 .mini-status-bar {
     display: flex;
     align-items: center;
-    gap: 10px;
-    animation: fadeIn 0.3s ease;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px 0;
+    margin-top: -5px;
+    animation: slideInDown 0.3s ease;
 }
 
 .mini-status-group {
     display: flex;
-    gap: 4px;
-    position: relative;
+    gap: 6px;
 }
 
 .mini-status-group.daily::after {
     content: '';
     width: 1px;
-    height: 16px;
+    height: 24px;
     background: var(--border-subtle);
-    margin-left: 6px;
+    margin-left: 4px;
 }
 
-
-
 .mini-dot {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    background: var(--bg-surface);
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: white;
+    /* Brighter background for inactive state */
     border: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
-    filter: grayscale(1);
-    opacity: 0.5;
-    transition: all 0.2s ease;
+    color: var(--text-soft);
+    opacity: 0.7;
+    /* Increased from 0.4 for visibility */
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.mini-dot:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+    border-color: var(--primary-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.mini-dot svg {
+    width: 20px;
+    height: 20px;
 }
 
 .mini-dot.done {
-    filter: grayscale(0);
     opacity: 1;
     background: white;
-    border-color: var(--primary);
-    box-shadow: 0 2px 6px rgba(123, 150, 77, 0.15);
+    border-color: currentColor;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Badge colors when done */
+.mini-dot.prayer.done {
+    color: var(--accent);
+}
+
+.mini-dot.qt.done {
+    color: #4CD964;
+}
+
+.mini-dot.reading.done {
+    color: #007AFF;
+}
+
+.mini-dot.memorization.done {
+    color: #FFB300;
+}
+
+.mini-dot.summary.done {
+    color: #9C27B0;
+}
+
+.mini-dot.prep.done {
+    color: #795548;
+}
+
+.mini-dot.phone.done {
+    color: #E91E63;
+}
+
+.mini-dot.done svg {
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.1));
 }
 
 .mini-dot:active {
     transform: scale(0.9);
 }
 
-@keyframes fadeIn {
+@keyframes slideInDown {
     from {
         opacity: 0;
-        transform: translateX(-5px);
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
     }
 
     to {
@@ -392,25 +487,24 @@
 }
 
 .collapsible-content {
-    max-height: 1000px;
+    max-height: 2000px;
     overflow: hidden;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.3s ease;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 }
 
-.collapsed+.collapsible-content {
+.collapsed~.collapsible-content {
     max-height: 0;
     opacity: 0;
-    margin-bottom: 0;
     pointer-events: none;
 }
 
 
 .goal-label {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--primary);
     background: var(--primary-pale);
-    padding: 4px 10px;
+    padding: 6px 10px;
     border-radius: 20px;
 }
 
@@ -422,12 +516,13 @@
 }
 
 .task-grid.daily {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
 }
 
 .task-grid.weekly {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
 }
 
 .task-item {
@@ -467,14 +562,23 @@
     height: 18px;
 }
 
-.task-grid.weekly .task-title {
+.task-grid.daily .task-title {
     font-size: 11px;
     white-space: nowrap;
 }
 
-.task-grid.weekly .task-meta {
+.task-grid.daily .task-meta {
     font-size: 9px;
     letter-spacing: -0.02em;
+}
+
+.task-grid.weekly .task-title {
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.task-grid.weekly .task-meta {
+    font-size: 10px;
 }
 
 .task-info {
@@ -522,9 +626,9 @@
 }
 
 .task-item .icon-box {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     background: var(--bg-main);
     display: flex;
     align-items: center;
@@ -534,8 +638,8 @@
 }
 
 .task-item .icon-box svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     stroke-width: 2.5;
 }
 
@@ -573,7 +677,8 @@
 .verse-card-3d {
     perspective: 1500px;
     width: 100%;
-    height: 320px;
+    min-height: 380px;
+    /* Increased from 320px to support long verses */
     cursor: pointer;
     position: relative;
     user-select: none;
@@ -600,9 +705,12 @@
     left: 0;
     width: 100%;
     height: 100%;
+    min-height: 380px;
+    /* Match parent min-height */
     backface-visibility: hidden;
     border-radius: var(--radius-2xl);
-    padding: 40px 24px;
+    padding: 45px 24px 35px;
+    /* Refined padding for better flow */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -625,30 +733,47 @@
 
 .verse-front h4,
 .verse-back h4 {
-    position: absolute;
-    top: 24px;
-    font-size: 11px;
+    font-size: 16px;
+    /* High visibility for both sides */
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.12em;
+    position: relative;
+    top: 0;
+    margin-bottom: 14px;
+}
+
+/* .verse-front .verse-meta-row,
+.verse-back .verse-meta-row {
+    margin-bottom: 20px;
+} */
+
+.verse-front h4 {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.verse-back h4 {
+    color: var(--primary);
 }
 
 .verse-content {
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 800;
-    line-height: 1.6;
+    line-height: 1.7;
     word-break: keep-all;
     flex: 1;
     display: flex;
     align-items: center;
+    margin: 10px 0;
 }
 
 .verse-ref {
-    position: absolute;
-    bottom: 32px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 800;
-    opacity: 0.6;
+}
+
+.verse-front .verse-ref {
+    opacity: 0.8;
 }
 
 .verse-back .verse-ref {
@@ -665,7 +790,7 @@
     padding: 16px;
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-subtle);
-    margin-bottom: 16px;
+    margin-top: 10px;
 }
 
 .mini-week-btn {
@@ -685,31 +810,36 @@
     color: white;
 }
 
-/* Daily Task Card Enhancements (Scoped) */
 .dashboard-page .task-grid.daily .task-item {
-    padding: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-}
-
-.dashboard-page .task-grid.weekly .task-item {
+    padding: 12px 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 16px 8px;
-    gap: 12px;
     text-align: center;
 }
 
-.dashboard-page .task-grid .task-card-main {
-    padding: 16px 14px;
+.dashboard-page .task-grid.weekly .task-item {
+    padding: 14px 12px;
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 12px;
+}
+
+.dashboard-page .task-grid.daily .task-card-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.dashboard-page .task-grid.weekly .task-card-main {
+    display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 12px;
-    position: relative;
     width: 100%;
 }
 
@@ -761,7 +891,7 @@
 }
 
 .dashboard-page .verse-content {
-    font-size: 20px;
+    font-size: 19px;
 }
 
 .dashboard-page .week-selector {

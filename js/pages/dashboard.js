@@ -61,7 +61,7 @@
             const userTasks = window.Utils.getStorageItem(taskKey, []);
             const weekTasks = userTasks.filter(s => {
                 const d = new Date(s.date);
-                return d >= sunday && d < saturday;
+                return d >= monday && d < nextMonday;
             });
 
             // Daily Stats
@@ -297,12 +297,15 @@
         const weekStartOffset = (selectedWeek - 1) * 7;
         const weekStartDate = new Date(startDate);
         weekStartDate.setDate(startDate.getDate() + weekStartOffset);
-        const dayOfWeek = weekStartDate.getDay();
-        const sunday = new Date(weekStartDate);
-        sunday.setDate(weekStartDate.getDate() - dayOfWeek);
-        sunday.setHours(0, 0, 0, 0);
-        const saturday = new Date(sunday);
-        saturday.setDate(sunday.getDate() + 7);
+
+        // Find Monday of that week
+        const day = weekStartDate.getDay();
+        const diff = weekStartDate.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(weekStartDate.setDate(diff));
+        monday.setHours(0, 0, 0, 0);
+
+        const nextMonday = new Date(monday);
+        nextMonday.setDate(monday.getDate() + 7);
 
         let filtered = users.filter(u => u.role === 'believer' && u.isApproved && String(u.cohort) === currentCohortFilter);
 
@@ -313,10 +316,13 @@
                 const userTasks = window.Utils.getStorageItem(taskKey, []);
                 const weekTasks = userTasks.filter(s => {
                     const d = new Date(s.date);
-                    return d >= sunday && d < saturday;
+                    return d >= monday && d < nextMonday;
                 });
-                const missionsDone = (weekTasks.some(s => s.qt) ? 1 : 0) + (weekTasks.some(s => s.summary) ? 1 : 0) + (weekTasks.some(s => s.phone) ? 1 : 0);
-                return missionsDone < 3;
+                const missionsDone = (weekTasks.some(s => s.qt) ? 1 : 0) +
+                    (weekTasks.some(s => s.summary) ? 1 : 0) +
+                    (weekTasks.some(s => s.phone) ? 1 : 0) +
+                    (weekTasks.some(s => s.prep) ? 1 : 0);
+                return missionsDone < 4;
             });
         } else if (dashboardFilter === 'absent') {
             filtered = filtered.filter(u => {
@@ -324,7 +330,7 @@
                 const userTasks = window.Utils.getStorageItem(taskKey, []);
                 return !userTasks.some(s => {
                     const d = new Date(s.date);
-                    return d >= sunday && d < saturday && s.attendance;
+                    return d >= monday && d < nextMonday && s.attendance;
                 });
             });
         } else if (dashboardFilter === 'birthday') {
@@ -337,7 +343,7 @@
                 // Check if birthday falls in the current week (Sunday to Saturday)
                 const bYear = today.getFullYear();
                 const bDate = new Date(bYear, m - 1, d);
-                return bDate >= sunday && bDate < saturday;
+                return bDate >= monday && bDate < nextMonday;
             });
         }
 
@@ -353,22 +359,23 @@
             const userTasks = window.Utils.getStorageItem(taskKey, []);
 
             let dayItemsHtml = '';
-            const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayLabels = ['월', '화', '수', '목', '금', '토', '일'];
 
             const weekTasks = userTasks.filter(s => {
                 const d = new Date(s.date);
-                return d >= sunday && d < saturday;
+                return d >= monday && d < nextMonday;
             });
 
             const isAttended = weekTasks.some(s => s.attendance);
             const hasMemo = weekTasks.some(s => s.qt);
             const hasSummary = weekTasks.some(s => s.summary);
             const hasPhone = weekTasks.some(s => s.phone);
+            const hasPrep = weekTasks.some(s => s.prep);
             const isReadingWeek = (selectedWeek % 3 === 0);
-            const hasReading = weekTasks.some(s => s.book || s.reading);
+            const hasReadingMission = weekTasks.some(s => s.book || s.reading_report);
 
-            let totalMissions = 3;
-            let completedMissions = (hasMemo ? 1 : 0) + (hasSummary ? 1 : 0) + (hasPhone ? 1 : 0);
+            let totalMissions = 4;
+            let completedMissions = (hasMemo ? 1 : 0) + (hasSummary ? 1 : 0) + (hasPhone ? 1 : 0) + (hasPrep ? 1 : 0);
             const progressPercent = Math.round((completedMissions / totalMissions) * 100);
             const allDone = completedMissions >= totalMissions;
 
@@ -376,15 +383,15 @@
             let isBirthWeek = false;
             if (u.birth) {
                 const [by, bm, bd] = u.birth.split('-').map(Number);
-                const bCurrent = new Date(sunday.getFullYear(), bm - 1, bd);
-                isBirthWeek = bCurrent >= sunday && bCurrent < saturday;
+                const bCurrent = new Date(monday.getFullYear(), bm - 1, bd);
+                isBirthWeek = bCurrent >= monday && bCurrent < nextMonday;
             }
 
             const todayStr = new Date().toDateString();
 
             for (let i = 0; i < 7; i++) {
-                const d = new Date(sunday);
-                d.setDate(sunday.getDate() + i);
+                const d = new Date(monday);
+                d.setDate(monday.getDate() + i);
                 const dStr = d.toISOString().split('T')[0];
                 const dayData = userTasks.find(s => s.date.split('T')[0] === dStr) || {};
                 const isToday = d.toDateString() === todayStr;
@@ -392,10 +399,10 @@
                 dayItemsHtml += `
                 <div class="day-item ${isToday ? 'active' : ''}">
                     <span class="day-name">${dayLabels[i]}</span>
-                    <span class="day-num">${d.getDate()}</span>
                     <div class="day-dots">
                         <div class="dot prayer ${dayData.prayer ? 'done' : ''}"></div>
-                        <div class="dot qt ${dayData.bible ? 'done' : ''}"></div>
+                        <div class="dot bible ${dayData.bible ? 'done' : ''}"></div>
+                        <div class="dot reading ${dayData.reading ? 'done' : ''}"></div>
                     </div>
                 </div>
             `;
@@ -404,7 +411,7 @@
             return `
             <div class="cohort-member-card admin-compact card-style">
                 <div class="admin-compact-header">
-                    <div class="member-profile-mini" onclick="handleToggleAttendance('${u.id}', '${sunday.toISOString()}')" style="cursor: pointer;" title="클릭하여 출석 토글">
+                    <div class="member-profile-mini" onclick="handleToggleAttendance('${u.id}', '${monday.toISOString()}')" style="cursor: pointer;" title="클릭하여 출석 토글">
                         <div class="avatar-circle-sm" style="${isAttended ? 'background: var(--primary); color: white;' : ''}">
                             ${isAttended ? '出' : u.name[0]}
                         </div>
@@ -428,8 +435,8 @@
                         </div>
                         ${isReadingWeek ? `
                             <div class="weekly-summary-item">
-                                <div class="weekly-progress-circle ${hasReading ? 'all-done' : ''}" style="--progress: ${hasReading ? 100 : 0};">
-                                    ${hasReading ? `
+                                <div class="weekly-progress-circle ${hasReadingMission ? 'all-done' : ''}" style="--progress: ${hasReadingMission ? 100 : 0};">
+                                    ${hasReadingMission ? `
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                             <path d="M20 6L9 17l-5-5" />
                                         </svg>
@@ -455,16 +462,16 @@
         }).join('');
     };
 
-    window.handleToggleAttendance = (userId, sundayIso) => {
+    window.handleToggleAttendance = (userId, mondayIso) => {
         const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}`;
         const userTasks = window.Utils.getStorageItem(taskKey, []);
-        const sunday = new Date(sundayIso);
-        const saturday = new Date(sunday);
-        saturday.setDate(sunday.getDate() + 7);
+        const monday = new Date(mondayIso);
+        const nextMonday = new Date(monday);
+        nextMonday.setDate(monday.getDate() + 7);
 
         const weekTaskIndex = userTasks.findIndex(s => {
             const d = new Date(s.date);
-            return d >= sunday && d < saturday && s.attendance !== undefined;
+            return d >= monday && d < nextMonday && s.attendance !== undefined;
         });
 
         if (weekTaskIndex > -1) {
@@ -472,14 +479,14 @@
         } else {
             const existingTaskInWeek = userTasks.find(s => {
                 const d = new Date(s.date);
-                return d >= sunday && d < saturday;
+                return d >= monday && d < nextMonday;
             });
 
             if (existingTaskInWeek) {
                 existingTaskInWeek.attendance = true;
             } else {
                 userTasks.push({
-                    date: sunday.toISOString(),
+                    date: monday.toISOString(),
                     attendance: true
                 });
             }
@@ -501,7 +508,7 @@
 
         if (!modal || !container) return;
 
-        titleEl.innerText = data.type === 'prayer' ? '기도제목 기록' : '말씀요약 기록';
+        titleEl.innerText = data.type === 'prayer' ? '기도제목 기록' : '설교요약 기록';
         avatarEl.innerText = data.user.name[0];
         nameEl.innerText = data.user.name;
         infoEl.innerText = `${data.user.cohort}기 훈련생`;
@@ -549,7 +556,7 @@
 
         if (!modal) return;
 
-        titleEl.innerText = data.type === 'prayer' ? '기도제목 상세' : '말씀요약 상세';
+        titleEl.innerText = data.type === 'prayer' ? '기도제목 상세' : '설교요약 상세';
         avatarEl.innerText = data.userName[0];
         nameEl.innerText = data.userName;
         infoEl.innerText = `${data.cohort}기 | ${new Date(data.date).toLocaleDateString()}`;
@@ -679,10 +686,10 @@
         const weeks = {};
         const now = new Date();
 
-        // Get last 6 Sundays
+        // Get last 6 Mondays
         for (let i = 0; i < 6; i++) {
             const d = new Date();
-            d.setDate(now.getDate() - now.getDay() - (i * 7));
+            d.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1) - (i * 7)); // Adjust to Monday
             d.setHours(0, 0, 0, 0);
             const label = (d.getMonth() + 1) + '/' + d.getDate();
             weeks[d.getTime()] = { label, count: 0, participants: new Set() };
@@ -693,10 +700,10 @@
             entry.sermons.forEach(s => {
                 const sDate = new Date(s.date);
                 sDate.setHours(0, 0, 0, 0);
-                const sunday = new Date(sDate);
-                sunday.setDate(sDate.getDate() - sDate.getDay());
+                const monday = new Date(sDate);
+                monday.setDate(sDate.getDate() - sDate.getDay() + (sDate.getDay() === 0 ? -6 : 1)); // Adjust to Monday
 
-                const time = sunday.getTime();
+                const time = monday.getTime();
                 if (weeks[time]) {
                     weeks[time].participants.add(entry.user.id);
                     weeks[time].count = weeks[time].participants.size;
@@ -872,12 +879,15 @@
         const weekStartOffset = (selectedWeek - 1) * 7;
         const weekStartDate = new Date(startDate);
         weekStartDate.setDate(startDate.getDate() + weekStartOffset);
-        const dayOfWeek = weekStartDate.getDay();
-        const sunday = new Date(weekStartDate);
-        sunday.setDate(weekStartDate.getDate() - dayOfWeek);
-        sunday.setHours(0, 0, 0, 0);
-        const saturday = new Date(sunday);
-        saturday.setDate(sunday.getDate() + 7);
+
+        // Find Monday of that week
+        const day = weekStartDate.getDay();
+        const diff = weekStartDate.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(weekStartDate.setDate(diff));
+        monday.setHours(0, 0, 0, 0);
+
+        const nextMonday = new Date(monday);
+        nextMonday.setDate(monday.getDate() + 7);
 
         listContainer.innerHTML = targetUsers.map(u => {
 
@@ -1545,10 +1555,6 @@
         const isTraining = mode === 'training';
         document.getElementById('subview-general').classList.toggle('active', !isTraining);
         document.getElementById('subview-training').classList.toggle('active', isTraining);
-        document.getElementById('subview-general').style.background = isTraining ? 'transparent' : 'white';
-        document.getElementById('subview-general').style.boxShadow = isTraining ? 'none' : '0 2px 4px rgba(0,0,0,0.05)';
-        document.getElementById('subview-training').style.background = isTraining ? 'white' : 'transparent';
-        document.getElementById('subview-training').style.boxShadow = isTraining ? '0 2px 4px rgba(0,0,0,0.05)' : 'none';
 
         document.getElementById('panel-general-schedule').classList.toggle('hidden', isTraining);
         document.getElementById('panel-training-schedule').classList.toggle('hidden', !isTraining);

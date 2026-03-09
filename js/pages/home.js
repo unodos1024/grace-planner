@@ -19,18 +19,21 @@
             renderCalendarStrip(weekStatuses);
 
             const todayStatus = window.TaskService.getTodayTaskState();
-            // const isBookWeek = window.TaskService.isBookReportWeek(new Date()); // Book mission removed
 
             // Weekly counts for Summary, Memorization, and Phone Fellowship
             const summaryCount = window.TaskService.getWeeklyTaskCount('summary', new Date());
             const memoCount = window.TaskService.getWeeklyTaskCount('qt', new Date()); // Home Memo -> Internal QT
             const phoneCount = window.TaskService.getWeeklyTaskCount('phone', new Date());
 
+            const prepCount = window.TaskService.getWeeklyTaskCount('prep', new Date());
+
             updateTaskCards([
                 { type: 'prayer', isCompleted: todayStatus.prayer, meta: `매일 20분 이상` },
                 { type: 'qt', isCompleted: todayStatus.bible },
+                { type: 'reading', isCompleted: todayStatus.reading },
                 { type: 'memorization', isCompleted: memoCount >= 1 },
                 { type: 'summary', isCompleted: summaryCount >= 1 },
+                { type: 'prep', isCompleted: prepCount >= 1 },
                 { type: 'phone', isCompleted: phoneCount >= 1 }
             ]);
 
@@ -55,21 +58,22 @@
         const todayLabel = document.getElementById('today-date-label');
         if (!strip) return;
 
-        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
         const todayStr = new Date().toDateString();
 
         // Calculate Weekly Mission Progress for Summary
         const summaryCount = window.TaskService.getWeeklyTaskCount('summary', new Date());
         const memoCount = window.TaskService.getWeeklyTaskCount('qt', new Date());
         const phoneCount = window.TaskService.getWeeklyTaskCount('phone', new Date());
-        const todayStatus = window.TaskService.getTodayTaskState();
+        const prepCount = window.TaskService.getWeeklyTaskCount('prep', new Date());
 
         let completedMissions = 0;
-        let totalMissions = 3; // 암송(1), 요약(2), 전화(2)
+        let totalMissions = 4; // 암송(1), 요약(1), 전화(1), 예습(1)
 
         if (memoCount >= 1) completedMissions++;
         if (summaryCount >= 1) completedMissions++;
         if (phoneCount >= 1) completedMissions++;
+        if (prepCount >= 1) completedMissions++;
 
         const progressPercent = Math.min(100, Math.round((completedMissions / totalMissions) * 100));
         const allDone = completedMissions >= totalMissions;
@@ -84,10 +88,8 @@
                     <span class="day-num">${date.getDate()}</span>
                     <div class="day-dots">
                         <div class="dot prayer ${status.prayer ? 'done' : ''}"></div>
-                        <div class="dot qt ${status.qt ? 'done' : ''}"></div>
                         <div class="dot bible ${status.bible ? 'done' : ''}"></div>
-                        <div class="dot phone ${status.phone ? 'done' : ''}"></div>
-                        <div class="dot book ${status.book ? 'done' : ''}"></div>
+                        <div class="dot reading ${status.reading ? 'done' : ''}"></div>
                     </div>
                 </div>
             `;
@@ -139,34 +141,32 @@
 
                 if (metaEl && task.meta) metaEl.innerText = task.meta;
 
-                // Update Mini Status Dots
-                const miniDot = document.querySelector(`.mini-dot.${task.type}`);
-                if (miniDot) {
+                // Update Mini Status Dots (SVGs)
+                const miniDots = document.querySelectorAll(`.mini-dot.${task.type}`);
+                miniDots.forEach(miniDot => {
                     miniDot.classList.toggle('done', !!task.isCompleted);
-                }
+                });
             }
         });
     };
 
-    window.toggleSection = (sectionId = 'all-tasks') => {
-        const header = document.querySelector(`.section-sub-header[data-section="${sectionId}"]`);
+    window.toggleSection = (sectionId = 'all-training') => {
+        const header = document.querySelector(`.section-header[data-section="${sectionId}"]`);
         const miniBar = document.getElementById(`mini-status-${sectionId}`);
         if (!header) return;
 
         const isCollapsed = header.classList.toggle('collapsed');
-        if (miniBar) {
-            miniBar.classList.toggle('hidden', !isCollapsed);
-        }
+        if (miniBar) miniBar.classList.toggle('hidden', !isCollapsed);
 
         // Save state
         localStorage.setItem(`home_collapsed_${sectionId}`, isCollapsed);
     };
 
     const initSectionStates = () => {
-        const id = 'all-tasks';
+        const id = 'all-training';
         const isCollapsed = localStorage.getItem(`home_collapsed_${id}`) === 'true';
         if (isCollapsed) {
-            const header = document.querySelector(`.section-sub-header[data-section="${id}"]`);
+            const header = document.querySelector(`.section-header[data-section="${id}"]`);
             const miniBar = document.getElementById(`mini-status-${id}`);
             if (header) header.classList.add('collapsed');
             if (miniBar) miniBar.classList.remove('hidden');
