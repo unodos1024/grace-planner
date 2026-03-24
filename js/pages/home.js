@@ -268,7 +268,10 @@
             const text = document.getElementById(`home-verse-text-${suffix === 'A' ? 'front' : 'back'}`);
             const ref = document.getElementById(`home-verse-ref-${suffix === 'A' ? 'front' : 'back'}`);
             if (subject) subject.innerText = verse.subject;
-            if (text) text.innerText = verse.text;
+            if (text) {
+                text.innerText = verse.text;
+                text.classList.remove('concealed');
+            }
             if (ref) ref.innerText = verse.reference;
         });
         document.querySelector('.verse-card-inner')?.classList.remove('flipped');

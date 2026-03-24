@@ -12,11 +12,12 @@ const SermonService = {
     async fetchSermonNotes() {
         // Fallback to local
         let notes = this.getNotes();
+        if (!Array.isArray(notes)) notes = [];
 
         try {
             if (window.CONFIG.API_BASE && !window.CONFIG.API_BASE.includes('localhost:5116')) {
                 const serverNotes = await window.ApiClient.get('/sermon');
-                if (serverNotes && serverNotes.length > 0) {
+                if (Array.isArray(serverNotes)) {
                     notes = serverNotes;
                     // Optionally sync local with server if needed
                     window.Utils.setStorageItem(this.getStorageKey(), notes);
@@ -28,19 +29,20 @@ const SermonService = {
         return notes;
     },
 
-    async saveNote(id, content, date, worshipType) {
+    async saveNote(id, title, content, date, worshipType) {
         let notes = this.getNotes();
+        if (!Array.isArray(notes)) notes = [];
         let savedNote = null;
 
         if (id) {
             const index = notes.findIndex(n => n.noteId === parseInt(id));
             if (index !== -1) {
-                notes[index] = { ...notes[index], content, createdDate: new Date(date).toISOString() };
+                notes[index] = { ...notes[index], title, content, createdDate: new Date(date).toISOString() };
                 savedNote = notes[index];
             }
         } else {
             savedNote = {
-                noteId: Date.now(), content, createdDate: new Date(date).toISOString(), worshipType
+                noteId: Date.now(), title, content, createdDate: new Date(date).toISOString(), worshipType
             };
             notes.unshift(savedNote);
         }
@@ -50,6 +52,7 @@ const SermonService = {
         // Sync with API
         try {
             await window.ApiClient.post('/sermon', {
+                title,
                 content,
                 worshipType: id ? undefined : worshipType,
                 createdDate: new Date(date).toISOString()
@@ -63,6 +66,7 @@ const SermonService = {
 
     deleteNote(id) {
         let notes = this.getNotes();
+        if (!Array.isArray(notes)) notes = [];
         notes = notes.filter(n => n.noteId !== parseInt(id));
         window.Utils.setStorageItem(this.getStorageKey(), notes);
     }

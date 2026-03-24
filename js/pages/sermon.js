@@ -38,7 +38,8 @@
 
         container.innerHTML = filteredNotes.map(note => `
             <div class="gw-card" onclick="openEditSermonModal(${note.noteId})">
-                <p class="gw-card-title">${note.content}</p>
+                <p class="gw-card-title">${note.title || '제목 없음'}</p>
+                <div style="font-size:13px; color:var(--text-main); margin-top:8px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${note.content || ''}</div>
                 <div style="margin-top:12px; font-size:12px; color:var(--text-soft); font-weight:600; display: flex; align-items: center; gap: 4px;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px; height:12px; opacity: 0.6;">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -63,6 +64,7 @@
     window.openSermonModal = () => {
         document.getElementById('sermon-modal-title').innerText = currentTab === 'sunday' ? '주일 설교 기록' : '수요기도회 기록';
         document.getElementById('sermon-input-id').value = '';
+        document.getElementById('sermon-input-title').value = '';
         document.getElementById('sermon-input-content').value = '';
         document.getElementById('sermon-input-date').value = window.Utils.getTodayISO();
         document.getElementById('btn-save-sermon').innerText = '기록 저장하기';
@@ -76,6 +78,7 @@
 
         document.getElementById('sermon-modal-title').innerText = note.worshipType === 'SUNDAY' ? '주일 설교 수정' : '수요기도회 수정';
         document.getElementById('sermon-input-id').value = note.noteId;
+        document.getElementById('sermon-input-title').value = note.title || '';
         document.getElementById('sermon-input-content').value = note.content;
         document.getElementById('sermon-input-date').value = note.createdDate.split('T')[0];
         document.getElementById('btn-save-sermon').innerText = '내용 수정하기';
@@ -89,16 +92,17 @@
 
     window.saveSermonNote = async () => {
         const id = document.getElementById('sermon-input-id').value;
+        const title = document.getElementById('sermon-input-title').value.trim();
         const content = document.getElementById('sermon-input-content').value.trim();
-        const date = document.getElementById('sermon-input-date').value;
+        const date = document.getElementById('sermon-input-date').value || window.Utils.getTodayISO();
 
-        if (!content || !date) {
+        if (!title || !content) {
             window.Utils?.showToast('모든 항목을 입력해주세요.');
             return;
         }
 
         const worshipType = id ? undefined : (currentTab === 'sunday' ? 'SUNDAY' : 'WEDNESDAY');
-        await window.SermonService.saveNote(id, content, date, worshipType);
+        await window.SermonService.saveNote(id, title, content, date, worshipType);
 
         if (id) window.Utils?.showToast('기록이 수정되었습니다.');
         else window.Utils?.showToast('새 기록이 저장되었습니다.');

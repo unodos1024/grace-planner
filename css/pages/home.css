@@ -765,6 +765,14 @@
     display: flex;
     align-items: center;
     margin: 10px 0;
+    cursor: pointer;
+    transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.verse-content.concealed {
+    filter: blur(8px);
+    opacity: 0.4;
+    user-select: none;
 }
 
 .verse-ref {
