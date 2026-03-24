@@ -346,10 +346,10 @@
                     inner.style.opacity = '1';
                 }, 300);
             } else {
-                // Swipe Failed - Return to current state
-                inner.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                inner.style.transform = rotation;
-                inner.style.opacity = '1';
+                // Swipe Failed / Simple Tap - Clean up inline styles
+                inner.style.transition = '';
+                inner.style.transform = '';
+                inner.style.opacity = '';
             }
         });
     };
