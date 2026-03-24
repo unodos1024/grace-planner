@@ -775,6 +775,25 @@
     user-select: none;
 }
 
+.flip-hint {
+    margin-top: auto;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 20px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    transition: all 0.2s ease;
+}
+
+.verse-back .flip-hint {
+    color: var(--primary);
+    background: var(--primary-pale);
+}
+
 .verse-ref {
     font-size: 15px;
     font-weight: 800;
