@@ -120,10 +120,37 @@
     }
 }
 
+.bible-selector-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px 12px;
+    background: white;
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin-bottom: 0 !important;
+    /* Force remove global margin-bottom */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px 8px;
+    /* Extremely minimal padding */
+    background: white;
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
 .selector-body {
     overflow-y: auto;
-    padding: 12px 20px 60px;
-    /* Start padding immediately at 12px */
+    padding: 8px 20px 40px;
+    /* Reduced from 60px for better bottom balance */
 }
 
 /* Hide scrollbar */
@@ -141,13 +168,13 @@
 }
 
 .selector-section {
-    margin-top: 0 !important;
-    /* Force zero top margin to fight any browser inheritance */
-    margin-bottom: 32px;
+    margin-top: 5px !important;
+    margin-bottom: 24px;
+    /* Reduced from 32px for tighter flow */
 }
 
 .selector-section:last-child {
-    margin-bottom: 24px;
+    margin-bottom: 12px;
 }
 
 .section-header-row {
@@ -415,17 +442,21 @@ body::-webkit-scrollbar {
     background: var(--primary);
     color: white;
     border: none;
-    box-shadow: var(--shadow-primary);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 100;
-    transition: var(--transition-base);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
+}
+
+body:has(#mobile-nav-container.hidden) .bible-search-fab {
+    transform: translateY(74px);
 }
 
 .bible-search-fab:active {
-    transform: scale(0.9);
+    transform: scale(0.9) !important;
 }
 
 .bible-search-fab svg {

@@ -20,13 +20,14 @@ window.BiblePage = {
     },
 
     async init() {
+        if (this.isInitialized) return;
         try {
             this.renderLoading();
             await this.loadData();
             this.currentFontSize = parseInt(localStorage.getItem('bible-font-size')) || 16;
             this.renderVerses();
-            this.updateSelectorLabels();
             this.initGestures();
+            this.isInitialized = true;
         } catch (error) {
             console.error('Bible data load failed:', error);
             this.renderError();
@@ -208,12 +209,17 @@ window.BiblePage = {
         html += '</div>';
 
         // Find existing non-content elements to preserve them
-        const existing = wrapper.querySelectorAll('.bible-search-fab, .modal-overlay');
+        const existing = wrapper.querySelectorAll('.bible-search-fab, .modal-overlay, .nav-arrow');
         wrapper.innerHTML = html;
         existing.forEach(el => wrapper.appendChild(el));
 
         this.applyFontSize(); // Apply saved font size immediately after render
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Target the correct shell-content scroll container
+        const scrollContainer = document.getElementById('shell-content');
+        if (scrollContainer) {
+            scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     },
 
     // --- Modal Selector Logic ---
@@ -323,14 +329,17 @@ window.BiblePage = {
     },
 
     destroy() {
+        this.isInitialized = false;
         document.body.style.overflow = '';
+        // Remove scroll listener if possible or it will be handled by router's cleanup
     }
 };
 
-// Auto-init logic
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => window.BiblePage.init());
-} else if (document.getElementById('bible-content')) {
+// Set as current page instance for Router
+window.currentPageInstance = BiblePage;
+
+// Auto-init logic for both direct load and router
+if (document.getElementById('bible-content') || document.querySelector('.bible-page-wrapper')) {
     window.BiblePage.init();
 }
 
