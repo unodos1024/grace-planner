@@ -47,22 +47,7 @@
     /* This + center alignment makes it center */
 }
 
-/* Bible Selector Modal Grid */
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding: 0 4px;
-}
-
-.modal-title {
-    font-size: 18px;
-    font-weight: 850;
-    color: var(--text-main);
-    letter-spacing: -0.02em;
-}
-
+/* Bible Selector Modal Container */
 .bible-selector-modal {
     max-width: 440px;
     width: 100%;
@@ -72,10 +57,55 @@
     display: flex;
     flex-direction: column;
     max-height: 70vh;
-    /* Reduced from 80vh for mobile safety */
     overflow: hidden;
     position: relative;
     animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    padding: 0;
+    /* Let children handle padding */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px 12px;
+    background: white;
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 850;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.btn-close {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #F2F2F7;
+    border: none;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-close svg {
+    width: 20px;
+    height: 20px;
+}
+
+.btn-close:active {
+    transform: scale(0.9);
+    background: #E5E5EA;
 }
 
 @keyframes modalPop {
@@ -92,8 +122,8 @@
 
 .selector-body {
     overflow-y: auto;
-    padding-right: 4px;
-    padding-bottom: 20px;
+    padding: 12px 20px 60px;
+    /* Start padding immediately at 12px */
 }
 
 /* Hide scrollbar */
@@ -111,7 +141,13 @@
 }
 
 .selector-section {
-    margin-bottom: 20px;
+    margin-top: 0 !important;
+    /* Force zero top margin to fight any browser inheritance */
+    margin-bottom: 32px;
+}
+
+.selector-section:last-child {
+    margin-bottom: 24px;
 }
 
 .section-header-row {
@@ -199,23 +235,7 @@
     font-size: 14px;
 }
 
-.btn-close {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: #F2F2F7;
-    border: none;
-    color: var(--text-soft);
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-
-.btn-close:active {
-    transform: scale(0.9);
-}
+/* Removed redundant btn-close from here */
 
 /* Hide global scrollbar for clean look */
 html,

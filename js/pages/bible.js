@@ -51,22 +51,24 @@ window.BiblePage = {
     initGestures() {
         const wrapper = document.querySelector('.bible-page-wrapper');
         const mobileNav = document.getElementById('mobile-nav-container');
+        const scrollContainer = document.getElementById('shell-content');
         if (!wrapper) return;
 
-        let lastScrollY = window.scrollY;
+        let lastScrollY = scrollContainer ? scrollContainer.scrollTop : 0;
 
         // --- Scroll to Hide Nav ---
-        window.addEventListener('scroll', () => {
-            const currentScrollY = window.scrollY;
-            if (!mobileNav) return;
+        if (scrollContainer && mobileNav) {
+            scrollContainer.addEventListener('scroll', () => {
+                const currentScrollY = scrollContainer.scrollTop;
 
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                mobileNav.classList.add('hidden');
-            } else {
-                mobileNav.classList.remove('hidden');
-            }
-            lastScrollY = currentScrollY;
-        }, { passive: true });
+                if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                    mobileNav.classList.add('hidden');
+                } else {
+                    mobileNav.classList.remove('hidden');
+                }
+                lastScrollY = currentScrollY;
+            }, { passive: true });
+        }
 
         // --- Swipe Gestures ---
         let startX = 0;
