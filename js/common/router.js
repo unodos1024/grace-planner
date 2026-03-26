@@ -18,6 +18,12 @@ const Router = {
             js: ['../../js/pages/sermon.js'],
             css: ['../../css/pages/sermon.css']
         },
+        'bible': {
+            url: '../bible/bible.html',
+            title: '성경 - Grace Planner',
+            js: ['../../js/pages/bible.js'],
+            css: ['../../css/pages/bible.css']
+        },
         'notice': {
             url: '../notice/notice.html',
             title: '알림 - Grace Planner',

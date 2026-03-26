@@ -895,19 +895,19 @@
             const userTasks = window.Utils.getStorageItem(taskKey, []);
             const isAttended = userTasks.some(s => {
                 const d = new Date(s.date);
-                return d >= sunday && d < saturday && s.attendance;
+                return d >= monday && d < nextMonday && s.attendance;
             });
 
             // Birthday highlight
             let isBirthdayThisWeek = false;
             if (u.birth) {
                 const [, bm, bd] = u.birth.split('-').map(Number);
-                const bCurrent = new Date(sunday.getFullYear(), bm - 1, bd);
-                isBirthdayThisWeek = bCurrent >= sunday && bCurrent < saturday;
+                const bCurrent = new Date(monday.getFullYear(), bm - 1, bd);
+                isBirthdayThisWeek = bCurrent >= monday && bCurrent < nextMonday;
             }
 
             return `
-            <div class="gw-card" style="opacity: ${u.isGraduated ? 0.6 : 1}; padding: 14px 16px; position: relative;">
+            <div class="gw-card" style="background: ${u.isGraduated ? '#F9F9F9' : 'var(--bg-surface)'}; opacity: ${u.isGraduated ? 0.7 : 1}; padding: 14px 16px; position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <div style="display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;">
                         <span class="gw-card-label" style="background: var(--primary-light); color: var(--primary); margin: 0; padding: 2px 6px; border-radius: 4px; font-size: 11px; flex-shrink: 0;">${u.cohort}기</span>
@@ -919,7 +919,7 @@
                     </div>
                     <!-- Actions -->
                     <div style="display: flex; gap: 8px;">
-                        <button onclick="handleMemberAttendance('${u.id}', '${sunday.toISOString()}')"
+                        <button onclick="handleMemberAttendance('${u.id}', '${monday.toISOString()}')"
                             ${isSunday ? '' : 'disabled title="출석 체크는 일요일에만 가능합니다"'}
                             style="
                                 flex-shrink: 0;
@@ -1042,7 +1042,7 @@
         initAdminPage();
     };
 
-    window.handleMemberAttendance = (userId, sundayIso) => {
+    window.handleMemberAttendance = (userId, mondayIso) => {
         const today = new Date();
         if (today.getDay() !== 0) {
             window.Utils.showToast('출석 체크는 일요일에만 가능합니다.', 'error');
@@ -1051,13 +1051,13 @@
 
         const taskKey = `${window.CONFIG.STORAGE_KEYS.TASK_STATE_PREFIX}${userId}`;
         const userTasks = window.Utils.getStorageItem(taskKey, []);
-        const sunday = new Date(sundayIso);
-        const saturday = new Date(sunday);
-        saturday.setDate(sunday.getDate() + 7);
+        const monday = new Date(mondayIso);
+        const nextMonday = new Date(monday);
+        nextMonday.setDate(monday.getDate() + 7);
 
         const weekTaskIndex = userTasks.findIndex(s => {
             const d = new Date(s.date);
-            return d >= sunday && d < saturday && s.attendance !== undefined;
+            return d >= monday && d < nextMonday && s.attendance !== undefined;
         });
 
         if (weekTaskIndex > -1) {
@@ -1065,12 +1065,12 @@
         } else {
             const existing = userTasks.find(s => {
                 const d = new Date(s.date);
-                return d >= sunday && d < saturday;
+                return d >= monday && d < nextMonday;
             });
             if (existing) {
                 existing.attendance = true;
             } else {
-                userTasks.push({ date: sundayIso, attendance: true });
+                userTasks.push({ date: mondayIso, attendance: true });
             }
         }
         window.Utils.setStorageItem(taskKey, userTasks);

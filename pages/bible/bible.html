@@ -1,0 +1,64 @@
+<div class="bible-page-wrapper">
+    <!-- Desktop Navigation Arrows -->
+    <button class="nav-arrow prev" onclick="BiblePage.navigateChapter(-1)" aria-label="이전 장">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M15 18l-6-6 6-6" />
+        </svg>
+    </button>
+    <button class="nav-arrow next" onclick="BiblePage.navigateChapter(1)" aria-label="다음 장">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M9 18l6-6-6-6" />
+        </svg>
+    </button>
+    <!-- Content Area -->
+    <div class="bible-content-area" id="bible-content">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Search FAB -->
+    <button class="bible-search-fab" onclick="BiblePage.openSelectorModal()" aria-label="찾기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+        </svg>
+    </button>
+
+    <!-- Selector Modal (Custom Select) -->
+    <div id="bible-selector-modal" class="modal-overlay" onclick="BiblePage.closeSelectorModal()">
+        <div class="modal-content bible-selector-modal" onclick="event.stopPropagation()">
+            <header class="modal-header">
+                <h2 class="modal-title">성경 선택</h2>
+                <button onclick="BiblePage.closeSelectorModal()" class="btn-close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </header>
+
+            <div class="selector-body">
+                <!-- Book Selection -->
+                <div class="selector-section">
+                    <label>구약성경</label>
+                    <div class="book-grid" id="bible-book-grid-old">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+                <div class="selector-section">
+                    <label>신약성경</label>
+                    <div class="book-grid" id="bible-book-grid-new">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+                <!-- Chapter Selection -->
+                <div class="selector-section hidden" id="chapter-selection-section">
+                    <label>장 선택</label>
+                    <div class="chapter-grid" id="bible-chapter-grid">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
