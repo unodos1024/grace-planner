@@ -451,7 +451,9 @@ body::-webkit-scrollbar {
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
 }
 
-body:has(#mobile-nav-container.hidden) .bible-search-fab {
+/* When Bottom Nav is hidden, move FAB down too */
+/* Use a broader selector that covers the layout structure */
+body .shell-main:has(#mobile-nav-container.hidden) .bible-search-fab {
     transform: translateY(74px);
 }
 
