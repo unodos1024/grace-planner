@@ -1,0 +1,302 @@
+/* Memorization Page Styles - Final Primary Tone & Grid Fixed */
+
+.memorization-page-wrapper {
+    padding: 0 20px 140px; /* Even more padding for safety */
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Ensure global bottom nav is visible on this page */
+#mobile-nav-container {
+    display: flex !important;
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+}
+
+/* Section Header */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0 16px;
+}
+
+.title-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-pale);
+    color: var(--primary);
+}
+
+.section-icon svg { width: 18px; height: 18px; }
+
+.section-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Type Selector - Primary Tone */
+.type-selector-header {
+    display: flex;
+    background: var(--bg-soft);
+    padding: 2px;
+    border-radius: 18px;
+    border: 1px solid var(--border-subtle);
+}
+
+.btn-type-mini {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-soft);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-type-mini.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 2px 6px rgba(108, 92, 231, 0.2);
+}
+
+/* Week Selector */
+.week-selector {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--bg-surface);
+    padding: 2px;
+    border-radius: 18px;
+    border: 1px solid var(--border-subtle);
+}
+
+.selected-week-badge {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 800;
+    min-width: 20px;
+    text-align: center;
+}
+
+.btn-toggle-round {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-soft);
+}
+
+.btn-toggle-round svg { width: 14px; height: 14px; }
+
+/* Game View */
+.memo-view { animation: fadeIn 0.4s ease-out; }
+
+.game-board {
+    background: #FDFDFF;
+    border-radius: 24px;
+    padding: 32px 24px;
+    border: 1.5px solid #E9ECEF; /* Darker, more visible border */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05); /* Slightly deeper shadow for depth */
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+    margin-top: 10px;
+}
+
+.game-verse-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.game-subject {
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--text-main);
+}
+
+.game-ref {
+    font-size: 12px;
+    font-weight: 800;
+    background: var(--primary-pale);
+    color: var(--primary);
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(108, 92, 231, 0.1);
+}
+
+.game-question-area {
+    flex: 1;
+    background: #F1F3F5;
+    padding: 24px;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 2.2;
+    text-align: center;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    color: var(--text-main);
+}
+
+/* Polished Blanks */
+.quiz-blank {
+    display: inline-block;
+    min-width: 60px;
+    height: 34px;
+    background: rgba(108, 92, 231, 0.03);
+    border: 1.5px dashed rgba(108, 92, 231, 0.2);
+    border-radius: 10px;
+    margin: 0 6px;
+    vertical-align: middle;
+    transition: all 0.2s;
+}
+
+.quiz-blank.filled {
+    background: var(--primary);
+    border: 1.5px solid var(--primary);
+    color: white;
+    line-height: 34px;
+    font-weight: 800;
+    box-shadow: 0 4px 10px rgba(108, 92, 231, 0.2);
+}
+
+.game-choices-area {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 32px;
+}
+
+.quiz-choice {
+    background: white;
+    border: 1px solid var(--border-subtle);
+    padding: 10px 20px;
+    border-radius: 16px;
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    transition: all 0.2s;
+}
+
+.quiz-choice.used {
+    opacity: 0.2;
+    background: var(--bg-soft);
+    pointer-events: none;
+}
+
+.game-footer {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 12px;
+}
+
+.btn-game-reset {
+    background: var(--bg-soft);
+    border: none;
+    color: var(--text-soft);
+    padding: 16px;
+    border-radius: 18px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-game-submit {
+    background: var(--primary);
+    border: none;
+    color: white;
+    padding: 16px;
+    border-radius: 18px;
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(108, 92, 231, 0.2);
+}
+
+/* Week Grid Overlay Styles - Fixed and Polished */
+.mini-week-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    background: var(--bg-surface);
+    padding: 12px;
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    margin-top: 8px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-lg);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.mini-week-grid.hidden { display: none; }
+
+.mini-week-btn {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 8px;
+    background: var(--bg-main);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.mini-week-btn:hover {
+    border-color: var(--primary-pale);
+    background: white;
+}
+
+.mini-week-btn.selected {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 8px rgba(108, 92, 231, 0.2);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -32,7 +32,6 @@
                 { type: 'qt', isCompleted: todayStatus.bible },
                 { type: 'reading', isCompleted: todayStatus.reading },
                 { type: 'memorization', isCompleted: memoCount >= 1 },
-                { type: 'summary', isCompleted: summaryCount >= 1 },
                 { type: 'prep', isCompleted: prepCount >= 1 },
                 { type: 'phone', isCompleted: phoneCount >= 1 }
             ]);
@@ -68,10 +67,9 @@
         const prepCount = window.TaskService.getWeeklyTaskCount('prep', new Date());
 
         let completedMissions = 0;
-        let totalMissions = 4; // 암송(1), 요약(1), 전화(1), 예습(1)
+        let totalMissions = 3; // 암송(1), 전화(1), 예습(1)
 
         if (memoCount >= 1) completedMissions++;
-        if (summaryCount >= 1) completedMissions++;
         if (phoneCount >= 1) completedMissions++;
         if (prepCount >= 1) completedMissions++;
 

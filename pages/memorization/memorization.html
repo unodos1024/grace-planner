@@ -1,0 +1,62 @@
+<div class="memorization-page-wrapper">
+    <!-- Section Header (Same as Home) -->
+    <div class="section-header">
+        <div class="title-with-icon">
+            <div class="section-icon verse">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+            </div>
+            <h2 class="section-title">성구 암송</h2>
+        </div>
+        <div class="header-actions">
+            <!-- Type Selector (A/B) Global -->
+            <div class="type-selector-header">
+                <button class="btn-type-mini active" id="btn-type-A" onclick="switchVerseType('A')">A</button>
+                <button class="btn-type-mini" id="btn-type-B" onclick="switchVerseType('B')">B</button>
+            </div>
+            
+            <div class="week-selector">
+                <button class="btn-toggle-round" onclick="prevMemoWeek()" aria-label="이전 주 구절 보기">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <div id="memo-selected-week" class="selected-week-badge">1</div>
+                <button class="btn-toggle-round" onclick="nextMemoWeek()" aria-label="다음 주 구절 보기">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <button class="btn-toggle-round" id="btn-toggle-grid" onclick="toggleMemoWeekGrid()" aria-label="주간 목록 펼치기">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Week Grid (Same as Home) -->
+    <div id="memo-week-grid" class="mini-week-grid hidden">
+        <!-- Week buttons injected here -->
+    </div>
+
+    <!-- Game View (Now Default and Only View) -->
+    <div id="view-game" class="memo-view">
+        <div class="game-board">
+            <div class="game-verse-info">
+                <span class="game-subject" id="quiz-display-subject">주제</span>
+                <span class="game-ref" id="quiz-display-ref">참조</span>
+            </div>
+            
+            <div class="game-question-area" id="quiz-question-container"></div>
+            <div class="game-choices-area" id="quiz-choices-container"></div>
+
+            <div class="game-footer">
+                <button class="btn-game-reset" onclick="generateQuiz()">새 문제</button>
+                <button class="btn-game-submit" onclick="checkQuizAnswer()">정답 확인</button>
+            </div>
+        </div>
+    </div>
+</div>
