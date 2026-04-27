@@ -1,7 +1,7 @@
-/* Memorization Page Styles - Final Primary Tone & Grid Fixed */
+/* Memorization Page Styles - High Contrast & Clear Active States */
 
 .memorization-page-wrapper {
-    padding: 0 20px 140px; /* Even more padding for safety */
+    padding: 0 20px 140px;
     max-width: 600px;
     margin: 0 auto;
     display: flex;
@@ -9,7 +9,7 @@
     animation: fadeIn 0.4s ease-out;
 }
 
-/* Ensure global bottom nav is visible on this page */
+/* Ensure global bottom nav is visible */
 #mobile-nav-container {
     display: flex !important;
     opacity: 1 !important;
@@ -48,7 +48,6 @@
     font-size: 18px;
     font-weight: 800;
     color: var(--text-main);
-    letter-spacing: -0.02em;
 }
 
 .header-actions {
@@ -57,13 +56,13 @@
     gap: 6px;
 }
 
-/* Type Selector - Primary Tone */
+/* Type Selector */
 .type-selector-header {
     display: flex;
-    background: var(--bg-soft);
+    background: #E9ECEF;
     padding: 2px;
     border-radius: 18px;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid #DEE2E6;
 }
 
 .btn-type-mini {
@@ -73,16 +72,14 @@
     background: transparent;
     font-size: 12px;
     font-weight: 800;
-    color: var(--text-soft);
+    color: #6C757D;
     border-radius: 14px;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
 .btn-type-mini.active {
     background: var(--primary);
     color: white;
-    box-shadow: 0 2px 6px rgba(108, 92, 231, 0.2);
 }
 
 /* Week Selector */
@@ -90,10 +87,10 @@
     display: flex;
     align-items: center;
     gap: 2px;
-    background: var(--bg-surface);
+    background: white;
     padding: 2px;
     border-radius: 18px;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid #DEE2E6;
 }
 
 .selected-week-badge {
@@ -114,33 +111,34 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--text-soft);
+    color: #6C757D;
 }
 
-.btn-toggle-round svg { width: 14px; height: 14px; }
-
 /* Game View */
-.memo-view { animation: fadeIn 0.4s ease-out; }
-
 .game-board {
-    background: #FDFDFF;
+    background: white;
     border-radius: 24px;
-    padding: 32px 24px;
-    border: 1.5px solid #E9ECEF; /* Darker, more visible border */
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05); /* Slightly deeper shadow for depth */
-    min-height: 400px;
+    padding: 24px;
+    border: 1.5px solid #CED4DA; /* Stronger Border */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    min-height: 420px;
     display: flex;
     flex-direction: column;
     margin-bottom: 30px;
     margin-top: 10px;
 }
 
+.game-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
 .game-verse-info {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 24px;
+    gap: 6px;
 }
 
 .game-subject {
@@ -150,52 +148,82 @@
 }
 
 .game-ref {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 800;
-    background: var(--primary-pale);
-    color: var(--primary);
+    background: #F1F3F5;
+    color: var(--text-main);
     padding: 4px 14px;
     border-radius: 20px;
-    border: 1px solid rgba(108, 92, 231, 0.1);
+    border: 1px solid #DEE2E6;
+}
+
+/* Difficulty Selector - HIGH CONTRAST */
+.difficulty-selector {
+    display: flex;
+    background: #F1F3F5;
+    padding: 4px;
+    border-radius: 14px;
+    border: 1px solid #DEE2E6;
+}
+
+.btn-diff {
+    width: 32px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 800;
+    color: #495057;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-diff[data-level="all"] { width: 44px; }
+
+.btn-diff.active {
+    background: var(--primary); /* Strong Primary Background */
+    color: white; /* White Text for Clear Selection */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .game-question-area {
     flex: 1;
-    background: #F1F3F5;
+    background: #F8F9FA;
     padding: 24px;
     border-radius: 20px;
     font-size: 18px;
     font-weight: 700;
     line-height: 2.2;
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    color: var(--text-main);
+    color: #212529;
+    border: 1px solid #E9ECEF;
 }
 
-/* Polished Blanks */
+/* Clear Blanks */
 .quiz-blank {
     display: inline-block;
     min-width: 60px;
-    height: 34px;
-    background: rgba(108, 92, 231, 0.03);
-    border: 1.5px dashed rgba(108, 92, 231, 0.2);
+    height: 36px;
+    background: rgba(0,0,0,0.03);
+    border: 2px dashed #ADB5BD; /* Darker dashed border */
     border-radius: 10px;
     margin: 0 6px;
     vertical-align: middle;
-    transition: all 0.2s;
 }
 
 .quiz-blank.filled {
     background: var(--primary);
-    border: 1.5px solid var(--primary);
+    border: 2px solid var(--primary);
     color: white;
-    line-height: 34px;
+    line-height: 36px;
     font-weight: 800;
-    box-shadow: 0 4px 10px rgba(108, 92, 231, 0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .game-choices-area {
@@ -203,26 +231,34 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 }
 
 .quiz-choice {
     background: white;
-    border: 1px solid var(--border-subtle);
-    padding: 10px 20px;
+    border: 1.5px solid #DEE2E6; /* Stronger Border */
+    padding: 12px 20px;
     border-radius: 16px;
     color: var(--text-main);
     font-weight: 700;
     font-size: 14px;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .quiz-choice.used {
-    opacity: 0.2;
-    background: var(--bg-soft);
-    pointer-events: none;
+    background: var(--primary-pale);
+    border-color: var(--primary);
+    color: var(--primary);
+    opacity: 0.8;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.quiz-choice.used::after {
+    content: '✓';
+    margin-left: 6px;
+    font-weight: 900;
 }
 
 .game-footer {
@@ -232,12 +268,13 @@
 }
 
 .btn-game-reset {
-    background: var(--bg-soft);
-    border: none;
-    color: var(--text-soft);
+    background: white;
+    border: 2px solid #DEE2E6;
+    color: #495057;
     padding: 16px;
-    border-radius: 18px;
-    font-weight: 700;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 15px;
     cursor: pointer;
 }
 
@@ -246,27 +283,27 @@
     border: none;
     color: white;
     padding: 16px;
-    border-radius: 18px;
+    border-radius: 16px;
     font-weight: 800;
     font-size: 16px;
     cursor: pointer;
-    box-shadow: 0 6px 15px rgba(108, 92, 231, 0.2);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
 
-/* Week Grid Overlay Styles - Fixed and Polished */
+/* Week Grid Overlay Styles */
 .mini-week-grid {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     gap: 6px;
-    background: var(--bg-surface);
+    background: white;
     padding: 12px;
     border-radius: 16px;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid #CED4DA;
     margin-top: 8px;
     margin-bottom: 20px;
-    box-shadow: var(--shadow-lg);
-    box-sizing: border-box;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     width: 100%;
+    box-sizing: border-box;
 }
 
 .mini-week-grid.hidden { display: none; }
@@ -276,24 +313,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     border-radius: 8px;
-    background: var(--bg-main);
+    background: #F1F3F5;
     cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid transparent;
-}
-
-.mini-week-btn:hover {
-    border-color: var(--primary-pale);
-    background: white;
+    color: #495057;
 }
 
 .mini-week-btn.selected {
     background: var(--primary);
     color: white;
-    box-shadow: 0 4px 8px rgba(108, 92, 231, 0.2);
 }
 
 @keyframes fadeIn {

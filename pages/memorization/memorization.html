@@ -42,12 +42,23 @@
         <!-- Week buttons injected here -->
     </div>
 
-    <!-- Game View (Now Default and Only View) -->
+    <!-- Game View -->
     <div id="view-game" class="memo-view">
         <div class="game-board">
-            <div class="game-verse-info">
-                <span class="game-subject" id="quiz-display-subject">주제</span>
-                <span class="game-ref" id="quiz-display-ref">참조</span>
+            <div class="game-top-row">
+                <div class="game-verse-info">
+                    <span class="game-subject" id="quiz-display-subject">주제</span>
+                    <span class="game-ref" id="quiz-display-ref">참조</span>
+                </div>
+                
+                <!-- Difficulty Selector Added -->
+                <div class="difficulty-selector">
+                    <button class="btn-diff active" data-level="3" onclick="setDifficulty(3)">3</button>
+                    <button class="btn-diff" data-level="6" onclick="setDifficulty(6)">6</button>
+                    <button class="btn-diff" data-level="9" onclick="setDifficulty(9)">9</button>
+                    <button class="btn-diff" data-level="12" onclick="setDifficulty(12)">12</button>
+                    <button class="btn-diff" data-level="all" onclick="setDifficulty('all')">All</button>
+                </div>
             </div>
             
             <div class="game-question-area" id="quiz-question-container"></div>
