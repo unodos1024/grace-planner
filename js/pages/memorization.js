@@ -5,7 +5,7 @@
     let currentQuizVerse = null;
     let quizBlanks = [];
     let quizUserAnswers = [];
-    let currentDifficulty = 3; // Number of blanks or 'all'
+    let currentDifficulty = 4; // Number of blanks or 'all'
 
     const init = () => {
         renderWeekGrid();
