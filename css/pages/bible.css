@@ -26,8 +26,9 @@
     height: 20px;
 }
 
-/* Override/Ensure Center for Bible Selector */
-#bible-selector-modal.modal-overlay {
+/* Override/Ensure Center for Bible Selector and History Modal */
+#bible-selector-modal.modal-overlay,
+#bible-history-modal.modal-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -42,7 +43,8 @@
     padding: 20px;
 }
 
-#bible-selector-modal.active {
+#bible-selector-modal.active,
+#bible-history-modal.active {
     display: flex;
     /* This + center alignment makes it center */
 }
@@ -451,17 +453,44 @@ body::-webkit-scrollbar {
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
 }
 
+/* Bible History FAB */
+.bible-history-fab {
+    position: fixed;
+    bottom: 110px;
+    left: 24px; /* positioned on the left edge */
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    background: var(--primary-pale);
+    color: var(--primary);
+    border: none;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
+}
+
 /* When Bottom Nav is hidden, move FAB down too */
 /* Use a broader selector that covers the layout structure */
-body .shell-main:has(#mobile-nav-container.hidden) .bible-search-fab {
+body .shell-main:has(#mobile-nav-container.hidden) .bible-search-fab,
+body .shell-main:has(#mobile-nav-container.hidden) .bible-history-fab {
     transform: translateY(74px);
 }
 
-.bible-search-fab:active {
+.bible-search-fab:active,
+.bible-history-fab:active {
     transform: scale(0.9) !important;
 }
 
 .bible-search-fab svg {
+    width: 28px;
+    height: 28px;
+}
+
+.bible-history-fab svg {
     width: 28px;
     height: 28px;
 }
@@ -506,7 +535,7 @@ body .shell-main:has(#mobile-nav-container.hidden) .bible-search-fab {
 }
 
 .nav-arrow.prev {
-    left: 32px;
+    left: calc(var(--sidebar-width, 280px) + 32px);
 }
 
 .nav-arrow.next {
@@ -526,6 +555,11 @@ body .shell-main:has(#mobile-nav-container.hidden) .bible-search-fab {
     .bible-search-fab {
         bottom: 40px;
         right: 40px;
+    }
+
+    .bible-history-fab {
+        bottom: 40px;
+        left: calc(var(--sidebar-width, 280px) + 40px);
     }
 
     .bible-page-wrapper {

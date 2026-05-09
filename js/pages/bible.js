@@ -2,6 +2,7 @@ window.BiblePage = {
     bibleData: null,
     currentBook: '창',
     currentChapter: 1,
+    historyList: [],
     bookNames: {
         '창': '창세기', '출': '출애굽기', '레': '레위기', '민': '민수기', '신': '신명기',
         '수': '여호수아', '삿': '사사기', '룻': '룻기', '삼상': '사무엘상', '삼하': '사무엘하',
@@ -25,6 +26,7 @@ window.BiblePage = {
             this.renderLoading();
             await this.loadData();
             this.currentFontSize = parseInt(localStorage.getItem('bible-font-size')) || 16;
+            this.historyList = JSON.parse(localStorage.getItem('bible-history')) || [];
             this.renderVerses();
             this.initGestures();
             this.isInitialized = true;
@@ -138,21 +140,16 @@ window.BiblePage = {
     },
 
     renderLoading() {
-        const content = document.querySelector('.bible-page-wrapper');
+        const content = document.getElementById('bible-content');
         if (content) {
-            // Check if widget and modal exist to preserve them
-            const existing = content.querySelectorAll('.bible-search-fab, .modal-overlay');
             content.innerHTML = '<div class="loading-spinner"></div>';
-            existing.forEach(el => content.appendChild(el));
         }
     },
 
     renderError() {
-        const content = document.querySelector('.bible-page-wrapper');
+        const content = document.getElementById('bible-content');
         if (content) {
-            const existing = content.querySelectorAll('.bible-search-fab, .modal-overlay');
             content.innerHTML = '<p class="error-msg">성경 데이터를 불러오는 데 실패했습니다.</p>';
-            existing.forEach(el => content.appendChild(el));
         }
     },
 
@@ -165,8 +162,8 @@ window.BiblePage = {
     },
 
     renderVerses() {
-        const wrapper = document.querySelector('.bible-page-wrapper');
-        if (!wrapper || !this.bibleData) return;
+        const content = document.getElementById('bible-content');
+        if (!content || !this.bibleData) return;
 
         // Sort keys to ensure chronological order (BookChapter:Verse)
         const prefix = `${this.currentBook}${this.currentChapter}:`;
@@ -179,9 +176,7 @@ window.BiblePage = {
             });
 
         if (verses.length === 0) {
-            const existing = wrapper.querySelectorAll('.bible-search-fab, .modal-overlay');
-            wrapper.innerHTML = '<p class="empty-msg">해당 장의 본문을 찾을 수 없습니다.</p>';
-            existing.forEach(el => wrapper.appendChild(el));
+            content.innerHTML = '<p class="empty-msg">해당 장의 본문을 찾을 수 없습니다.</p>';
             return;
         }
 
@@ -208,10 +203,7 @@ window.BiblePage = {
         });
         html += '</div>';
 
-        // Find existing non-content elements to preserve them
-        const existing = wrapper.querySelectorAll('.bible-search-fab, .modal-overlay, .nav-arrow');
-        wrapper.innerHTML = html;
-        existing.forEach(el => wrapper.appendChild(el));
+        content.innerHTML = html;
 
         this.applyFontSize(); // Apply saved font size immediately after render
 
@@ -220,6 +212,73 @@ window.BiblePage = {
         if (scrollContainer) {
             scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
+        this.addToHistory(this.currentBook, this.currentChapter);
+    },
+
+    // --- History Logic ---
+    addToHistory(book, chapter) {
+        // Only add if it's not the same as the very first one
+        if (this.historyList.length > 0) {
+            const last = this.historyList[0];
+            if (last.book === book && last.chapter === chapter) return;
+        }
+        
+        // Remove existing identical item if any
+        this.historyList = this.historyList.filter(h => !(h.book === book && h.chapter === chapter));
+
+        this.historyList.unshift({ book, chapter });
+        if (this.historyList.length > 10) {
+            this.historyList.pop();
+        }
+        localStorage.setItem('bible-history', JSON.stringify(this.historyList));
+    },
+
+    openHistoryModal() {
+        const modal = document.getElementById('bible-history-modal');
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            this.renderHistoryList();
+        }
+    },
+
+    closeHistoryModal() {
+        const modal = document.getElementById('bible-history-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    },
+
+    renderHistoryList() {
+        const list = document.getElementById('bible-history-list');
+        if (!list) return;
+
+        if (this.historyList.length === 0) {
+            list.innerHTML = '<p class="empty-msg" style="padding: 40px 20px;">최근 본 말씀이 없습니다.</p>';
+            return;
+        }
+
+        let html = '<div class="history-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">';
+        this.historyList.forEach(item => {
+            const fullName = this.bookNames[item.book] || item.book;
+            html += `
+                <div class="history-item" onclick="BiblePage.selectHistory('${item.book}', ${item.chapter})" style="padding: 12px 8px; background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; text-align: center;">
+                    <div class="history-title" style="font-size: 14px; font-weight: 700; color: var(--text-main);">${fullName} ${item.chapter}장</div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        list.innerHTML = html;
+    },
+
+    selectHistory(book, chapter) {
+        this.currentBook = book;
+        this.currentChapter = chapter;
+        this.updateSelectorLabels();
+        this.renderVerses();
+        this.closeHistoryModal();
     },
 
     // --- Modal Selector Logic ---

@@ -128,13 +128,15 @@ body.modal-open {
     z-index: 1000;
     display: flex;
     align-items: center;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, visibility 0s linear;
 }
 
 #mobile-nav-container.hidden {
     transform: translateY(calc(var(--nav-height) + 40px));
     opacity: 0;
     pointer-events: none;
+    visibility: hidden;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, visibility 0s linear 0.4s;
 }
 
 

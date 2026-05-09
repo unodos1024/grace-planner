@@ -86,11 +86,11 @@
 .week-selector {
     display: flex;
     align-items: center;
-    gap: 2px;
-    background: white;
+    gap: 6px;
+    background: var(--bg-surface);
     padding: 2px;
-    border-radius: 18px;
-    border: 1px solid #DEE2E6;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
 }
 
 .selected-week-badge {
@@ -102,8 +102,8 @@
 }
 
 .btn-toggle-round {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
     background: transparent;
@@ -111,7 +111,19 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #6C757D;
+    color: var(--text-soft);
+    transition: all 0.2s ease;
+}
+
+.btn-toggle-round svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+.btn-toggle-round:hover {
+    background: var(--primary-pale);
+    color: var(--primary);
 }
 
 /* Game View */
