@@ -456,8 +456,8 @@ body::-webkit-scrollbar {
 /* Bible History FAB */
 .bible-history-fab {
     position: fixed;
-    bottom: 110px;
-    left: 24px; /* positioned on the left edge */
+    bottom: 180px;
+    right: 24px;
     width: 60px;
     height: 60px;
     border-radius: 20px;
@@ -473,10 +473,12 @@ body::-webkit-scrollbar {
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
 }
 
-/* When Bottom Nav is hidden, move FAB down too */
-body .shell-main:has(#mobile-nav-container.hidden) .bible-search-fab,
-body .shell-main:has(#mobile-nav-container.hidden) .bible-history-fab {
-    transform: translateY(60px);
+/* When Bottom Nav is hidden, move FAB down too (Mobile only) */
+@media (max-width: 1023px) {
+    body .shell-main:has(#mobile-nav-container.hidden) .bible-search-fab,
+    body .shell-main:has(#mobile-nav-container.hidden) .bible-history-fab {
+        transform: translateY(60px);
+    }
 }
 
 .bible-search-fab:active,
@@ -557,8 +559,8 @@ body .shell-main:has(#mobile-nav-container.hidden) .bible-history-fab {
     }
 
     .bible-history-fab {
-        bottom: 40px;
-        left: calc(var(--sidebar-width, 280px) + 40px);
+        bottom: 110px;
+        right: 40px;
     }
 
     .bible-page-wrapper {
