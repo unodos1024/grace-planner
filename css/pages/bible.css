@@ -41,6 +41,9 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
+    -webkit-transform: translateZ(10000px);
+    transform: translateZ(10000px);
+    isolation: isolate;
 }
 
 #bible-selector-modal.active,
