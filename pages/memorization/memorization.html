@@ -1,5 +1,5 @@
 <div class="memorization-page-wrapper">
-    <!-- Section Header (Same as Home) -->
+    <!-- 1. Exact Copy of Home Section Header -->
     <div class="section-header">
         <div class="title-with-icon">
             <div class="section-icon verse">
@@ -7,29 +7,31 @@
                     <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                 </svg>
             </div>
-            <h2 class="section-title">성구 암송</h2>
+            <div class="training-title-group">
+                <h2 class="section-title" id="memo-display-subject">주제</h2>
+                <p class="memo-ref-sub" id="memo-display-ref">참조 구절</p>
+            </div>
         </div>
         <div class="header-actions">
-            <!-- Type Selector (A/B) Global -->
-            <div class="type-selector-header">
-                <button class="btn-type-mini active" id="btn-type-A" onclick="switchVerseType('A')">A</button>
-                <button class="btn-type-mini" id="btn-type-B" onclick="switchVerseType('B')">B</button>
+            <div class="type-pill-toggle">
+                <button class="type-btn active" id="btn-type-A" onclick="switchVerseType('A')">A</button>
+                <button class="type-btn" id="btn-type-B" onclick="switchVerseType('B')">B</button>
             </div>
-            
             <div class="week-selector">
-                <button class="btn-toggle-round" onclick="prevMemoWeek()" aria-label="이전 주 구절 보기">
+                <button class="nav-arrow" onclick="prevMemoWeek()" aria-label="이전 주차">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                         <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
                 </button>
-                <div id="memo-selected-week" class="selected-week-badge">1</div>
-                <button class="btn-toggle-round" onclick="nextMemoWeek()" aria-label="다음 주 구절 보기">
+                <div class="goal-label"><span id="memo-selected-week">1</span></div>
+                <button class="nav-arrow" onclick="nextMemoWeek()" aria-label="다음 주차">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
                 </button>
             </div>
-            <button class="btn-toggle-round" id="btn-toggle-grid" onclick="toggleMemoWeekGrid()" aria-label="주간 목록 펼치기">
+            <button class="btn-toggle-round btn-fold" id="btn-toggle-week-grid" onclick="toggleWeekGrid()"
+                aria-label="주차 목록">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
@@ -37,36 +39,88 @@
         </div>
     </div>
 
-    <!-- Week Grid (Same as Home) -->
-    <div id="memo-week-grid" class="mini-week-grid hidden">
-        <!-- Week buttons injected here -->
-    </div>
+    <!-- Consolidated Progress & Step Nav -->
+    <div class="memo-overall-progress">
+        <div class="progress-track">
+            <div id="memo-progress-fill" class="progress-thumb" style="width: 25%;"></div>
+        </div>
 
-    <!-- Game View -->
-    <div id="view-game" class="memo-view">
-        <div class="game-board">
-            <div class="game-top-row">
-                <div class="game-verse-info">
-                    <span class="game-subject" id="quiz-display-subject">주제</span>
-                    <span class="game-ref" id="quiz-display-ref">참조</span>
+        <nav class="memo-step-nav">
+            <div class="step-items">
+                <div class="step-item active" data-step="1" onclick="moveStepTo(1)">
+                    <div class="step-dot"></div>
+                    <span class="step-name">읽기</span>
                 </div>
-                
-                <!-- Difficulty Selector: 4-8-12-All -->
-                <div class="difficulty-selector">
-                    <button class="btn-diff active" data-level="4" onclick="setDifficulty(4)">4</button>
-                    <button class="btn-diff" data-level="8" onclick="setDifficulty(8)">8</button>
-                    <button class="btn-diff" data-level="12" onclick="setDifficulty(12)">12</button>
-                    <button class="btn-diff" data-level="all" onclick="setDifficulty('all')">All</button>
+                <div class="step-item" data-step="2" onclick="moveStepTo(2)">
+                    <div class="step-dot"></div>
+                    <span class="step-name">가리기</span>
+                </div>
+                <div class="step-item" data-step="3" onclick="moveStepTo(3)">
+                    <div class="step-dot"></div>
+                    <span class="step-name">써보기</span>
+                </div>
+                <div class="step-item" data-step="4" onclick="moveStepTo(4)">
+                    <div class="step-dot"></div>
+                    <span class="step-name">점검</span>
                 </div>
             </div>
-            
-            <div class="game-question-area" id="quiz-question-container"></div>
-            <div class="game-choices-area" id="quiz-choices-container"></div>
+        </nav>
+    </div>
 
-            <div class="game-footer">
-                <button class="btn-game-reset" onclick="generateQuiz()">새 문제</button>
-                <button class="btn-game-submit" onclick="checkQuizAnswer()">정답 확인</button>
+    <!-- Week Selector Grid (Overlay style) -->
+    <div id="week-grid-panel" class="week-grid-panel hidden">
+        <div class="grid-container-32" id="grid-container-32"></div>
+    </div>
+
+    <!-- 3. Learning Canvas -->
+    <main class="memo-learning-canvas">
+        <div id="step-content-1" class="step-content">
+            <div class="keyword-cloud">
+                <div id="keyword-list" class="keyword-tags"></div>
+            </div>
+            <div class="verse-focus-area">
+                <p id="full-verse-text" class="verse-text-main"></p>
+            </div>
+            <div class="guide-tip">
+                <span class="icon">✨</span>
+                <p>말씀을 마음판에 새기며 3회 정독하세요.</p>
             </div>
         </div>
-    </div>
+
+        <div id="step-content-2" class="step-content hidden">
+            <div id="conceal-area" class="conceal-canvas"></div>
+            <div class="canvas-actions">
+                <button class="btn-text" onclick="controlConceal('all')">모두 가리기</button>
+                <button class="btn-text" onclick="controlConceal('keyword')">키워드만</button>
+                <button class="btn-text" onclick="controlConceal('none')">모두 보기</button>
+            </div>
+        </div>
+
+        <div id="step-content-3" class="step-content hidden">
+            <div class="input-container">
+                <textarea id="write-input" class="memo-input-area" placeholder="묵상한 말씀을 이곳에 기록하세요..."></textarea>
+            </div>
+        </div>
+
+        <div id="step-content-4" class="step-content hidden">
+            <div class="result-summary">
+                <div class="stat-card">
+                    <span class="label">정확도</span>
+                    <span class="value"><span id="accuracy-val">0</span>%</span>
+                </div>
+                <div class="stat-card">
+                    <span class="label">매칭 단어</span>
+                    <span class="value"><span id="correct-count">0</span>/<span id="total-count">0</span></span>
+                </div>
+            </div>
+            <div id="compare-result" class="diff-viewer"></div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <footer class="memo-footer-nav">
+        <button id="btn-prev" class="btn-round-secondary" onclick="moveStep(-1)">이전</button>
+        <button id="btn-next" class="btn-pill-primary" onclick="moveStep(1)">다음 단계로</button>
+        <button id="btn-retry" class="btn-pill-primary hidden" onclick="resetLearning()">다시 도전</button>
+    </footer>
 </div>

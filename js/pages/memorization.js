@@ -2,204 +2,236 @@
 (() => {
     let currentWeek = 1;
     let currentType = 'A'; // 'A' or 'B'
-    let currentQuizVerse = null;
-    let quizBlanks = [];
-    let quizUserAnswers = [];
-    let currentDifficulty = 4; // Number of blanks or 'all'
+    let currentStep = 1;
+    let versesData = [];
+    let currentVerse = null;
+    let currentKeywords = [];
+    const maxSteps = 4;
 
     const init = () => {
-        renderWeekGrid();
-        loadVerseData();
-        initSwipeEvents();
-
-        // Global navigation scroll handler will manage visibility
-    };
-
-    let touchStartX = 0;
-    const initSwipeEvents = () => {
-        const board = document.querySelector('.game-board');
-        if (!board) return;
-        board.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
-        board.addEventListener('touchend', (e) => {
-            const touchEndX = e.changedTouches[0].screenX;
-            const deltaX = touchEndX - touchStartX;
-            if (Math.abs(deltaX) > 50) {
-                if (deltaX > 0) prevMemoWeek();
-                else nextMemoWeek();
-            }
-        }, { passive: true });
-    };
-
-    const renderWeekGrid = () => {
-        const grid = document.getElementById('memo-week-grid');
-        if (!grid) return;
-        grid.innerHTML = '';
-        for (let i = 1; i <= 32; i++) {
-            const btn = document.createElement('div');
-            btn.className = 'mini-week-btn' + (i === currentWeek ? ' selected' : '');
-            btn.innerText = i;
-            btn.onclick = (e) => {
-                e.stopPropagation();
-                currentWeek = i;
-                document.querySelectorAll('.mini-week-btn').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                loadVerseData();
-            };
-            grid.appendChild(btn);
-        }
-    };
-
-    window.toggleMemoWeekGrid = () => {
-        const grid = document.getElementById('memo-week-grid');
-        const btn = document.getElementById('btn-toggle-grid');
-        if (grid) {
-            const isHidden = grid.classList.toggle('hidden');
-            if (btn) btn.classList.toggle('active', !isHidden);
-        }
-    };
-
-    window.prevMemoWeek = () => { if (currentWeek > 1) { currentWeek--; loadVerseData(); renderWeekGrid(); } };
-    window.nextMemoWeek = () => { if (currentWeek < 32) { currentWeek++; loadVerseData(); renderWeekGrid(); } };
-
-    window.switchVerseType = (type) => {
-        currentType = type;
-        document.getElementById('btn-type-A').classList.toggle('active', type === 'A');
-        document.getElementById('btn-type-B').classList.toggle('active', type === 'B');
-        loadVerseData();
-    };
-
-    window.setDifficulty = (diff) => {
-        currentDifficulty = diff;
-        document.querySelectorAll('.btn-diff').forEach(btn => {
-            const level = btn.getAttribute('data-level');
-            btn.classList.toggle('active', level == diff);
-        });
-        generateQuiz();
-    };
-
-    const loadVerseData = () => {
-        const verses = window.VersesData || [];
-        const weekData = verses.find(v => v.week === currentWeek) || verses[0];
-        if (!weekData) return;
-        const verse = weekData[currentType];
-        if (!verse) return;
-
-        document.getElementById('memo-selected-week').innerText = currentWeek;
-        const subjectEl = document.getElementById('quiz-display-subject');
-        const refEl = document.getElementById('quiz-display-ref');
-        if (subjectEl) subjectEl.innerText = verse.subject;
-        if (refEl) refEl.innerText = verse.reference;
-
-        currentQuizVerse = verse;
-        generateQuiz();
-    };
-
-    window.generateQuiz = () => {
-        if (!currentQuizVerse) return;
+        console.log("Memorization V2 (Data.js) Initializing...");
+        versesData = window.VersesData || [];
         
-        const words = currentQuizVerse.text.split(' ');
-        const questionContainer = document.getElementById('quiz-question-container');
-        const choicesContainer = document.getElementById('quiz-choices-container');
-        if (!questionContainer || !choicesContainer) return;
-
-        const possibleIndices = words.map((w, i) => i).filter(i => words[i].length >= 1);
-        
-        let blankCount = currentDifficulty === 'all' ? possibleIndices.length : parseInt(currentDifficulty);
-        blankCount = Math.min(blankCount, possibleIndices.length);
-
-        const shuffledIndices = [...possibleIndices].sort(() => Math.random() - 0.5);
-        quizBlanks = shuffledIndices.slice(0, blankCount).sort((a, b) => a - b);
-        quizUserAnswers = new Array(quizBlanks.length).fill(null);
-
-        questionContainer.innerHTML = ''; // Clear and build manually for safety
-        words.forEach((word, index) => {
-            const blankIndex = quizBlanks.indexOf(index);
-            if (blankIndex !== -1) {
-                const span = document.createElement('span');
-                span.className = 'quiz-blank';
-                span.id = `quiz-blank-${blankIndex}`;
-                span.onclick = () => handleBlankClick(blankIndex);
-                questionContainer.appendChild(span);
-                questionContainer.appendChild(document.createTextNode(' '));
-            } else {
-                questionContainer.appendChild(document.createTextNode(word + ' '));
-            }
-        });
-
-        const hiddenWords = quizBlanks.map(idx => words[idx]);
-        const shuffledChoices = [...hiddenWords].sort(() => Math.random() - 0.5);
-        
-        choicesContainer.innerHTML = '';
-        shuffledChoices.forEach((word, idx) => {
-            const btn = document.createElement('button');
-            btn.className = 'quiz-choice';
-            btn.innerText = word;
-            btn.id = `choice-${idx}`;
-            btn.onclick = () => handleChoiceClick(btn, word);
-            choicesContainer.appendChild(btn);
-        });
-    };
-
-    window.handleChoiceClick = (btn, word) => {
-        // If already used, undo it
-        if (btn.classList.contains('used')) {
-            const blankIdx = quizUserAnswers.findIndex(ans => ans && ans.btnId === btn.id);
-            if (blankIdx !== -1) handleBlankClick(blankIdx);
+        if (versesData.length === 0) {
+            console.error("VersesData not found in window object.");
             return;
         }
 
-        const emptyIdx = quizUserAnswers.findIndex(ans => ans === null);
-        if (emptyIdx === -1) return;
+        renderWeekGrid();
+        updateDisplay();
+    };
+
+    const renderWeekGrid = () => {
+        const gridContainer = document.getElementById('grid-container-32');
+        if (!gridContainer) return;
+
+        let html = '';
+        for (let i = 1; i <= 32; i++) {
+            const activeClass = i === currentWeek ? 'active' : '';
+            html += `<button class="grid-btn ${activeClass}" data-week="${i}" onclick="selectWeek(${i})">${i}</button>`;
+        }
+        gridContainer.innerHTML = html;
+    };
+
+    window.toggleWeekGrid = () => {
+        const panel = document.getElementById('week-grid-panel');
+        const btn = document.getElementById('btn-toggle-week-grid');
+        if (panel) panel.classList.toggle('hidden');
+        if (btn) btn.classList.toggle('active');
+    };
+
+    window.selectWeek = (week) => {
+        currentWeek = week;
+        const panel = document.getElementById('week-grid-panel');
+        const btn = document.getElementById('btn-toggle-week-grid');
+        if (panel) panel.classList.add('hidden');
+        if (btn) btn.classList.remove('active');
+        renderWeekGrid();
+        resetLearning();
+    };
+
+    const updateDisplay = () => {
+        if (!versesData || versesData.length === 0) return;
+
+        const weekData = versesData.find(v => v.week === currentWeek);
+        if (!weekData) return;
+
+        currentVerse = weekData[currentType];
+        if (!currentVerse) return;
+
+        // Header Update
+        const subjectEl = document.getElementById('memo-display-subject');
+        const refEl = document.getElementById('memo-display-ref');
+        const weekBadge = document.getElementById('memo-selected-week');
+
+        if (subjectEl) subjectEl.innerText = currentVerse.subject;
+        if (refEl) refEl.innerText = currentVerse.reference;
+        if (weekBadge) weekBadge.innerText = currentWeek;
+
+        currentKeywords = extractKeywords(currentVerse.text);
+        setupStepData();
+        updateUI();
+    };
+
+    const extractKeywords = (text) => {
+        const words = text.split(/\s+/).filter(w => w.length >= 2);
+        const uniqueWords = [...new Set(words)];
+        return uniqueWords.sort(() => 0.5 - Math.random()).slice(0, 10);
+    };
+
+    const setupStepData = () => {
+        if (!currentVerse) return;
+
+        const keywordList = document.getElementById('keyword-list');
+        if (keywordList) {
+            keywordList.innerHTML = currentKeywords.map(k => `<span class="keyword-pill">${k}</span>`).join('');
+        }
         
-        quizUserAnswers[emptyIdx] = { word: word, btnId: btn.id };
-        const blank = document.getElementById(`quiz-blank-${emptyIdx}`);
-        if (blank) {
-            blank.innerText = word;
-            blank.classList.add('filled');
+        const fullTextEl = document.getElementById('full-verse-text');
+        if (fullTextEl) fullTextEl.innerText = currentVerse.text;
+
+        const concealArea = document.getElementById('conceal-area');
+        if (concealArea) {
+            const words = currentVerse.text.split(' ');
+            concealArea.innerHTML = words.map(w => `<span class="conceal-word" onclick="this.classList.toggle('hidden-box')">${w}</span>`).join(' ');
         }
-        btn.classList.add('used');
+
+        const inputEl = document.getElementById('write-input');
+        if (inputEl) inputEl.value = '';
     };
 
-    window.handleBlankClick = (blankIndex) => {
-        const answer = quizUserAnswers[blankIndex];
-        if (!answer) return;
+    window.moveStep = (direction) => {
+        const nextStep = currentStep + direction;
+        if (nextStep < 1 || nextStep > maxSteps) return;
+        moveStepTo(nextStep);
+    };
 
-        // Reset the button
-        const btn = document.getElementById(answer.btnId);
-        if (btn) btn.classList.remove('used');
+    window.moveStepTo = (step) => {
+        if (step < 1 || step > maxSteps) return;
+        currentStep = step;
+        updateUI();
+        if (currentStep === 4) runComparison();
+    };
 
-        // Clear the blank
-        quizUserAnswers[blankIndex] = null;
-        const blank = document.getElementById(`quiz-blank-${blankIndex}`);
-        if (blank) {
-            blank.innerText = '';
-            blank.classList.remove('filled');
+    const updateUI = () => {
+        // Sync Step Items (Dots)
+        document.querySelectorAll('.step-item').forEach(item => {
+            const s = parseInt(item.getAttribute('data-step'));
+            item.classList.toggle('active', s === currentStep);
+            // Optional: Mark as completed if current step is greater
+            item.classList.toggle('completed', s < currentStep);
+        });
+
+        // Show/Hide Step Contents
+        document.querySelectorAll('.step-content').forEach((content, i) => {
+            content.classList.toggle('hidden', (i + 1) !== currentStep);
+        });
+
+        const progressFill = document.getElementById('memo-progress-fill');
+        if (progressFill) {
+            const progress = (currentStep / maxSteps) * 100;
+            progressFill.style.width = `${progress}%`;
+        }
+
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const btnRetry = document.getElementById('btn-retry');
+
+        if (btnPrev) btnPrev.classList.toggle('hidden', currentStep === 1);
+        if (btnNext) btnNext.classList.toggle('hidden', currentStep === 4);
+        if (btnRetry) btnRetry.classList.toggle('hidden', currentStep !== 4);
+    };
+
+    window.switchVerseType = (type) => {
+        currentType = type;
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('id') === `btn-type-${type}`);
+        });
+        resetLearning();
+    };
+
+    window.prevMemoWeek = () => {
+        if (currentWeek > 1) {
+            currentWeek--;
+            renderWeekGrid();
+            resetLearning();
         }
     };
 
-    window.checkQuizAnswer = () => {
-        if (!currentQuizVerse) return;
-        const words = currentQuizVerse.text.split(' ');
-        const correctAnswers = quizBlanks.map(idx => words[idx]);
-        const isCorrect = quizUserAnswers.every((ans, i) => ans && ans.word === correctAnswers[i]);
-
-        if (isCorrect) {
-            if (window.Utils?.createConfetti) window.Utils.createConfetti();
-            window.Utils?.showToast('정답입니다! ✨');
-            setTimeout(() => { if (confirm('다음 단계로 도전하시겠습니까?')) { generateQuiz(); } }, 500);
-        } else {
-            window.Utils?.showToast('틀렸습니다. 다시 해보세요!');
-            
-            // Fully reset current answers on failure
-            quizUserAnswers.fill(null);
-            document.querySelectorAll('.quiz-blank').forEach(b => { 
-                b.innerText = ''; 
-                b.classList.remove('filled'); 
-            });
-            document.querySelectorAll('.quiz-choice').forEach(c => {
-                c.classList.remove('used');
-            });
+    window.nextMemoWeek = () => {
+        if (currentWeek < 32) {
+            currentWeek++;
+            renderWeekGrid();
+            resetLearning();
         }
+    };
+
+    window.controlConceal = (type) => {
+        const words = document.querySelectorAll('.conceal-word');
+        const keywordBtns = document.querySelectorAll('.btn-text');
+        
+        // Update active filter button UI
+        keywordBtns.forEach(btn => {
+            const btnText = btn.innerText;
+            if (type === 'all') btn.classList.toggle('active', btnText.includes('모두 가리기'));
+            else if (type === 'none') btn.classList.toggle('active', btnText.includes('모두 보기'));
+            else if (type === 'keyword') btn.classList.toggle('active', btnText.includes('키워드만'));
+        });
+
+        words.forEach(el => {
+            const text = el.innerText;
+            if (type === 'all') el.classList.add('hidden-box');
+            else if (type === 'none') el.classList.remove('hidden-box');
+            else if (type === 'keyword') {
+                const isKeyword = currentKeywords.some(k => text.includes(k));
+                el.classList.toggle('hidden-box', isKeyword);
+            }
+        });
+    };
+
+    const runComparison = () => {
+        const inputEl = document.getElementById('write-input');
+        if (!inputEl) return;
+        
+        const input = inputEl.value.trim();
+        const originalWords = currentVerse.text.split(/\s+/);
+        const inputWords = input.split(/\s+/);
+        
+        let correctCount = 0;
+        const resultHTML = [];
+
+        const maxLen = Math.max(originalWords.length, inputWords.length);
+        for (let i = 0; i < maxLen; i++) {
+            const origin = originalWords[i] || "";
+            const user = inputWords[i] || "";
+
+            if (origin === user && origin !== "") {
+                resultHTML.push(`<span>${origin}</span>`);
+                correctCount++;
+            } else {
+                if (origin) resultHTML.push(`<span class="word-wrong">${origin}</span>`);
+                if (user) resultHTML.push(`<span class="word-added">${user}</span>`);
+            }
+        }
+
+        const resultArea = document.getElementById('compare-result');
+        if (resultArea) resultArea.innerHTML = resultHTML.join(' ');
+        
+        const accuracy = Math.round((correctCount / originalWords.length) * 100);
+        const accuracyEl = document.getElementById('accuracy-val');
+        const correctCountEl = document.getElementById('correct-count');
+        const totalCountEl = document.getElementById('total-count');
+
+        if (accuracyEl) accuracyEl.innerText = accuracy;
+        if (correctCountEl) correctCountEl.innerText = correctCount;
+        if (totalCountEl) totalCountEl.innerText = originalWords.length;
+    };
+
+    window.resetLearning = () => {
+        currentStep = 1;
+        const inputEl = document.getElementById('write-input');
+        if (inputEl) inputEl.value = '';
+        updateDisplay();
     };
 
     init();
