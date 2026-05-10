@@ -227,6 +227,7 @@ window.BiblePage = {
         const modal = document.getElementById('bible-history-modal');
         if (modal) {
             modal.classList.add('active');
+            document.body.classList.add('modal-open');
             document.body.style.overflow = 'hidden';
             this.renderHistoryList();
         } else {
@@ -279,6 +280,7 @@ window.BiblePage = {
         const modal = document.getElementById('bible-selector-modal');
         if (modal) {
             modal.classList.add('active');
+            document.body.classList.add('modal-open');
             document.body.style.overflow = 'hidden';
             this.renderBookGrid();
         } else {
