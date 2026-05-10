@@ -223,15 +223,19 @@ window.BiblePage = {
     },
 
     openHistoryModal() {
+        console.log('BiblePage: Opening History Modal');
         const modal = document.getElementById('bible-history-modal');
         if (modal) {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             this.renderHistoryList();
+        } else {
+            console.error('BiblePage: History modal element not found');
         }
     },
 
     closeHistoryModal() {
+        console.log('BiblePage: Closing History Modal');
         const modal = document.getElementById('bible-history-modal');
         if (modal) {
             modal.classList.remove('active');
@@ -271,15 +275,19 @@ window.BiblePage = {
 
     // --- Modal Selector Logic ---
     openSelectorModal() {
+        console.log('BiblePage: Opening Selector Modal');
         const modal = document.getElementById('bible-selector-modal');
         if (modal) {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             this.renderBookGrid();
+        } else {
+            console.error('BiblePage: Selector modal element not found');
         }
     },
 
     closeSelectorModal() {
+        console.log('BiblePage: Closing Selector Modal');
         const modal = document.getElementById('bible-selector-modal');
         if (modal) {
             modal.classList.remove('active');

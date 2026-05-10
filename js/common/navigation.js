@@ -95,24 +95,45 @@ const Navigation = {
         scrollContainer.addEventListener('scroll', () => {
             const currentScrollY = scrollContainer.scrollTop;
             const deltaY = currentScrollY - lastScrollY;
+            
+            // Check if reached the bottom of the scroll container
+            const isAtBottom = currentScrollY + scrollContainer.clientHeight >= scrollContainer.scrollHeight - 20;
 
-            // Scroll logic moved to global Navigation.js
-            if (deltaY > 10 && currentScrollY > 100) {
-                mobileNav.classList.add('hidden');
-            }
-            // 2. Scrolling Up -> Show (with threshold for responsiveness)
-            else if (deltaY < -20) {
-                mobileNav.classList.remove('hidden');
-            }
-
-            // 3. Natural 'Show on Stop' logic
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                // If stopped and at the top, or stopped after a slight upward trend
-                if (currentScrollY < 50 || deltaY < 0) {
+            // 1. Force show at the very top or bottom
+            if (currentScrollY < 10 || isAtBottom) {
+                if (mobileNav.classList.contains('hidden')) {
+                    console.log('Nav: Showing at edge (top/bottom)');
                     mobileNav.classList.remove('hidden');
                 }
-            }, 250); // 250ms delay for 'natural' feel
+                clearTimeout(scrollTimeout);
+                lastScrollY = currentScrollY;
+                return;
+            }
+
+            // 2. Scrolling Down -> Hide immediately
+            if (deltaY > 10) {
+                if (!mobileNav.classList.contains('hidden')) {
+                    console.log('Nav: Hiding on scroll down');
+                    mobileNav.classList.add('hidden');
+                }
+            }
+            // 3. Scrolling Up -> Show (with threshold for responsiveness)
+            else if (deltaY < -25) {
+                if (mobileNav.classList.contains('hidden')) {
+                    console.log('Nav: Showing on scroll up');
+                    mobileNav.classList.remove('hidden');
+                }
+            }
+
+            // 4. Natural 'Show on Stop' logic
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                // If stopped after scrolling up, ensure it's shown
+                if (deltaY < 0 && mobileNav.classList.contains('hidden')) {
+                    console.log('Nav: Showing on scroll stop');
+                    mobileNav.classList.remove('hidden');
+                }
+            }, 200);
 
             lastScrollY = currentScrollY;
         }, { passive: true });

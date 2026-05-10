@@ -151,7 +151,7 @@
 
 .selector-body {
     overflow-y: auto;
-    padding: 8px 20px 40px;
+    padding: 8px 20px 20px;
     /* Reduced from 60px for better bottom balance */
 }
 
@@ -475,6 +475,7 @@ body::-webkit-scrollbar {
 
 /* When Bottom Nav is hidden, move FAB down too (Mobile only) */
 @media (max-width: 1023px) {
+
     body .shell-main:has(#mobile-nav-container.hidden) .bible-search-fab,
     body .shell-main:has(#mobile-nav-container.hidden) .bible-history-fab {
         transform: translateY(60px);
