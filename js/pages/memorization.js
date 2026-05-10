@@ -68,31 +68,30 @@
         if (refEl) refEl.innerText = currentVerse.reference;
         if (weekBadge) weekBadge.innerText = currentWeek;
 
+        // Internal keyword extraction for "Hide Keyword" functionality
         currentKeywords = extractKeywords(currentVerse.text);
-        setupStepData();
+        
+        renderLearningContent();
         updateUI();
     };
 
     const extractKeywords = (text) => {
-        const words = text.split(/\s+/).filter(w => w.length >= 2);
-        const uniqueWords = [...new Set(words)];
-        return uniqueWords.sort(() => 0.5 - Math.random()).slice(0, 10);
+        // Simple logic: words with 2 or more characters, pick top 5
+        return text.split(/\s+/).filter(w => w.length >= 2).slice(0, 10);
     };
 
-    const setupStepData = () => {
+    const renderLearningContent = () => {
         if (!currentVerse) return;
 
-        const keywordList = document.getElementById('keyword-list');
-        if (keywordList) {
-            keywordList.innerHTML = currentKeywords.map(k => `<span class="keyword-pill">${k}</span>`).join('');
-        }
-        
-        const fullTextEl = document.getElementById('full-verse-text');
-        if (fullTextEl) fullTextEl.innerText = currentVerse.text;
+        // Step 1: Read
+        const fullVerseText = document.getElementById('full-verse-text');
+        if (fullVerseText) fullVerseText.innerText = currentVerse.text;
 
+        // Step 2: Conceal Area Setup (Combine Reference + Text for full memorization)
         const concealArea = document.getElementById('conceal-area');
         if (concealArea) {
-            const words = currentVerse.text.split(' ');
+            const combinedText = `${currentVerse.reference} ${currentVerse.text}`;
+            const words = combinedText.split(/\s+/);
             concealArea.innerHTML = words.map(w => `<span class="conceal-word" onclick="this.classList.toggle('hidden-box')">${w}</span>`).join(' ');
         }
 
@@ -118,7 +117,6 @@
         document.querySelectorAll('.step-item').forEach(item => {
             const s = parseInt(item.getAttribute('data-step'));
             item.classList.toggle('active', s === currentStep);
-            // Optional: Mark as completed if current step is greater
             item.classList.toggle('completed', s < currentStep);
         });
 
@@ -170,7 +168,6 @@
         const words = document.querySelectorAll('.conceal-word');
         const keywordBtns = document.querySelectorAll('.btn-text');
         
-        // Update active filter button UI
         keywordBtns.forEach(btn => {
             const btnText = btn.innerText;
             if (type === 'all') btn.classList.toggle('active', btnText.includes('모두 가리기'));
@@ -194,7 +191,8 @@
         if (!inputEl) return;
         
         const input = inputEl.value.trim();
-        const originalWords = currentVerse.text.split(/\s+/);
+        const combinedOriginal = `${currentVerse.reference} ${currentVerse.text}`;
+        const originalWords = combinedOriginal.split(/\s+/);
         const inputWords = input.split(/\s+/);
         
         let correctCount = 0;
