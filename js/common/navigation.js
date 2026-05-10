@@ -80,6 +80,44 @@ const Navigation = {
         }
 
         this.updateNavUI();
+        this.setupScrollBehavior();
+    },
+
+    setupScrollBehavior() {
+        const scrollContainer = document.getElementById('shell-content');
+        const mobileNav = document.getElementById('mobile-nav-container');
+        if (!scrollContainer || !mobileNav || this.isScrollHandlerSet) return;
+
+        // Global navigation scroll handler will manage visibility
+        let lastScrollY = scrollContainer.scrollTop;
+        let scrollTimeout;
+
+        scrollContainer.addEventListener('scroll', () => {
+            const currentScrollY = scrollContainer.scrollTop;
+            const deltaY = currentScrollY - lastScrollY;
+
+            // Scroll logic moved to global Navigation.js
+            if (deltaY > 10 && currentScrollY > 100) {
+                mobileNav.classList.add('hidden');
+            }
+            // 2. Scrolling Up -> Show (with threshold for responsiveness)
+            else if (deltaY < -20) {
+                mobileNav.classList.remove('hidden');
+            }
+
+            // 3. Natural 'Show on Stop' logic
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                // If stopped and at the top, or stopped after a slight upward trend
+                if (currentScrollY < 50 || deltaY < 0) {
+                    mobileNav.classList.remove('hidden');
+                }
+            }, 250); // 250ms delay for 'natural' feel
+
+            lastScrollY = currentScrollY;
+        }, { passive: true });
+
+        this.isScrollHandlerSet = true;
     },
 
     updateNavUI(activePageId) {

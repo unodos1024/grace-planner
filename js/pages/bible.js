@@ -59,19 +59,7 @@ window.BiblePage = {
 
         let lastScrollY = scrollContainer ? scrollContainer.scrollTop : 0;
 
-        // --- Scroll to Hide Nav ---
-        if (scrollContainer && mobileNav) {
-            scrollContainer.addEventListener('scroll', () => {
-                const currentScrollY = scrollContainer.scrollTop;
-
-                if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                    mobileNav.classList.add('hidden');
-                } else {
-                    mobileNav.classList.remove('hidden');
-                }
-                lastScrollY = currentScrollY;
-            }, { passive: true });
-        }
+        // Scroll logic moved to global Navigation.js
 
         // --- Swipe Gestures ---
         let startX = 0;

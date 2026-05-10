@@ -12,12 +12,7 @@
         loadVerseData();
         initSwipeEvents();
 
-        // Force bottom navigation visibility
-        const mobileNav = document.getElementById('mobile-nav-container');
-        if (mobileNav) {
-            mobileNav.classList.remove('hidden');
-            mobileNav.style.display = 'flex';
-        }
+        // Global navigation scroll handler will manage visibility
     };
 
     let touchStartX = 0;
